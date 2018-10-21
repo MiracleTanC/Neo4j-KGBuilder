@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" layout:decorator="share/layout">
+
+<head>
+<title>领域管理</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style type="text/css">
+
+</style>
+</head>
+
+<body>
+	<div layout:fragment="main">
+		<div class="app-container calendar-list-container">
+				<div class="filter-container">
+					<el-input @keyup.enter.native="handleFilter" style="width: 200px;"
+						class="filter-item" placeholder="请输入标题" >
+					</el-input>
+					<el-button class="filter-item" type="primary" icon="el-icon-search">搜索</el-button>
+					<el-button class="filter-item" style="margin-left: 10px;" @click="createdomain" type="primary" icon="el-icon-edit">新增</el-button>
+					<el-button class="filter-item" type="primary">导入</el-button>
+				</div>
+			</div>
+			<el-card class="box-card">
+				<el-table style="width: 100%"  
+					border  
+					v-loading="loading" 
+					element-loading-text="给我一点时间"  
+					:data="pageModel.nodeList" >
+		            <el-table-column label="领域图谱" key="domain" >
+			            <template slot-scope="scope">
+			                <span>{{scope.row['domain'][0]}}</span>
+			            </template>
+				    </el-table-column>
+				    <el-table-column label="节点数量" key="nodecount" >
+			            <template slot-scope="scope">
+			                <span>{{scope.row['nodecount']}}</span>
+			            </template>
+				    </el-table-column>
+				    <el-table-column label="操作">
+				      <template slot-scope="scope">
+				        <el-button
+				          size="mini"
+				          @click="linktomanager(scope.row)">管理</el-button>
+				        <el-button
+				          size="mini"
+				          type="danger">删除</el-button>
+		      		 </template>
+		    		</el-table-column>
+		          </el-table>
+		          <el-pagination  background @size-change="handleSizeChange"
+							class="txtCenter" @current-change="handleCurrentChange"
+							:current-page="pageModel.pageIndex" :page-sizes="[10,20,30,50,100]"
+							:page-size="pageModel.pageSize"
+							layout="total, sizes, prev, pager, next, jumper" :total="pageModel.totalCount">
+				 </el-pagination>
+			</el-card>
+	</div>
+</body>
+<div layout:fragment="js">
+	<script th:inline="javascript" type="text/javascript">
+	var getPageData = function () { //检索框回车键,搜索按钮检索
+		   var _this=this;
+	       _this.loading = true;
+	       var data = {
+	       	pageIndex:_this.pageModel.pageIndex,
+			pageSize:_this.pageModel.pageSize
+	       }
+	       $.ajax({
+	           data: data,
+	           type: "POST",
+	           url: contextRoot+"kg/getgraph",
+	           success: function (result) {
+	               if (result.code == 200) {
+	            	   console.log(result.data);
+	            	  _this.pageModel = result.data;
+	            	  _this.loading = false;
+	               } 
+	           }
+	       }); 
+	   };
+	var app = new Vue({
+		el: '#app',
+		data:{
+			pageModel:{
+				pageIndex:1,
+				pageSize:10,
+				totalCount:0,
+            	totalPage:0,
+            	nodeList:[]
+			}
+			
+		},
+		created(){
+		    this.getPageData();
+		},
+		methods: {
+			getPageData:getPageData,
+			handleCurrentChange(val) {// 分页点击
+        	    this.pageModel.pageIndex = val;
+        	    this.getPageData();
+        	},
+        	handleSizeChange(val) {
+        		this.pageModel.pageIndex = 1;
+        		this.pageModel.pageSize = val;
+        		this.getPageData();
+       	    },
+			linktomanager(row){
+				window.open(contextRoot+"kg/edit?domain="+row['domain'][0]);
+			},
+			 linktopurposeconfig(){
+				 window.open("http://192.168.103.26/qa.custom");
+			 },
+			createdomain(){
+				var _this=this;
+				_this.$prompt('请输入领域名称', '提示', {
+			          confirmButtonText: '确定',
+			          cancelButtonText: '取消'
+			        }).then(({ value }) => {
+			        	var data = {domain:value};
+			        	       $.ajax({
+			        	           data: data,
+			        	           type: "POST",
+			        	           url: contextRoot+"kg/createdomain",
+			        	           success: function (result) {
+			        	               if (result.code == 200) {
+			        	            	   _this.getPageData();
+			        	               } 
+			        	           }
+			        	       }); 
+			        }).catch(() => {
+			          this.$message({
+			            type: 'info',
+			            message: '取消输入'
+			          });       
+			        });
+			},
+
+		}
+	  })
+
+	</script>
+	
+</div>
+</html>

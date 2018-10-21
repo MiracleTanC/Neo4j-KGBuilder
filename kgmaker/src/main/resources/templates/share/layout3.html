@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+<meta charset="utf-8" />
+<title>首页</title>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="_csrf" th:content="${_csrf.token}" />
+<!-- default header name is X-CSRF-TOKEN spring security 避免ajax请求403-->
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+<script type="text/javascript">
+	var contextRoot = "[[@{/}]]";
+</script>
+<!-- import css -->
+<link rel="stylesheet" th:href="@{/css/bootcss/index.css}"
+	href="https://cdn.bootcss.com/element-ui/2.0.7/theme-chalk/index.css">
+<link rel="stylesheet" th:href="@{/css/manager.css}" href="/css/manager.css">
+<link rel="stylesheet" th:href="@{/css/x-index.css}">
+
+<style type="text/css">
+[v-cloak] {
+	display: none !important;
+}
+/*.el-menu-item.is-active{
+   color: #fff !important;
+   border-bottom-color: #409EFF !important;
+}*/
+.voice {position:absolute;width: 0px;height: 0px;border-radius: 1px;overflow: hidden;}
+</style>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/iconfont.js}"></script>
+<script th:src="@{/js/vue.js}"
+	src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
+<script th:src="@{/js/index.js}"></script>
+
+<!-- CRSF -->
+<script type="text/javascript">
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+
+	$(document).ajaxSend(function(e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	});
+</script>
+
+</head>
+<body>
+	<div>
+		<!-- <div class="index"> -->
+		<!-- 页头 -->
+		<div id='appheader' v-cloak  th:include="/share/header::header"></div>
+		<!-- 正文内容 -->
+		<div id='app' v-cloak layout:fragment="content"></div>
+	</div>
+	<script th:inline="javascript" type="text/javascript">
+     var appheader=  new Vue({
+		    el: '#appheader',
+		    data:{
+		    	currentUrl:[[${#request.getRequestURI()}]],//当前路由
+		    	navList:[
+		    		{
+		    			title:'首页',linkUrl:'/',active:false,childrens:[]
+		    		},
+		    		{
+		    			title:'农业大数据',linkUrl:'javascript:void(0);',active:false,childrens:[
+		    				{title:'数据驾驶舱',linkUrl:'/boats',active:false,childrens:[]},
+		    				{title:'市场数据',linkUrl:'/boats',active:false,childrens:[]},
+		    				{title:'名特优品',linkUrl:'#',active:false,childrens:[]},
+		    				{title:'农业技术',linkUrl:'#',active:false,childrens:[]},
+		    				{title:'农业新闻',linkUrl:'#',active:false,childrens:[]},
+		    			]
+		    		},
+		    		{
+		    			title:'专家大数据',linkUrl:'/personMap',active:false,childrens:[]
+		    		},
+		    		{
+		    			title:'产业研究',linkUrl:'javascript:void(0);',active:false,childrens:[
+		    				{title:'统计模型',linkUrl:'/models',active:false,childrens:[]},
+		    				{title:'指标分析',linkUrl:'#',active:false,childrens:[]},
+		    				{title:'数据挖掘',linkUrl:'/dataAnalyse/myDataAnalyses',active:false,childrens:[]},
+		    				{title:'数据报告',linkUrl:'/reports',active:false,childrens:[]},
+		    				{title:'词典管理',linkUrl:'/dic/index',active:false,childrens:[]}
+		    			]
+		    		},
+		    		{
+		    			title:'大数据搜索',linkUrl:'/search',active:false,childrens:[]
+		    		},
+		    		{
+		    			title:'智能问答',linkUrl:'/qa',active:false,childrens:[]
+		    		}
+		    	],
+		    	autofocus:true,
+		    	isOpen:false,
+		    	search_active:false,
+		    	message:'',
+		    	searchword:'',
+		    	activeIndex:'0'
+		      },
+		    methods: {
+		    	searchResult(){
+		    		window.location.href="/search?keyword="+this.searchword;
+		    	},
+		     	searchVoice(){
+		     		 window.location.href="/searchVoice?message="+this.message; 
+		     	}
+	        }
+		 })
+     
+     Vue.directive('focus', function (el, option) {
+		  var defClass = 'el-input', defTag = 'input';
+		  var value = option.value || true;
+		  if (typeof value === 'boolean')
+		      value = { cls: defClass, tag: defTag, foc: value };
+		  else
+		      value = { cls: value.cls || defClass, tag: value.tag || defTag, foc: value.foc || false };
+		  if (el.classList.contains(value.cls) && value.foc)
+		      el.getElementsByTagName(value.tag)[0].focus();
+		}); 
+     
+     </script>
+</body>
+<!-- JS内容 -->
+<div layout:fragment="jscontent"></div>
+</html>

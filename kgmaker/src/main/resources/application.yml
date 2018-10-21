@@ -1,0 +1,14 @@
+server:
+  port: 8089
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100Mb
+      maxRequestSize: 1000Mb
+  thymeleaf:
+    cache : false
+    mode: HTML5
+  neo4j:
+      url: bolt://192.168.25.45:7687
+      username: neo4j
+      password: 123456

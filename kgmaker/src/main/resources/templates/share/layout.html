@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="keywords" content="个人博客,谭超个人博客,springboot个人博客" />
+<meta name="description" content="谭超个人博客,springboot个人博客,thymeleaf,vue" />
+<meta name="baidu-site-verification" content="HG8KlgoyKh" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>暖暖动听</title>
+<link th:href="@{/css/blog/base.css}" rel="stylesheet" />
+<link th:href="@{/css/blog/index.css}" rel="stylesheet" />
+<link th:href="@{/css/blog/m.css}" rel="stylesheet" />
+<!-- import css -->
+<link th:href="@{/css/index.css}" href="https://cdn.bootcss.com/element-ui/2.4.0/theme-chalk/index.css" rel="stylesheet">
+<link th:href="@{/css/element-style.css}" rel="stylesheet">
+<style type="text/css">
+[v-cloak] {
+	display: none !important;
+}
+
+</style>
+<script type="text/javascript">
+	var contextRoot = "[[@{/}]]";
+</script>
+</head>
+<body>
+	<div>
+		<header id="appheader" v-cloak>
+			<div th:include="share/header::header"></div>
+		</header>
+		<article id="app" v-cloak>
+			<div layout:fragment="main"></div>
+		</article>
+		<footer>
+			<div th:include="share/footer::footer"></div>
+		</footer>
+		<div id="appbackTop">
+			<a :click="backToTop" href="#" v-bind:class="[scrollTop>offset ? 'cd-is-visible' : '', 'cd-top']">Top</a>
+		</div>
+	</div>
+	<script th:src="@{/js/jquery.min.js}" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+	<script th:src="@{/js/vue.js}" src="https://cdn.bootcss.com/vue/2.5.17-beta.0/vue.js"></script>
+	<script th:src="@{/js/index.js}" src="https://cdn.bootcss.com/element-ui/2.4.0/index.js"></script>
+	<script th:inline="javascript" type="text/javascript">
+     var appheader=  new Vue({
+		    el: '#appheader',
+		    data:{
+		    	currentUrl:[[${#request.getRequestURI()}]],//当前路由
+		    	navList:[
+		    		{
+		    			title:'首页',icon:'glyphicon glyphicon-cog',linkUrl:'/',active:false,childrens:[]
+		    		},
+		    		{
+		    			title:'关于我',icon:'glyphicon glyphicon-cog',linkUrl:'/about',active:false,childrens:[]
+		    		},
+		    		{
+		    			title:'分享',icon:'glyphicon glyphicon-th-list',linkUrl:'javascript:void(0);',active:false,childrens:[
+		    				{title:'杨青博客',icon:'',linkUrl:'http://www.yangqq.com/',active:false,childrens:[]},
+		    				{title:'程序猿DD',icon:'',linkUrl:'http://blog.didispace.com/',active:false,childrens:[]},
+		    				{title:'hAdmin',icon:'',linkUrl:'http://demo.mycodes.net/houtai/hAdmin',active:false,childrens:[]},
+		    			]
+		    		}
+		    	],
+		    	isOpen:false,
+		    	search_active:false,
+		    	searchkeyword:'',
+		      },
+		    methods: {
+		    	selectStyle(nav){
+		    		var _this=this;
+		            this.$nextTick(function () {
+		            	_this.navList.forEach(function (item) {
+		            		item.active=false;
+		              });
+		            	nav.active=true;
+		            });
+		    	},
+		    	outStyle(nav) {
+		    		nav.active=false;
+	            },
+	            changeIcon(){
+	        	  this.isOpen=!this.isOpen;
+	            },
+	            searchActive() {
+	            	 this.search_active=!this.search_active;
+	            },
+	            clickNav(nav){
+		          nav.active=!nav.active;
+		    	},
+		    	searchResult(){
+		    		app.queryForm.pageIndex=1;
+		    		app.queryForm.title=this.searchkeyword;
+		    		app.initData();
+		    		app.articleList=[];
+		    	}
+	        }
+		 })
+     var appbackTop=  new Vue({
+		    el: '#appbackTop',
+		    data:{
+		    	offset:300,
+	    	    offset_opacity:1200,
+	    	    scroll_top_duration:700,
+	    	    scrollTop:0,
+		    },
+		    mounted() {
+		    	 window.addEventListener('scroll', ()=> {
+		        		var scrollTop = document.documentElement.scrollTop;
+		                this.scrollTop=scrollTop;
+				      })
+		    },
+	   	 	  methods:{
+	   	 	    backToTop(){
+	   	 	      document.body.scrollTop = 0;
+	   	 	      document.documentElement.scrollTop = 0;
+	   	 	    }
+	   	 	  }
+     })
+     </script>
+	<!-- js内容 -->
+	<div layout:fragment="js"></div>
+</body>
+</html>
