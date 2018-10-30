@@ -1,9 +1,10 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <body>
 	<div th:fragment="header">
-		 <!--menu begin-->
-		  <div class="menu">
+		 <div class="menu">
 		    <nav class="nav" id="topnav">
 		      <h1 class="logo"><a href="/"><img style="width: 60px;margin-top: 26px;" th:src="@{/images/logo/logo_o.png}"></a></h1>
 		      <ul v-if="navList">
@@ -18,35 +19,9 @@
 				      </li>
 				      </template>
 		      </ul>
-		      <!--search begin-->
-			      <div :class="[search_active ? ' search_open' : '', 'search_bar']">
-			          <input class="search_input" placeholder="想搜点什么呢..." v-model="searchkeyword" type="text" @change="searchResult" @keyup.enter.native="searchResult">
-			          <span class="search_ico" @click="searchActive" ></span>
-			      </div>
-			  <!--search end--> 
+		      
 		    </nav>
 		  </div>
-		  <!--menu end--> 
-		  <!--mnav begin-->
-		  <div id="mnav">
-		    <h2 :class="{'open':isOpen}"><a href="/" class="mlogo">瞄了眼</a><span class="navicon" @click="changeIcon"></span></h2>
-		    <dl class="list_dl" v-if="navList" v-show="isOpen">
-		     <template v-for="nav in navList">
-			      <dt class="list_dt"> 
-			      	  <a @click="clickNav(nav)" :href="nav.linkUrl">{{nav.title}}</a> 
-			      </dt>
-			      <dd class="list_dd" v-if="nav.childrens" v-show="nav.active">
-			        <ul>
-			          <li v-for="c in nav.childrens">
-			          	<a :href="c.linkUrl">{{c.title}}</a>
-			          </li>
-			        </ul>
-			      </dd>
-		       </template>
-		    </dl>
-		  </div>
-		  <!--mnav end--> 
 	</div>
 </body>
-
 </html>

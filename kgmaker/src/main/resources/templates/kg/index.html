@@ -2,144 +2,239 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" layout:decorator="share/layout">
 
 <head>
-<title>领域管理</title>
+<title>检索</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <style type="text/css">
-
+.pl-20{
+padding-left:20px
+}
+text{
+	cursor:pointer;
+	max-width: 25px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+circle{
+	cursor:pointer;
+}
+#graphcontainerdiv{
+ background:#fff;
+}
+.el-color-picker__panel{
+left: 812px !important;
+}
 </style>
 </head>
 
 <body>
-	<div layout:fragment="main">
-		<div class="app-container calendar-list-container">
-				<div class="filter-container">
-					<el-input @keyup.enter.native="handleFilter" style="width: 200px;"
-						class="filter-item" placeholder="请输入标题" >
-					</el-input>
-					<el-button class="filter-item" type="primary" icon="el-icon-search">搜索</el-button>
-					<el-button class="filter-item" style="margin-left: 10px;" @click="createdomain" type="primary" icon="el-icon-edit">新增</el-button>
-					<el-button class="filter-item" type="primary">导入</el-button>
-				</div>
-			</div>
-			<el-card class="box-card">
-				<el-table style="width: 100%"  
-					border  
-					v-loading="loading" 
-					element-loading-text="给我一点时间"  
-					:data="pageModel.nodeList" >
-		            <el-table-column label="领域图谱" key="domain" >
-			            <template slot-scope="scope">
-			                <span>{{scope.row['domain'][0]}}</span>
-			            </template>
-				    </el-table-column>
-				    <el-table-column label="节点数量" key="nodecount" >
-			            <template slot-scope="scope">
-			                <span>{{scope.row['nodecount']}}</span>
-			            </template>
-				    </el-table-column>
-				    <el-table-column label="操作">
-				      <template slot-scope="scope">
-				        <el-button
-				          size="mini"
-				          @click="linktomanager(scope.row)">管理</el-button>
-				        <el-button
-				          size="mini"
-				          type="danger">删除</el-button>
-		      		 </template>
-		    		</el-table-column>
-		          </el-table>
-		          <el-pagination  background @size-change="handleSizeChange"
-							class="txtCenter" @current-change="handleCurrentChange"
-							:current-page="pageModel.pageIndex" :page-sizes="[10,20,30,50,100]"
-							:page-size="pageModel.pageSize"
-							layout="total, sizes, prev, pager, next, jumper" :total="pageModel.totalCount">
-				 </el-pagination>
-			</el-card>
+	<div layout:fragment="content">
+		  <div class="mind-box">
+    <!-- 左侧 -->
+    <el-scrollbar class="mind-l">
+      <div class="ml-m">
+        <h2 class="ml-ht">图谱列表</h2>
+        <div class="ml-a-box" style="min-height:280px">
+          <el-button type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="createdomain">新建图谱</el-button>
+          <a @click="matchdomaingraph(m.label,$event)" v-for="m in domainlabels" href="javascript:void(0)">
+          	<el-tag closable style="margin:2px" @close="deletedomain(m.label)">{{m.label |labelformat}}</el-tag>
+          </a>
+        </div>
+        <div id="follow-us" class="guanzhu" style="padding: 20px;">
+		      <h2 class="hometitle">关注我 么么哒！</h2>
+		      <ul>
+		        <li class="qq"><a href="/" target="_blank"><span>QQ号</span>1130196938</a></li>
+		        <li class="email"><a href="/" target="_blank"><span>邮箱帐号</span>1130196938@qq.com</a></li>
+		        <li class="wx"><img th:src="@{/images/tan_weixin_qr_1.jpg}"></li>
+		      </ul>
+		    </div>
+      </div>
+    </el-scrollbar>
+    <!-- 左侧over -->
+    <!-- 右侧 -->
+    <div class="mind-con">
+      <!-- 头部 -->
+      <div class="mind-top clearfix">
+        <div class="fl">
+        <div class="search" v-show="domain!=''">
+            <el-button @click="getdomaingraph(0)">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-search"></use>
+              </svg>
+            </el-button>
+            <el-input placeholder="请输入关键词" v-model="nodename" @keyup.enter.native="getdomaingraph"></el-input>
+          </div>
+          <span v-show="domain!=''">
+	          <span class="mt-m">当前节点：<i>{{selectnode.name}}</i></span>
+	          <span class="mt-m">关系节点数量：<b>{{selectnode.count}}</b></span>
+	          <span class="dibmr">
+				<span>显示节点个数：</span>
+				<a v-for="(m,index) in pagesizelist" @click="setmatchsize(m,this)" :title="m.size" href="javascript:void(0)" :class="[m.isactive ? 'sd-active' : '', 'sd']" >{{m.size}}</a>
+			  </span>
+          </span>
+           
+          
+          <!-- <el-alert v-show="tips!=''":title="tips" type="success"></el-alert> -->
+        </div>
+        <div class="fr">
+          <a href="javascript:void(0)" @click="updategraph" class="svg-a-sm">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-shuaxin"></use>
+            </svg>刷新
+          </a>
+          <a href="javascript:void(0)" @click="requestFullScreen" class="svg-a-sm" >
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-quanp"></use>
+            </svg>全屏
+          </a>
+          
+        </div>
+      </div>
+      <!-- 头部over -->
+      <!-- 中部 -->
+      <el-scrollbar class="mind-cen" id="graphcontainerdiv">
+        <div  class="graphcontainer"></div>
+      </el-scrollbar>
+      <!-- 中部over -->
+        <div class="svg-set-box">
+			
+		</div>
+      <!-- 底部 -->
+
+		<el-dialog id="editform" title="属性编辑" :visible.sync="isedit" width="30%">
+		  <el-form :model="graphEntity">
+		    <el-form-item label="节点名称"  label-width="120px">
+		      <el-input v-model="graphEntity.name" style="width:324px"></el-input>
+		    </el-form-item>
+		    <el-form-item label="选择颜色" label-width="120px">
+		      <el-color-picker id="colorpicker" 
+				  v-model="graphEntity.color" :predefine="predefineColors">
+				</el-color-picker>
+		    </el-form-item>
+		     <el-form-item label="节点半径" label-width="120px">
+		      <el-slider v-model="graphEntity.r" style="width:324px"></el-slider>
+		    </el-form-item>
+		  </el-form>
+		  <div slot="footer" class="dialog-footer">
+		    <el-button v-if="graphEntity.uuid!=0" type="primary" @click="createnode">更新</el-button>
+          	<el-button v-else type="primary" @click="createnode">创建</el-button>
+    		<el-button @click="resetsubmit">取消</el-button>
+		  </div>
+		</el-dialog>
+		<el-dialog id="batchcreateform" :title="operatenameformat(operatetype)":visible.sync="isbatchcreate" width="30%">
+        <div class="mb-r">
+	        <div v-show="operatetype!=2" class="mb-m">
+	            <div class="mb-label">源节点名称</div>
+		            <div class="mb-con">
+		              	<el-input v-model="batchcreate.sourcenodename"></el-input>
+		              	<span v-show="operatetype==3" class="mb-label">（只能添加一个）</span>
+		            	<span v-show="operatetype==1" class="mb-label">（多个以英文逗号隔开）</span>
+		            </div>
+		            
+	          </div>
+	          <div v-show="operatetype!=1" class="mb-m">
+	            <div class="mb-label">子节点名称</div>
+	            <div class="mb-con">
+	              <el-input v-model="batchcreate.targetnodenames"></el-input>
+	              <span class="mb-label " v-show="operatetype==3">（多个以英文逗号隔开,可不填）</span>
+	              <span class="mb-label " v-show="operatetype==2">（多个以英文逗号隔开）</span>
+	            </div>
+	          </div>
+	       	  <div class="mb-m tc">
+	          	<el-button v-show="operatetype==1" type="primary" @click="batchcreatesamenode">确定</el-button>
+	          	<el-button v-show="operatetype==2" type="primary" @click="batchcreatechildnode">确定</el-button>
+	          	<el-button v-show="operatetype==3" type="primary" @click="batchcreatenode">确定</el-button>
+	    		<el-button @click="resetsubmit">取消</el-button>
+	          </div>
+        </div>
+		</el-dialog>
+      <!-- 底部over -->
+       
+    </div>
+   
+    <!-- 右侧over -->
+    <ul class="el-dropdown-menu el-popper" id="my_custom_menu" style="display: none;">
+         <li  class="el-dropdown-menu__item" @click="btnedit"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-editor"></use>
+            </svg>
+            <span class="pl-15">编辑</span>
+        </li> 
+        <li  class="el-dropdown-menu__item" @click="btnopennode"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-zk-all"></use>
+            </svg>
+            <span class="pl-15">展开</span>
+        </li> 
+        <li  class="el-dropdown-menu__item" @click="btnaddsame"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-lr-san"></use>
+            </svg>
+            <span class="pl-15">添加同级</span>
+        </li> 
+        <li  class="el-dropdown-menu__item" @click="btnaddchild"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-fhxiaji"></use>
+            </svg>
+            <span class="pl-15">添加下级</span>
+        </li> 
+        <li  class="el-dropdown-menu__item" @click="btnaddlink"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-lianxian1"></use>
+            </svg>
+            <span class="pl-15">添加连线</span>
+        </li> 
+        <li class="el-dropdown-menu__item" @click="deletenode"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-shanchu"></use>
+            </svg>
+            <span class="pl-15">删除</span>
+        </li> 
+    </ul>
+    <!-- 空白处右键 -->
+    <ul class="el-dropdown-menu el-popper" id="blank_custom_menu" style="display: none;">
+    	<li  class="el-dropdown-menu__item" @click="createnode"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-jiedian"></use>
+            </svg>
+			<span class="pl-15">添加节点</span>
+        </li> 
+	    <li  class="el-dropdown-menu__item" @click="btnquickaddnode"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-add-rd"></use>
+            </svg>
+			<span class="pl-15">快速添加</span>
+        </li> 
+    </ul>
+    <!-- 连线按钮组 -->
+    <ul class="el-dropdown-menu el-popper" id="link_custom_menu" style="display: none;">
+    	<li  class="el-dropdown-menu__item" @click="updatelinkName"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-editor"></use>
+            </svg>
+			<span class="pl-15">编辑</span>
+        </li> 
+	    <li  class="el-dropdown-menu__item" @click="deletelink"> 
+	    	<svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-shanchu"></use>
+            </svg>
+			<span class="pl-15">删除</span>
+        </li> 
+    </ul>
+  </div>
 	</div>
 </body>
-<div layout:fragment="js">
+
+<div layout:fragment="jscontent">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
 	<script th:inline="javascript" type="text/javascript">
-	var getPageData = function () { //检索框回车键,搜索按钮检索
-		   var _this=this;
-	       _this.loading = true;
-	       var data = {
-	       	pageIndex:_this.pageModel.pageIndex,
-			pageSize:_this.pageModel.pageSize
-	       }
-	       $.ajax({
-	           data: data,
-	           type: "POST",
-	           url: contextRoot+"kg/getgraph",
-	           success: function (result) {
-	               if (result.code == 200) {
-	            	   console.log(result.data);
-	            	  _this.pageModel = result.data;
-	            	  _this.loading = false;
-	               } 
-	           }
-	       }); 
-	   };
-	var app = new Vue({
-		el: '#app',
-		data:{
-			pageModel:{
-				pageIndex:1,
-				pageSize:10,
-				totalCount:0,
-            	totalPage:0,
-            	nodeList:[]
-			}
-			
-		},
-		created(){
-		    this.getPageData();
-		},
-		methods: {
-			getPageData:getPageData,
-			handleCurrentChange(val) {// 分页点击
-        	    this.pageModel.pageIndex = val;
-        	    this.getPageData();
-        	},
-        	handleSizeChange(val) {
-        		this.pageModel.pageIndex = 1;
-        		this.pageModel.pageSize = val;
-        		this.getPageData();
-       	    },
-			linktomanager(row){
-				window.open(contextRoot+"kg/edit?domain="+row['domain'][0]);
-			},
-			 linktopurposeconfig(){
-				 window.open("http://192.168.103.26/qa.custom");
-			 },
-			createdomain(){
-				var _this=this;
-				_this.$prompt('请输入领域名称', '提示', {
-			          confirmButtonText: '确定',
-			          cancelButtonText: '取消'
-			        }).then(({ value }) => {
-			        	var data = {domain:value};
-			        	       $.ajax({
-			        	           data: data,
-			        	           type: "POST",
-			        	           url: contextRoot+"kg/createdomain",
-			        	           success: function (result) {
-			        	               if (result.code == 200) {
-			        	            	   _this.getPageData();
-			        	               } 
-			        	           }
-			        	       }); 
-			        }).catch(() => {
-			          this.$message({
-			            type: 'info',
-			            message: '取消输入'
-			          });       
-			        });
-			},
-
-		}
-	  })
-
+	 var initdomain=function(){
+		 var domain=[[${domain}]];
+		 this.domain=domain;
+	 }
 	</script>
-	
+	<script th:inline="javascript" type="text/javascript" th:src="@{/js/knowledgegraphbuilder.js}"></script> 
 </div>
 </html>

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -93,11 +94,13 @@ public class Neo4jUtil {
 						String typeName = pair.value().type().name();
 						if (typeName.equals("NODE")) {
 							Node noe4jNode = pair.value().asNode();
+							String uuid = String.valueOf(noe4jNode.id());
 							Map<String, Object> map = noe4jNode.asMap();
 							for (Entry<String, Object> entry : map.entrySet()) {
 								String key = entry.getKey();
 								rss.put(key, entry.getValue());
 							}
+							rss.put("uuid", uuid);
 							ents.add(rss);
 						}
 					}
@@ -124,14 +127,71 @@ public class Neo4jUtil {
 						String typeName = pair.value().type().name();
 						if (typeName.equals("RELATIONSHIP")) {
 							Relationship rship = pair.value().asRelationship();
+							String uuid = String.valueOf(rship.id());
+							String sourceid = String.valueOf(rship.startNodeId());
+							String targetid = String.valueOf(rship.endNodeId());
 							Map<String, Object> map = rship.asMap();
 							for (Entry<String, Object> entry : map.entrySet()) {
 								String key = entry.getKey();
 								rss.put(key, entry.getValue());
 							}
+							rss.put("uuid", uuid);
+							rss.put("sourceid", sourceid);
+							rss.put("targetid", targetid);
 							ents.add(rss);
 						}
 					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ents;
+	}
+	public List<HashMap<String, Object>> GetGraphItem(String cypherSql) {
+		List<HashMap<String, Object>> ents = new ArrayList<HashMap<String, Object>>();
+		List<String> nodeids = new ArrayList<String>();
+		List<String> shipids = new ArrayList<String>();
+		try {
+			StatementResult result = excuteCypherSql(cypherSql);
+			if (result.hasNext()) {
+				List<Record> records = result.list();
+				for (Record recordItem : records) {
+					List<Pair<String, Value>> f = recordItem.fields();
+					HashMap<String, Object> rss = new HashMap<String, Object>();
+					for (Pair<String, Value> pair : f) {
+						String typeName = pair.value().type().name();
+						if (typeName.equals("NODE")) {
+							Node noe4jNode = pair.value().asNode();
+							String uuid = String.valueOf(noe4jNode.id());
+							if(!nodeids.contains(uuid)) {
+								Map<String, Object> map = noe4jNode.asMap();
+								for (Entry<String, Object> entry : map.entrySet()) {
+									String key = entry.getKey();
+									rss.put(key, entry.getValue());
+								}
+								rss.put("uuid", uuid);
+							}
+						}else if (typeName.equals("RELATIONSHIP")) {
+							Relationship rship = pair.value().asRelationship();
+							String uuid = String.valueOf(rship.id());
+							if (!shipids.contains(uuid)) {
+								String sourceid = String.valueOf(rship.startNodeId());
+								String targetid = String.valueOf(rship.endNodeId());
+								Map<String, Object> map = rship.asMap();
+								for (Entry<String, Object> entry : map.entrySet()) {
+									String key = entry.getKey();
+									rss.put(key, entry.getValue());
+								}
+								rss.put("uuid", uuid);
+								rss.put("sourceid", sourceid);
+								rss.put("targetid", targetid);
+							}
+						}else {
+							rss.put(pair.key(),pair.value().toString());
+						}
+					}
+					ents.add(rss);
 				}
 			}
 		} catch (Exception e) {
@@ -220,7 +280,71 @@ public class Neo4jUtil {
 		}
 		return mo;
 	}
+	public HashMap<String, Object> GetGraphNodeAndShip(String cypherSql) {
+		HashMap<String, Object> mo = new HashMap<String, Object>();
+		try {
+			StatementResult result = excuteCypherSql(cypherSql);
+			if (result.hasNext()) {
+				List<Record> records = result.list();
+				List<HashMap<String, Object>> ents = new ArrayList<HashMap<String, Object>>();
+				List<HashMap<String, Object>> ships = new ArrayList<HashMap<String, Object>>();
+				List<String> uuids = new ArrayList<String>();
+				List<String> shipids = new ArrayList<String>();
+				for (Record recordItem : records) {
+					List<Pair<String, Value>> f = recordItem.fields();
+					for (Pair<String, Value> pair : f) {
+						HashMap<String, Object> rships = new HashMap<String, Object>();
+						HashMap<String, Object> rss = new HashMap<String, Object>();
+						String typeName = pair.value().type().name();
+						if (typeName.equals("NULL")) {
+							continue;
+						} else if (typeName.equals("NODE")) {
+							Node noe4jNode = pair.value().asNode();
+							Map<String, Object> map = noe4jNode.asMap();
+							String uuid = String.valueOf(noe4jNode.id());
+							if (!uuids.contains(uuid)) {
+								for (Entry<String, Object> entry : map.entrySet()) {
+									String key = entry.getKey();
+									rss.put(key, entry.getValue());
+								}
+								rss.put("uuid", uuid);
+								uuids.add(uuid);
+							}
+						} else if (typeName.equals("RELATIONSHIP")) {
+							Relationship rship = pair.value().asRelationship();
+							String uuid = String.valueOf(rship.id());
+							if (!shipids.contains(uuid)) {
+								String sourceid = String.valueOf(rship.startNodeId());
+								String targetid = String.valueOf(rship.endNodeId());
+								Map<String, Object> map = rship.asMap();
+								for (Entry<String, Object> entry : map.entrySet()) {
+									String key = entry.getKey();
+									rships.put(key, entry.getValue());
+								}
+								rships.put("uuid", uuid);
+								rships.put("sourceid", sourceid);
+								rships.put("targetid", targetid);
+							}
+						}else {
+							rss.put(pair.key(), pair.value().toString());
+						}
+						if (rss != null && !rss.isEmpty()) {
+							ents.add(rss);
+						}
+						if (rships != null && !rships.isEmpty()) {
+							ships.add(rships);
+						}
+					}
+				}
+				mo.put("node", ents);
+				mo.put("relationship", ships);
+			}
 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mo;
+	}
 	/**
 	 * 匹配所有类型的节点,可以是节点,关系,数值,路径
 	 * @param cypherSql
@@ -417,7 +541,12 @@ public class Neo4jUtil {
 	                String sql="";
 	                String key=f.getName();
 	                System.out.println("key:"+key+"type:"+type);
-	                if ( val instanceof   String[] ){
+	                if ( val instanceof   Integer ){
+	                	// 得到此属性的值
+		                map.put(key, val);// 设置键值
+		                sql="n."+key+"="+val;
+	    			}
+	                else if ( val instanceof   String[] ){
 	    				//如果为true则强转成String数组
 	    				String [] arr = ( String[] ) val ;
 	    				String v="";
