@@ -579,6 +579,7 @@
 			return linktextEnter;
 	   }
 	   var updategraph=function () {
+		   debugger;
 		   var _this=this;
 		   var lks=this.graph.links;
 		   var nodes = this.graph.nodes;
@@ -609,12 +610,27 @@
 	       node.exit().remove();
 	       var nodeEnter = _this.drawnode(node);
 	       node = nodeEnter.merge(node).text(function(d) { return d.name; });
-	       node.attr("r", function(d){return d.r});
-	       node.attr("fill", function(d){return d.color});
+	       node.attr("r", function(d){
+	    	   if(typeof(d.r)!="undefined"){
+	    		   return d.r
+	    	   	}
+	    	     return 30;
+	    	   });
+	       node.attr("fill", function(d){
+	    	   if(typeof(d.color)!="undefined"){
+	    		   return d.color
+	    	   	}
+	    	   return "#ff4500";
+	    	   });
 	       /*node.attr("cx", function(d){return d.x});
 	       node.attr("cy", function(d){return d.y});*/ //遗留问题,坐标绑定不上
            node.style("opacity",0.8);
-           node.style("stroke", function(d){return d.color});
+           node.style("stroke", function(d){
+        	   if(typeof(d.color)!="undefined"){
+	    		   return d.color
+	    	   	}
+	    	   return "#ff4500";
+        	   });
            node.style("stroke-opacity", 0.6);
 	       node.append("title")// 为每个节点设置title
      		.text(function (d) {
