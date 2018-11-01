@@ -17,3 +17,6 @@ Welcome to the Neo4j wiki!
 2. 做出的图谱能够导出成图片
 3. 支持excel导入功能,同时支持导出关系和节点
 4. 输入一段文本,通过自然语言等手段,抽出实体和关系,编辑后可形成可视化的图谱
+## 运行与启动
+1. 需要jdk1.8,安装Neo4j,安装和配置自行百度
+2. 启动后访问[http://localhost:8089/kg/index](http://localhost:8089/kg/index) 即可
