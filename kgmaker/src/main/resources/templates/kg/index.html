@@ -79,6 +79,7 @@ left: 812px !important;
           <!-- <el-alert v-show="tips!=''":title="tips" type="success"></el-alert> -->
         </div>
         <div class="fr">
+          <el-button type="primary" @click="exportimage">导出图片</el-button>
           <a href="javascript:void(0)" @click="updategraph" class="svg-a-sm">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-shuaxin"></use>
@@ -237,6 +238,7 @@ left: 812px !important;
 
 <div layout:fragment="jscontent">
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 	<script th:inline="javascript" type="text/javascript">
 	 var initdomain=function(){
 		 var domain=[[${domain}]];

@@ -944,6 +944,32 @@
 				  this.nodename='';
 				  this.getdomaingraph();
 			 },
+			 exportimage(){
+				 /*https://html2canvas.hertzen.com/getting-started  截图js*/
+				 html2canvas(document.querySelector(".graphcontainer")).then(canvas => {
+					 var a = document.createElement('a');
+					 a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
+					 var timestamp = Date.parse(new Date());
+					 a.download = timestamp;  //设定下载名称
+					 a.click(); //点击触发下载
+					});
+				 //网上找的下边的方法截图不好使
+				/* var svgXml = $('.graphcontainer').html();
+				 var image = new Image();
+				 image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgXml))); //给图片对象写入base64编码的svg流
+				 var canvas = document.createElement('canvas');  //准备空画布
+				 canvas.width = $('.graphcontainer svg').width();
+				 canvas.height = $('.graphcontainer svg').height();
+				
+				 var context = canvas.getContext('2d');  //取得画布的2d绘图上下文
+				 context.drawImage(image, 0, 0);
+				 var url =canvas.toDataURL();
+				 var a = document.createElement('a');
+				 a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
+				 var timestamp = Date.parse(new Date());
+				 a.download = timestamp;  //设定下载名称
+				 a.click(); //点击触发下载
+*/			 },
 			 setmatchsize(m,event){
 				 for (var i = 0; i < this.pagesizelist.length; i++) {
 					 this.pagesizelist[i].isactive=false;
