@@ -12,6 +12,7 @@ Welcome to the Neo4j wiki!
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg2.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg3.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg4.gif)
+![知识图谱构建小工具](http://file.miaoleyan.com/m99.gif)
 ## 后续优化:
 1. 新建单节点,节点的位置能指定(或者和鼠标点下的位置一致)
 2. 做出的图谱能够导出成图片
