@@ -263,7 +263,7 @@ public class KGManagerController extends BaseController {
 
 	@ResponseBody
 	@RequestMapping(value = "/batchcreatenode")
-	public R<HashMap<String, Object>> batchcreatenode(String domain, String sourcename, String[] targetnames) {
+	public R<HashMap<String, Object>> batchcreatenode(String domain, String sourcename, String[] targetnames,String relation) {
 		R<HashMap<String, Object>> result = new R<HashMap<String, Object>>();
 		HashMap<String, Object> rss = new HashMap<String, Object>();
 		List<HashMap<String, Object>> nodes = new ArrayList<HashMap<String, Object>>();
@@ -284,8 +284,8 @@ public class KGManagerController extends BaseController {
 						nodes.add(targetNode);
 						String targetuuid = String.valueOf(targetNode.get("uuid"));
 						String rSql = String.format(
-								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:''}]->(m) return r",
-								domain, domain, sourceuuid, targetuuid);
+								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
+								domain, domain, sourceuuid, targetuuid,relation);
 						List<HashMap<String, Object>> rshipList = neo4jUtil.GetGraphRelationShip(rSql);
 						ships.addAll(rshipList);
 					}
@@ -309,7 +309,7 @@ public class KGManagerController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/batchcreatechildnode")
 	public R<HashMap<String, Object>> batchcreatechildnode(String domain, String sourceid, Integer entitytype,
-			String[] targetnames) {
+			String[] targetnames,String relation) {
 		R<HashMap<String, Object>> result = new R<HashMap<String, Object>>();
 		HashMap<String, Object> rss = new HashMap<String, Object>();
 		List<HashMap<String, Object>> nodes = new ArrayList<HashMap<String, Object>>();
@@ -329,8 +329,8 @@ public class KGManagerController extends BaseController {
 						String targetuuid = String.valueOf(targetNode.get("uuid"));
 						// 创建关系
 						String rSql = String.format(
-								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:''}]->(m) return r",
-								domain, domain, sourceid, targetuuid);
+								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
+								domain, domain, sourceid, targetuuid,relation);
 						List<HashMap<String, Object>> shipList = neo4jUtil.GetGraphRelationShip(rSql);
 						ships.addAll(shipList);
 					}

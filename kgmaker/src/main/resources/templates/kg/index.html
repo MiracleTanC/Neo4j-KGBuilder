@@ -124,6 +124,10 @@ left: 812px !important;
 		  </div>
 		</el-dialog>
 		<el-dialog id="batchcreateform" :title="operatenameformat(operatetype)":visible.sync="isbatchcreate" width="30%">
+		<div v-show="operatetype==1" class="mb-l">添加同级</div>
+        <div v-show="operatetype==2" class="mb-l">添加下级</div>
+        <div v-show="operatetype==3" class="mb-l">批量添加</div>
+        <div v-show="operatetype==4" class="mb-l">段落识别</div>
         <div class="mb-r">
 	        <div v-show="operatetype!=2" class="mb-m">
 	            <div class="mb-label">源节点名称</div>
@@ -132,7 +136,11 @@ left: 812px !important;
 		              	<span v-show="operatetype==3" class="mb-label">（只能添加一个）</span>
 		            	<span v-show="operatetype==1" class="mb-label">（多个以英文逗号隔开）</span>
 		            </div>
-		            
+		           <div class="mb-label" v-show="operatetype!==1">关系</div>
+		           <div class="mb-con" v-show="operatetype!==1">
+		              	<el-input v-model="batchcreate.relation"></el-input>
+		              	<div class="mb-label">（只能添加一个）</div>
+		            </div> 
 	          </div>
 	          <div v-show="operatetype!=1" class="mb-m">
 	            <div class="mb-label">子节点名称</div>

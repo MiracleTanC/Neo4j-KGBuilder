@@ -4,6 +4,7 @@
 	   var linktextGroup;
 	   var nodeGroup;
 	   var nodetextGroup;
+	   var txx,tyy;
 	   var getdomaingraph = function () { 
 		   var _this=this;
 	       _this.loading = true;
@@ -43,10 +44,19 @@
 	           }
 	       }); 
 	   };
+	   var getTranslateAndScale = function () {
+	        let transform = $(".node").attr("transform");
+	        let matchArr = transform && /translate/.test(transform) && /scale/.test(transform) && transform.match(/translate\(([^\)]+)\)\s?scale\(([^\)]+)/);
+	        let translate = matchArr && matchArr[1].split(",") || [0, 0];
+	        let scale = matchArr && matchArr[2] || 1;
+	        return {translate, scale};
+	   };
 	   var createnode = function () { 
 		   var _this=this;
 	       var data =_this.graphEntity;
 	       data.domain=_this.domain;
+	       $("#blank_custom_menu").hide();
+	       d3.select('.graphcontainer').style("cursor", "crosshair");
 	       $.ajax({
 	           data: data,
 	           type: "POST",
@@ -54,6 +64,7 @@
 	           url: contextRoot+"kg/createnode",
 	           success: function (result) {
 	               if (result.code == 200) {
+	            	   d3.select('.graphcontainer').style("cursor", "");
 	            	   if(_this.graphEntity.uuid!=0){
 	            		   for (var i = 0; i < _this.graph.nodes.length; i++) {
 								if(_this.graph.nodes[i].uuid==_this.graphEntity.uuid){
@@ -61,15 +72,15 @@
 			            		}
 	            	   }}
 	            	   var newnode=result.data;
-	            	   newnode.x=_this.mousex;
-	            	   newnode.y=_this.mousey;
-	            	   newnode.fixed=true;
-	            	  _this.graph.nodes.push(result.data);
+	            	   newnode.x=txx;
+            	       newnode.y=tyy;
+            	       newnode.fx = txx;
+            	       newnode.fy = tyy;
+	            	   _this.graph.nodes.push(result.data);
 	            	   _this.resetentity();
 	            	   _this.updategraph();
 	            	   _this.isedit=false;
-	            	   $("#blank_custom_menu").hide();
-	            	  _this.resetsubmit();
+	            	   _this.resetsubmit();
 	               } 
 	           }
 	       }); 
@@ -761,7 +772,8 @@
 			},
 			batchcreate:{
 				sourcenodename:'',
-				targetnodenames:''
+				targetnodenames:'',
+				relation:'',
 			},
 			graphEntity:{
 				uuid:0,
@@ -797,11 +809,25 @@
 			 linktextGroup = svg.append("g").attr("class", "linetext");
 			 nodeGroup = svg.append("g").attr("class", "node");
 			 nodetextGroup = svg.append("g").attr("class", "nodetext");
-			 svg.on("contextmenu",function(){
+			 s.on("contextmenu",function(){
+				 // debugger;
 				 var position = d3.mouse(this);
 		         app.mousex=position[0];
 		         app.mousey=position[1];
+		         let [x, y] = d3.mouse(this);
+		     	   let { translate, scale } = getTranslateAndScale();		       
+		            let [tx, ty] = [x / scale - +translate[0] / scale, y / scale - +translate[1] / scale];
+		            txx=x / scale - +translate[0] / scale;
+		            tyy=y / scale - +translate[1] / scale;
 			 })
+			 s.on('click', function() {
+	    	   let [x, y] = d3.mouse(this);
+	     	   let { translate, scale } = getTranslateAndScale();		       
+	            let [tx, ty] = [x / scale - +translate[0] / scale, y / scale - +translate[1] / scale];
+	            txx=x / scale - +translate[0] / scale;
+	            tyy=y / scale - +translate[1] / scale;
+	            //debugger;
+	       });
 			 this.addmaker();
 		},
 		created(){
@@ -931,7 +957,7 @@
 			 },
 			 batchcreatenode(){
 				 var _this=this;
-				 var data = {domain:_this.domain,sourcename:_this.batchcreate.sourcenodename,targetnames:_this.batchcreate.targetnodenames};
+				 var data = {domain:_this.domain,sourcename:_this.batchcreate.sourcenodename,targetnames:_this.batchcreate.targetnodenames,relation:_this.batchcreate.relation};
       	       		$.ajax({
       	           data: data,
       	           type: "POST",
@@ -970,7 +996,7 @@
 		},
 		batchcreatechildnode(){
 				 var _this=this;
-				 var data = {domain:_this.domain,sourceid:_this.selectnodeid,targetnames:_this.batchcreate.targetnodenames};
+				 var data = {domain:_this.domain,sourceid:_this.selectnodeid,targetnames:_this.batchcreate.targetnodenames,relation:_this.batchcreate.relation};
     	       		$.ajax({
     	           data: data,
     	           type: "POST",
