@@ -144,6 +144,17 @@ left: 812px !important;
 			    <el-button type="primary" @click="submitUpload">确 定</el-button>
 			  </div>
 			</el-dialog>
+			<el-dialog title="导出图谱csv" :visible.sync="exportFormVisible" width="30%">
+			  <el-form >
+			    <el-form-item label="图谱领域" label-width="120px">
+			      <el-autocomplete style="width:100%"
+				      v-model="uploadparam.domain"
+				      :fetch-suggestions="querySearch"
+				      placeholder="请输入内容">
+				  </el-autocomplete>
+			    </el-form-item>
+			    <el-button type="primary" @click="exportcsv">确 定</el-button>
+			</el-dialog>
 		<el-dialog id="editform" title="属性编辑" :visible.sync="isedit" width="30%">
 		  <el-form :model="graphEntity">
 		    <el-form-item label="节点名称"  label-width="120px">

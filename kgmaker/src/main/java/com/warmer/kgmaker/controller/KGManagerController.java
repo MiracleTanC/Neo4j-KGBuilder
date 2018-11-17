@@ -7,10 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.csvreader.CsvWriter;
 import com.warmer.kgmaker.entity.QAEntityItem;
 import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.util.GraphPageRecord;
@@ -546,6 +549,51 @@ public class KGManagerController extends BaseController {
 		neo4jUtil.excuteCypherSql(loadRelCypher);
 
 		res.put("code", 200);
+		res.put("message", "success!");
+		return res;
+
+	}
+	@ResponseBody
+	@RequestMapping(value = "/exportgraph")
+	public JSONObject exportgraph(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		JSONObject res = new JSONObject();
+		String label = request.getParameter("domain");
+		String filePath = config.getLocation() ;
+		String fileName=UUID.randomUUID()+".csv"; 
+        String fileUrl = filePath+ File.separator + fileName;  
+		String cypher=String.format("MATCH (n:%s) -[r]->(m:%s) return n.name as source,m.name as target,r.name as relation", label,label);
+		List<HashMap<String, Object>> list=neo4jUtil.GetGraphItem(cypher);
+		File file=new File(fileUrl);
+		try{
+			if(!file.exists()){
+				file.createNewFile();
+				System.out.println("文件不存在，新建成功！");
+			}
+			else{
+				System.out.println("文件存在！");
+			}
+		}catch( Exception e){
+			e.printStackTrace();
+		}
+		CsvWriter csvWriter = new CsvWriter(fileUrl, ',', Charset.forName("UTF-8"));
+		 String[] header = { "source","target","relation"};
+		 csvWriter.writeRecord(header);
+		for (HashMap<String, Object> hashMap : list) {
+			int colSize=hashMap.size();
+			String[] cntArr = new String[colSize];
+			cntArr[0] = hashMap.get("source").toString().replace("\"", "");
+			cntArr[1] = hashMap.get("target").toString().replace("\"", "");
+			cntArr[2] = hashMap.get("relation").toString().replace("\"", "");
+			try {
+				csvWriter.writeRecord(cntArr);
+			} catch (IOException e) {
+				log.error("CSVUtil->createFile: 文件输出异常" + e.getMessage());
+			}
+		}
+		csvWriter.close();
+		String csvUrl=config.getServerurl()+"/kg/download/"+fileName;
+		res.put("code", 200);
+		res.put("csvurl", csvUrl);
 		res.put("message", "success!");
 		return res;
 

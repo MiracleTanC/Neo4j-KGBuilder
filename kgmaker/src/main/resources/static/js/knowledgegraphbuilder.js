@@ -977,8 +977,22 @@
 		    		 this.dialogFormVisible=true;
 		    	  }
 		    	  if(command==='export'){
-		    		 
+		    		  this.exportFormVisible=true;  
 		    	  }
+		      },
+		      exportcsv(){
+		    	  var _this=this;
+		    	  $.ajax({
+		  	           data: {domain:_this.uploadparam.domain},
+		  	           type: "POST",
+		  	           url: contextRoot+"kg/exportgraph",
+		  	           success: function (result) {
+		  	               if (result.code == 200) {
+		  	            	   _this.exportFormVisible=false;
+		  	            	   window.open(result.csvurl);
+		  	               } 
+		  	           }
+		  	       }); 
 		      },
 			 submitUpload() {
 		        this.$refs.upload.submit();
