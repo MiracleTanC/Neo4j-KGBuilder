@@ -12,3 +12,6 @@ spring:
       url: bolt://192.168.25.209:7687
       username: neo4j
       password: 123456
+file:
+  serverurl:  http://localhost:8089
+  location : D:\\kgmanager\\csv   #如果是Windows情况下，格式是 D:\\kgmanager\\csv   linx 格式"/home/kgmanager/csv";

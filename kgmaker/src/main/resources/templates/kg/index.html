@@ -74,12 +74,8 @@ left: 812px !important;
 				<a v-for="(m,index) in pagesizelist" @click="setmatchsize(m,this)" :title="m.size" href="javascript:void(0)" :class="[m.isactive ? 'sd-active' : '', 'sd']" >{{m.size}}</a>
 			  </span>
           </span>
-           
-          
-          <!-- <el-alert v-show="tips!=''":title="tips" type="success"></el-alert> -->
         </div>
         <div class="fr">
-          <el-button type="primary" @click="exportimage">导出图片</el-button>
           <a href="javascript:void(0)" @click="updategraph" class="svg-a-sm">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-shuaxin"></use>
@@ -90,7 +86,16 @@ left: 812px !important;
                 <use xlink:href="#icon-quanp"></use>
             </svg>全屏
           </a>
-          
+          <el-dropdown @command="operateCommand">
+		  <el-button type="primary">
+		    操作<i class="el-icon-arrow-down el-icon--right"></i>
+		  </el-button>
+		  <el-dropdown-menu slot="dropdown">
+		    <el-dropdown-item command="image">导出图片</el-dropdown-item>
+		    <el-dropdown-item command="import">导入CSV</el-dropdown-item>
+		    <el-dropdown-item command="export">导出CSV</el-dropdown-item>
+		  </el-dropdown-menu>
+		</el-dropdown>
         </div>
       </div>
       <!-- 头部over -->
@@ -103,7 +108,42 @@ left: 812px !important;
 			
 		</div>
       <!-- 底部 -->
-
+		<el-dialog title="csv导入图谱" :visible.sync="dialogFormVisible" width="30%">
+			  <el-form >
+			    <el-form-item label="图谱领域" label-width="120px">
+			      <el-autocomplete style="width:100%"
+				      v-model="uploadparam.domain"
+				      :fetch-suggestions="querySearch"
+				      placeholder="请输入内容">
+				  </el-autocomplete>
+			    </el-form-item>
+			    <el-form-item label="选择文件" label-width="120px">
+				      <el-upload
+					  class=""
+					  :headers="headers"
+					  ref="upload"
+					  :action="uploadurl"
+					  accept=".csv"
+					  :show-file-list="true"
+					  :data="uploadparam"
+					  :on-success="csvsuccess"
+					  :auto-upload="false">
+					  <el-button  slot="trigger" class="btn-bo" style="padding: 12px 24px;margin-bottom: 0px;" >
+		                <svg class="icon" aria-hidden="true">
+		                  <use xlink:href="#icon-daoru"></use>
+		                </svg>
+		              	  选择文件
+		              </el-button>
+					</el-upload>
+			    </el-form-item>
+			  </el-form>
+			  
+			   
+			  <div slot="footer" class="dialog-footer">
+			    <el-button @click="dialogFormVisible = false">取 消</el-button>
+			    <el-button type="primary" @click="submitUpload">确 定</el-button>
+			  </div>
+			</el-dialog>
 		<el-dialog id="editform" title="属性编辑" :visible.sync="isedit" width="30%">
 		  <el-form :model="graphEntity">
 		    <el-form-item label="节点名称"  label-width="120px">

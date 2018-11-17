@@ -1,32 +1,51 @@
 package com.warmer.kgmaker.controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.neo4j.driver.v1.AuthTokens;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.warmer.kgmaker.entity.QAEntityItem;
 import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.util.GraphPageRecord;
 import com.warmer.kgmaker.util.Neo4jUtil;
 import com.warmer.kgmaker.util.R;
 import com.warmer.kgmaker.util.StringUtil;
+import com.warmer.kgmaker.util.WebAppConfig;
 
 @Controller
 @RequestMapping(value = "/kg")
 public class KGManagerController extends BaseController {
 	@Autowired
 	private Neo4jUtil neo4jUtil;
+	@Autowired
+	private WebAppConfig config;
 
 	@GetMapping("/index")
 	public String index(Model model) {
@@ -64,6 +83,7 @@ public class KGManagerController extends BaseController {
 
 		return result;
 	}
+
 	@ResponseBody
 	@RequestMapping(value = "/getdomaingraph")
 	public R<HashMap<String, Object>> getdomaingraph(GraphQuery query) {
@@ -125,7 +145,8 @@ public class KGManagerController extends BaseController {
 			String domaincql = "call db.labels";
 			List<HashMap<String, Object>> pageList = neo4jUtil.GetEntityList(domaincql);
 			result.code = 200;
-			result.setData(pageList);;
+			result.setData(pageList);
+			;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -163,9 +184,8 @@ public class KGManagerController extends BaseController {
 		R<String> result = new R<String>();
 		try {
 			if (!StringUtil.isBlank(domain)) {
-				String cypherSql = String.format(
-						"create (n:%s{name:'%s',color:'#ff4500',r:30}) return id(n)",
-						domain,"");
+				String cypherSql = String.format("create (n:%s{name:'%s',color:'#ff4500',r:30}) return id(n)", domain,
+						"");
 				neo4jUtil.excuteCypherSql(cypherSql);
 				result.code = 200;
 			}
@@ -239,8 +259,8 @@ public class KGManagerController extends BaseController {
 						entity.getUuid(), sqlkeyval);
 				graphNodeList = neo4jUtil.GetGraphNode(cypherSql);
 			} else {
-				entity.setColor("#ff4500");//默认颜色
-				entity.setR(30);//默认半径
+				entity.setColor("#ff4500");// 默认颜色
+				entity.setR(30);// 默认半径
 				String propertiesString = neo4jUtil.getFilterPropertiesJson(JSON.toJSONString(entity));
 				String cypherSql = String.format("create (n:%s%s) return n", domain, propertiesString);
 				graphNodeList = neo4jUtil.GetGraphNode(cypherSql);
@@ -263,7 +283,8 @@ public class KGManagerController extends BaseController {
 
 	@ResponseBody
 	@RequestMapping(value = "/batchcreatenode")
-	public R<HashMap<String, Object>> batchcreatenode(String domain, String sourcename, String[] targetnames,String relation) {
+	public R<HashMap<String, Object>> batchcreatenode(String domain, String sourcename, String[] targetnames,
+			String relation) {
 		R<HashMap<String, Object>> result = new R<HashMap<String, Object>>();
 		HashMap<String, Object> rss = new HashMap<String, Object>();
 		List<HashMap<String, Object>> nodes = new ArrayList<HashMap<String, Object>>();
@@ -285,7 +306,7 @@ public class KGManagerController extends BaseController {
 						String targetuuid = String.valueOf(targetNode.get("uuid"));
 						String rSql = String.format(
 								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
-								domain, domain, sourceuuid, targetuuid,relation);
+								domain, domain, sourceuuid, targetuuid, relation);
 						List<HashMap<String, Object>> rshipList = neo4jUtil.GetGraphRelationShip(rSql);
 						ships.addAll(rshipList);
 					}
@@ -309,7 +330,7 @@ public class KGManagerController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/batchcreatechildnode")
 	public R<HashMap<String, Object>> batchcreatechildnode(String domain, String sourceid, Integer entitytype,
-			String[] targetnames,String relation) {
+			String[] targetnames, String relation) {
 		R<HashMap<String, Object>> result = new R<HashMap<String, Object>>();
 		HashMap<String, Object> rss = new HashMap<String, Object>();
 		List<HashMap<String, Object>> nodes = new ArrayList<HashMap<String, Object>>();
@@ -330,7 +351,7 @@ public class KGManagerController extends BaseController {
 						// 创建关系
 						String rSql = String.format(
 								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
-								domain, domain, sourceid, targetuuid,relation);
+								domain, domain, sourceid, targetuuid, relation);
 						List<HashMap<String, Object>> shipList = neo4jUtil.GetGraphRelationShip(rSql);
 						ships.addAll(shipList);
 					}
@@ -441,13 +462,14 @@ public class KGManagerController extends BaseController {
 		}
 		return result;
 	}
+
 	@ResponseBody
 	@RequestMapping(value = "/deletedomain")
 	public R<List<HashMap<String, Object>>> deletedomain(String domain) {
 		R<List<HashMap<String, Object>>> result = new R<List<HashMap<String, Object>>>();
 		try {
 			String rSql = String.format("MATCH (n:%s) -[r]-(m)  delete r", domain);
-		    neo4jUtil.excuteCypherSql(rSql);
+			neo4jUtil.excuteCypherSql(rSql);
 			String deleteNodeSql = String.format("MATCH (n:%s) delete n", domain);
 			neo4jUtil.excuteCypherSql(deleteNodeSql);
 			result.code = 200;
@@ -459,6 +481,7 @@ public class KGManagerController extends BaseController {
 		}
 		return result;
 	}
+
 	@ResponseBody
 	@RequestMapping(value = "/deletelink")
 	public R<HashMap<String, Object>> deletelink(String domain, long shipid) {
@@ -475,4 +498,103 @@ public class KGManagerController extends BaseController {
 		}
 		return result;
 	}
+
+	@ResponseBody
+	@RequestMapping(value = "/importgraph")
+	public JSONObject importgraph(@RequestParam(value = "file", required = true) MultipartFile file,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		JSONObject res = new JSONObject();
+		String label = request.getParameter("domain");
+		String path=config.getLocation();
+		File fileItem = new File(path);
+		if (!fileItem.exists()) {
+			fileItem.mkdirs();
+		}
+		FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path + File.separator + file.getOriginalFilename()));
+		byte[] bs = new byte[1024];
+		int len;
+		while ((len = fileInputStream.read(bs)) != -1) {
+			bos.write(bs, 0, len);
+		}
+		bos.flush();
+		bos.close();
+		String csvUrl=config.getServerurl()+"/kg/download/"+file.getOriginalFilename();
+		// 拼接生产节点导入cypher
+		String loadNodeCypher1 = null;
+		String loadNodeCypher2 = null;
+		String addIndexCypher = null;
+		addIndexCypher = " CREATE INDEX ON :" + label + "(name);";
+		loadNodeCypher1 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:" + label
+				+ "{name:line[0]});";
+		loadNodeCypher2 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:" + label
+				+ "{name:line[1]});";
+		log.info(addIndexCypher);
+		log.info(loadNodeCypher1);
+		log.info(loadNodeCypher2);
+
+		// 拼接生产关系导入cypher
+		String loadRelCypher = null;
+		String type = "RE";
+		loadRelCypher = " USING PERIODIC COMMIT 500 LOAD CSV FROM  '" + csvUrl + "' AS line " + " MATCH (m:" + label
+				+ "),(n:" + label + ") WHERE m.name=line[0] AND n.name=line[1] " + " MERGE (m)-[r:" + type + "]->(n) "
+				+ "	SET r.name=line[2];";
+		log.info(loadRelCypher);
+		neo4jUtil.excuteCypherSql(addIndexCypher);
+		neo4jUtil.excuteCypherSql(loadNodeCypher1);
+		neo4jUtil.excuteCypherSql(loadNodeCypher2);
+		neo4jUtil.excuteCypherSql(loadRelCypher);
+
+		res.put("code", 200);
+		res.put("message", "success!");
+		return res;
+
+	}
+	//文件下载相关代码  
+    @GetMapping(value = "/download/{filename}")  
+    public String download(@PathVariable("filename")String filename,HttpServletRequest request, HttpServletResponse response) {  
+		String filePath = config.getLocation() ;
+        String fileUrl = filePath+ File.separator + filename;  
+        if (fileUrl != null) {  
+            File file = new File(fileUrl);  
+            if (file.exists()) {  
+                //response.setContentType("application/force-download");// 设置强制下载不打开  
+                response.addHeader("Content-Disposition",  
+                        "attachment;fileName=" + filename);// 设置文件名  
+                byte[] buffer = new byte[1024];  
+                FileInputStream fis = null;  
+                BufferedInputStream bis = null;  
+                try {  
+                    fis = new FileInputStream(file);  
+                    bis = new BufferedInputStream(fis);  
+                    OutputStream os = response.getOutputStream();  
+                    int i = bis.read(buffer);  
+                    while (i != -1) {  
+                        os.write(buffer, 0, i);  
+                        i = bis.read(buffer);  
+                    }  
+                    System.out.println("success");  
+                } catch (Exception e) {  
+                    e.printStackTrace();  
+                } finally {  
+                    if (bis != null) {  
+                        try {  
+                            bis.close();  
+                        } catch (IOException e) {  
+                            e.printStackTrace();  
+                        }  
+                    }  
+                    if (fis != null) {  
+                        try {  
+                            fis.close();  
+                        } catch (IOException e) {  
+                            e.printStackTrace();  
+                        }  
+                    }  
+                }  
+            }  
+        }  
+        return null;  
+    }  
+
 }

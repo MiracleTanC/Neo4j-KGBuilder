@@ -783,7 +783,14 @@
 				x:"",
 				y:""
 			},
-			domainlabels:[]
+			uploadparam:{
+				domain:""
+			},
+			domainlabels:[],
+			dialogFormVisible:false,
+			exportFormVisible:false,
+			headers:{},
+			uploadurl:contextRoot+"kg/importgraph"
 			
 		},
 		filters: {
@@ -794,7 +801,11 @@
            
 		},
 		mounted(){
-			var s=d3.select(".graphcontainer");
+			 var token = $("meta[name='_csrf']").attr("content");
+	 		 var header = $("meta[name='_csrf_header']").attr("content");
+			 var str= '{ "'+header+'": "'+token+'"}'; 
+			 this.headers = eval('(' + str + ')');
+			 var s=d3.select(".graphcontainer");
 			   width=s._groups[0][0].offsetWidth;
 			   height=window.screen.height -154;//
 			    svg = s.append("svg");
@@ -810,10 +821,6 @@
 			 nodeGroup = svg.append("g").attr("class", "node");
 			 nodetextGroup = svg.append("g").attr("class", "nodetext");
 			 s.on("contextmenu",function(){
-				 // debugger;
-				 var position = d3.mouse(this);
-		         app.mousex=position[0];
-		         app.mousey=position[1];
 		         let [x, y] = d3.mouse(this);
 		     	   let { translate, scale } = getTranslateAndScale();		       
 		            let [tx, ty] = [x / scale - +translate[0] / scale, y / scale - +translate[1] / scale];
@@ -826,7 +833,6 @@
 	            let [tx, ty] = [x / scale - +translate[0] / scale, y / scale - +translate[1] / scale];
 	            txx=x / scale - +translate[0] / scale;
 	            tyy=y / scale - +translate[1] / scale;
-	            //debugger;
 	       });
 			 this.addmaker();
 		},
@@ -944,7 +950,50 @@
 				  this.nodename='';
 				  this.getdomaingraph();
 			 },
+			 querySearch(queryString, cb) {
+				 debugger;
+           	  		var domainList = this.domainlabels;
+           	  		var results = queryString ? domainList.filter(this.createFilter(queryString)) : (this.getFilterDomain(domainList));
+	 		        // 调用 callback 返回建议列表的数据
+	 		        cb(results);
+		      },
+		      createFilter(queryString) {
+		        return (domain) => {
+		          return (domain.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+		        };
+		      },
+		      getFilterDomain(domainList) {
+		    	  var array=[];
+			        for (var i = 0; i < domainList.length; i++) {
+			        	array.push({value:domainList[i].label.substring(1,domainList[i].label.length-1)});
+					}
+			        return array;
+			      },
+		      operateCommand(command){
+		    	  if(command==='image'){
+		    		  this.exportimage();
+		    	  }
+		    	  if(command==='import'){
+		    		 this.dialogFormVisible=true;
+		    	  }
+		    	  if(command==='export'){
+		    		 
+		    	  }
+		      },
+			 submitUpload() {
+		        this.$refs.upload.submit();
+		        this.dialogFormVisible = false;
+			 },
+			 csvsuccess(){
+		        	this.$refs.upload.clearFiles();
+		        	this.uploadparam.domain="";
+		        	this.$message({
+	                    message: "正在导入中,请稍后查看",
+	                    type: 'success'
+	                  });
+		        },
 			 exportimage(){
+		        	debugger
 				 /*https://html2canvas.hertzen.com/getting-started  截图js*/
 				 html2canvas(document.querySelector(".graphcontainer")).then(canvas => {
 					 var a = document.createElement('a');
@@ -977,7 +1026,6 @@
 						 this.pagesizelist[i].isactive=true;
 					 }
 				}
-				 debugger;
 				 this.pagesize=m.size;
 				 this.getdomaingraph();
 			 },
