@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.warmer.kgmaker.dal.IKnowledgegraphRepository">
+	<select id="getDomains" resultType="map">
+		SELECT * FROM knowledgegraphdomain where status=1  
+	</select>
+	<select id="getDomainList" resultType="map" >
+		SELECT * FROM knowledgegraphdomain 
+		 <where >	
+		 status=1   
+	      <if test="domainname!='' and domainname!=null">
+	      	and name like '%${domainname}%'	      	
+	      </if>
+	    </where>
+	    order by id desc
+	</select>
+	<select id="getDomainByName" resultType="map" parameterType="String">
+		SELECT * FROM knowledgegraphdomain WHERE status=1 and name =#{domainname}	 
+	</select>
+	<select id="getDomainById" resultType="map" parameterType="Integer">
+		SELECT * FROM knowledgegraphdomain WHERE status=1 and id =#{domainid}	 
+	</select>
+	
+	<insert id="saveDomain" parameterType="map">
+        INSERT INTO knowledgegraphdomain(name, createuser,nodecount, shipcount,status) VALUES (#{params.name},#{params.createuser},#{params.nodecount},#{params.shipcount},1)
+    </insert>
+	<update id="updateDomain" parameterType="map">
+        UPDATE knowledgegraphdomain 
+        SET 
+        name =#{params.name} ,
+        createuser=#{params.createuser} ,
+        nodecount=#{params.nodecount},
+        shipcount=#{params.shipcount},
+        WHERE id = #{params.id}
+    </update>
+    <update id="deleteDomain" parameterType="Integer">
+        UPDATE knowledgegraphdomain SET status = 0 WHERE id = #{id}
+    </update>
+
+	<insert id="saveNodeImage" parameterType="java.util.List" >
+		insert knowledgenodedetailfile
+		(Domainid,NodeId,FileName,ImageType,CreateUser,CreateTime,Status)
+		values
+		<foreach collection="maplist" item="item" separator=",">
+			(#{item.domainid},#{item.nodeid} ,#{item.file} ,#{item.imagetype},#{item.createuser},#{item.createtime},#{item.status})
+		</foreach>
+	</insert>
+	<insert id="saveNodeContent" parameterType="map" >
+		insert knowledgenodedetail
+		(Domainid,NodeId,Content,CreateUser,CreateTime,Status)
+		values
+		(#{params.domainid},#{params.nodeid} ,#{params.content} ,#{params.createuser},#{params.createtime},#{params.status})
+	</insert>
+	<update id="updateNodeContent" parameterType="map">
+        UPDATE knowledgenodedetail SET Content =#{params.content} ,ModifyTime=#{params.modifytime} WHERE Domainid=#{params.domainid} and NodeId = #{params.nodeid}
+    </update>
+	<select id="getNodeImageList" resultType="map">
+		SELECT * from knowledgenodedetailfile where Status=1 and  Domainid=#{domainid} and NodeId=#{nodeid}
+	</select>
+	<select id="getNodeContent" resultType="map">
+		SELECT * from knowledgenodedetail where Status=1 and  Domainid=#{domainid} and NodeId=#{nodeid}
+	</select>
+	<update id="deleteNodeImage">
+		update knowledgenodedetailfile set Status=0 where Domainid=#{domainid} and NodeId=#{nodeid}
+	</update>
+</mapper>

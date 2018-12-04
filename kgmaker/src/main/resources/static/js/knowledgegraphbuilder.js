@@ -1,4 +1,5 @@
-
+		var timer=null;
+	   var editor; 
 	   var simulation;
 	   var linkGroup;
 	   var linktextGroup;
@@ -134,15 +135,17 @@
 	       $.ajax({
 	           data: data,
 	           type: "POST",
-	           url: contextRoot+"kg/getlabels",
+	           //url: contextRoot+"kg/getlabels",
+	           url: contextRoot+"kg/getgraph",
 	           success: function (result) {
 	               if (result.code == 200) {
-	            	   _this.domainlabels=result.data;
-
+	            	   //_this.domainlabels=result.data;
+	            	   _this.pageModel=result.data;
 	               } 
 	           }
 	       }); 
 	   };
+	   
 	   var deletedomain= function(value){
 		   var _this=this;
 		   _this.$confirm('此操作将删除该标签及其下节点和关系(不可恢复), 是否继续?', '三思而后行', {
@@ -410,6 +413,21 @@
 	   var drawnode=function(node){
 		 var _this=this;
 		 var nodeEnter= node.enter().append("circle"); 
+		 nodeEnter.on("mouseover",function(d,i){
+		        timer=setTimeout(function(){
+		            d3.select('#richContainer')
+		                .style('position', 'absolute')
+		                .style('left', d.x + "px")
+		                .style('top', d.y + "px")
+		                .style('display', 'block');
+		            _this.editorcontent="";
+		            _this.showImageList=[];
+		            _this.getNodeDetail(d.uuid);
+		        },3000);
+		    });
+		    nodeEnter.on("mouseout",function(d,i){
+		        clearTimeout(timer);
+		    });
        	 nodeEnter.on("contextmenu",function(d){
        		 app.fillinform(d);
 			 var position = d3.mouse(this);
@@ -493,7 +511,18 @@
 				}
 				return d.name;
 			});
-		  
+		  nodetextenter.on("mouseover",function(d,i){
+		        timer=setTimeout(function(){
+		            d3.select('#richContainer')
+		                .style('position', 'absolute')
+		                .style('left', d.x + "px")
+		                .style('top', d.y + "px")
+		                .style('display', 'block');
+		            _this.editorcontent="";
+		            _this.showImageList=[];
+		            _this.getNodeDetail(d.uuid);
+		        },3000);
+		    });
 		  nodetextenter.on("contextmenu",function(d){
 				app.fillinform(d);
 	  			 var position = d3.mouse(this);
@@ -590,7 +619,6 @@
 			return linktextEnter;
 	   }
 	   var updategraph=function () {
-		   debugger;
 		   var _this=this;
 		   var lks=this.graph.links;
 		   var nodes = this.graph.nodes;
@@ -760,11 +788,29 @@
 			mousex:0,
 			mousey:0,
 			domain:'',
+			domainid:0,
 			nodename:'',
 			pagesize:100,
+			propactiveName: 'propedit',
+            contentactiveName:'propimage',
+			uploadimageurl:contextRoot+"qiniu/upload",
+            uploadimageparam:{},
+            nodeimagelist:[],
+            netimageurl:'',
+            dialogimageVisible:false,
+            dialogImageUrl:'',
+            showImageList:[],
+            editorcontent:'',
 			selectnode:{
 				name:'',
 				count:0
+			},
+			pageModel:{
+				pageIndex:1,
+				pageSize:10,
+				totalCount:0,
+            	totalPage:0,
+            	nodeList:[]
 			},
 			graph:{
 				nodes:[],
@@ -834,12 +880,172 @@
 	            txx=x / scale - +translate[0] / scale;
 	            tyy=y / scale - +translate[1] / scale;
 	       });
-			 this.addmaker();
+		   this.addmaker();
+		   this.$nextTick(function () {
+			   
+		   })
+		  
+		   
 		},
 		created(){
 			this.getlabels();
 		},
 		methods: {
+			initEditor(){
+				if(editor!=null) return;
+				var E= window.wangEditor;
+				  editor = new E(this.$refs.eidtorToolbar,this.$refs.eidtorContent);
+			      editor.customConfig.onchange = function (html) {
+			            app.editorcontent=html;
+			      };
+			      var token = $("meta[name='_csrf']").attr("content");
+		        var header = $("meta[name='_csrf_header']").attr("content");
+		        var str= '{ "'+header+'": "'+token+'"}';
+		        var headers = eval('(' + str + ')');
+		        editor.customConfig.uploadFileName = 'file';
+		        editor.customConfig.uploadImgHeaders = headers;
+		        editor.customConfig.uploadImgServer = contextRoot+"qiniu/upload" ; // 上传图片到服务器
+		        editor.customConfig.uploadImgHooks = {
+		                 // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
+		                // （但是，服务器端返回的必须是一个 JSON 格式字符串！！！否则会报错）
+		                customInsert: function (insertImg, res, editor) {
+		                    // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）
+		                    // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
+		                	for (var i = 0; i < res.results.length; i++) {
+		        				var fileitem=res.results[i];
+		        				 insertImg(fileitem.url)
+		        			}
+		                }
+		            }
+		        editor.create();
+			},
+			initNodeContent(){
+                var _this=this;
+                var data ={domainid:_this.domainid,nodeid:_this.selectnodeid};
+                $.ajax({
+                    data:data,
+                    type: "POST",
+                    url: contextRoot + "kg/getnodecontent",
+                    success: function (result) {
+                    	 editor.txt.html("");
+                        if (result.code == 200) {
+                        	_this.editorcontent=result.data.Content;
+                            editor.txt.html(result.data.Content)
+                        }
+                    }
+                })
+            },
+            initNodeImage(){
+                var _this=this;
+                var data ={domainid:_this.domainid,nodeid:_this.selectnodeid};
+                $.ajax({
+                    data:data,
+                    type: "POST",
+                    url: contextRoot + "kg/getnodeimage",
+                    success: function (result) {
+                        if (result.code == 200) {
+                        	for (var i=0;i<result.data.length;i++){
+                                _this.nodeimagelist.push({fileurl:result.data[i].FileName,imagetype:result.data[i].ImageType})
+							}
+                        }
+                    }
+                })
+			},
+            getNodeDetail(nodeid){
+                var _this=this;
+                var data ={domainid:_this.domainid,nodeid:nodeid};
+                $.ajax({
+                    data:data,
+                    type: "POST",
+                    url: contextRoot + "kg/getnodedetail",
+                    success: function (result) {
+                        if (result.code == 200) {
+                            _this.editorcontent=result.data.content;
+                            _this.showImageList=result.data.imagelist;
+                        }
+                    }
+                })
+            },
+            savenodeimage(){
+                var _this=this;
+                var data ={domainid:_this.domainid,nodeid:_this.selectnodeid,imagelist:JSON.stringify(_this.nodeimagelist)};
+                $.ajax({
+                    dataType:'json',
+                    data:JSON.stringify(data),
+                    contentType: 'application/json; charset=UTF-8',
+                    type: "POST",
+                    url: contextRoot + "kg/savenodeimage",
+                    success: function (result) {
+                        if (result.code == 200) {
+                            _this.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+                        }
+                    }
+                })
+            },
+            savenodecontent(){
+                var _this=this;
+                var data ={domainid:_this.domainid,nodeid:_this.selectnodeid,content:_this.editorcontent};
+                $.ajax({
+                    dataType:'json',
+                    data:JSON.stringify(data),
+                    contentType: 'application/json; charset=UTF-8',
+                    type: "POST",
+                    url: contextRoot + "kg/savenodecontent",
+                    success: function (result) {
+                        if (result.code == 200) {
+                            _this.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+                        }
+                    }
+                })
+            },
+            handlePictureCardPreview(item){
+                this.dialogImageUrl =this.imageurlformat(item);
+                this.dialogimageVisible = true;
+			},
+            addnetimage(){
+            	if(this.netimageurl!=''){
+                    this.nodeimagelist.push({file:this.netimageurl,imagetype:1});
+                    this.netimageurl='';
+				}
+			},
+            imagehandleRemove(url){
+                this.nodeimagelist.splice(this.nodeimagelist.indexOf(url), 1);
+			},
+			imageurlformat(item){
+				return item.fileurl;
+			},
+			dbimageurlformat(item){
+				return item.FileName;
+			},
+            uploadsuccess(res, file){
+                if(res.success==1){
+                	for (var i = 0; i < res.results.length; i++) {
+						var fileitem=res.results[i];
+						this.nodeimagelist.push({fileurl:fileitem.url});
+					}
+                    
+                }else{
+                    this.$message.error(res.msg);
+                }
+			},
+            prophandleClick(tab, event) {
+               if(tab.name=='richtextedit'){
+               	   this.editorcontent='';
+               	   this.initNodeContent();
+                   this.initEditor();
+                   
+               	}
+                if(tab.name=='propimage'){
+                    this.nodeimagelist=[];
+                    this.initNodeImage();
+                }
+            },
 			 operatenameformat(){
 					if(this.operatetype==1){
 						return "添加同级";
@@ -856,6 +1062,7 @@
 				this.isedit=true;
 				this.isbatchcreate=false;
 				this.operatetype=0;
+				this.propactiveName='propedit';
 				$('#my_custom_menu').hide();
 			},
 			btnaddlink(event){
@@ -939,9 +1146,10 @@
 						y:d.y
 					};
 			 },
-			 matchdomaingraph(domainname,event){
-				var domainname= domainname.substring(1,domainname.length-1);
-				this.domain=domainname;
+			 matchdomaingraph(domain,event){
+				//var domainname= domainname.substring(1,domainname.length-1);
+				this.domain=domain.name;
+				this.domainid=domain.id;
 				this.getdomaingraph()
 			 },
 			 refreshnode(event){
@@ -1166,6 +1374,7 @@
 			$('#blank_custom_menu').hide();
 			$('#my_custom_menu').hide();
 			$('#link_custom_menu').hide();
+			$("#richContainer").hide();
 			app.isbatchcreate=false;
 			 event.preventDefault();
 		 });

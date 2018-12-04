@@ -1,5 +1,5 @@
 
-package com.warmer.kgmaker.util;
+package com.warmer.kgmaker.config;
 
 import javax.servlet.MultipartConfigElement;
 

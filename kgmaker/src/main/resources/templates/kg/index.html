@@ -26,7 +26,46 @@ circle{
 .el-color-picker__panel{
 left: 812px !important;
 }
+.wange-toolbar{
+            border: 1px solid #ccc;
+        }
+.wangeditor-form{
+    border: 1px solid #ccc;
+    height: 350px;
+    min-height: 340px
+}
+.mind-fj-box {
+    display: inline-block;
+    width: 290px;
+    padding: 5px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 0 8px rgba(206,205,201,.38);
+}
+.mind-fj-p {
+    color: #666;
+    line-height: 24px;
+    padding: 5px;
+    background: rgba(255,255,255,.85);
+}
+.mind-carousel+.mind-fj-p .el-scrollbar__wrap {
+    height: auto;
+    max-height: 220px;
+    min-height: 0;
+}
+.carous-img {
+    height: 100%;
+    background: rgba(0,0,0,.10);
+    line-height: 197px;
+    text-align: center;
+}
+.carous-img img {
+    max-width: 100%;
+    max-height: 100%;
+    line-height: 197px;
+    vertical-align: middle;
+}
 </style>
+<link th:href="@{/wangeditor/wangEditor.css}" rel="stylesheet"/>
 </head>
 
 <body>
@@ -38,8 +77,9 @@ left: 812px !important;
         <h2 class="ml-ht">图谱列表</h2>
         <div class="ml-a-box" style="min-height:280px">
           <el-button type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="createdomain">新建图谱</el-button>
-          <a @click="matchdomaingraph(m.label,$event)" v-for="m in domainlabels" href="javascript:void(0)">
-          	<el-tag closable style="margin:2px" @close="deletedomain(m.label)">{{m.label |labelformat}}</el-tag>
+          <a @click="matchdomaingraph(m,$event)" v-for="m in pageModel.nodeList" href="javascript:void(0)">
+          <el-tag closable style="margin:2px" @close="deletedomain(m.name)">{{m.name}}</el-tag>
+          	<!-- <el-tag closable style="margin:2px" @close="deletedomain(m.label)">{{m.label |labelformat}}</el-tag> -->
           </a>
         </div>
         <div id="follow-us" class="guanzhu" style="padding: 20px;">
@@ -144,7 +184,7 @@ left: 812px !important;
 			    <el-button type="primary" @click="submitUpload">确 定</el-button>
 			  </div>
 			</el-dialog>
-			<el-dialog title="导出图谱csv" :visible.sync="exportFormVisible" width="30%">
+		<el-dialog title="导出图谱csv" :visible.sync="exportFormVisible" width="30%">
 			  <el-form >
 			    <el-form-item label="图谱领域" label-width="120px">
 			      <el-autocomplete style="width:100%"
@@ -156,24 +196,79 @@ left: 812px !important;
 			    <el-button type="primary" @click="exportcsv">确 定</el-button>
 			</el-dialog>
 		<el-dialog id="editform" title="属性编辑" :visible.sync="isedit" width="30%">
-		  <el-form :model="graphEntity">
-		    <el-form-item label="节点名称"  label-width="120px">
-		      <el-input v-model="graphEntity.name" style="width:324px"></el-input>
-		    </el-form-item>
-		    <el-form-item label="选择颜色" label-width="120px">
-		      <el-color-picker id="colorpicker" 
-				  v-model="graphEntity.color" :predefine="predefineColors">
-				</el-color-picker>
-		    </el-form-item>
-		     <el-form-item label="节点半径" label-width="120px">
-		      <el-slider v-model="graphEntity.r" style="width:324px"></el-slider>
-		    </el-form-item>
-		  </el-form>
-		  <div slot="footer" class="dialog-footer">
-		    <el-button v-if="graphEntity.uuid!=0" type="primary" @click="createnode">更新</el-button>
-          	<el-button v-else type="primary" @click="createnode">创建</el-button>
-    		<el-button @click="resetsubmit">取消</el-button>
-		  </div>
+			<el-tabs type="card" tab-position="top" v-model="propactiveName" @tab-click="prophandleClick" style="margin: 10px">
+			<el-tab-pane label="属性编辑" name="propedit">
+			  <el-form :model="graphEntity">
+			    <el-form-item label="节点名称"  label-width="120px">
+			      <el-input v-model="graphEntity.name" style="width:324px"></el-input>
+			    </el-form-item>
+			    <el-form-item label="选择颜色" label-width="120px">
+			      <el-color-picker id="colorpicker" 
+					  v-model="graphEntity.color" :predefine="predefineColors">
+					</el-color-picker>
+			    </el-form-item>
+			     <el-form-item label="节点半径" label-width="120px">
+			      <el-slider v-model="graphEntity.r" style="width:324px"></el-slider>
+			    </el-form-item>
+			  </el-form>
+			  </el-tab-pane>
+			  <el-tab-pane label="添加图片" name="propimage">
+			  		<el-form >
+				    <el-form-item label="本地上传"  label-width="120px">
+				     	  <el-upload class="" :headers="headers"
+				     	  			 name="file"
+		                             ref="upload"
+		                             :action="uploadimageurl"
+		                             accept=".jpg,.png"
+		                             multiple
+		                             :show-file-list="false"
+		                             :data="uploadimageparam"
+		                             :on-success="uploadsuccess"
+		                             :auto-upload="true">
+		                       <el-button slot="trigger" size="small" type="primary">选择</el-button>
+		                  </el-upload>
+				    </el-form-item>
+				    <el-form-item label="网络地址" label-width="120px">
+				     <el-input v-model="netimageurl" style="width: 60%"></el-input>
+		              <a href="javascript:void(0)" @click="addnetimage" class="cg">
+		                  <svg class="icon" aria-hidden="true">
+		                      <use xlink:href="#icon-add-s"></use>
+		                  </svg>
+		              </a>
+				    </el-form-item>
+				     <el-form-item label="已选图片" label-width="120px">
+					     <ul class="el-upload-list el-upload-list--picture-card">
+			                    <li v-for="item in nodeimagelist" class="el-upload-list__item is-success">
+			                        <img :src="imageurlformat(item)" alt="" class="el-upload-list__item-thumbnail">
+			                        <label class="el-upload-list__item-status-label">
+			                            <i class="el-icon-upload-success el-icon-check"></i>
+			                        </label>
+			                        <i class="el-icon-close" @click="imagehandleRemove(item)"></i>
+			                        <span class="el-upload-list__item-actions">
+										<span class="el-upload-list__item-preview">
+										     <i class="el-icon-zoom-in" @click="handlePictureCardPreview(item)"></i>
+										</span>
+				                        <span class="el-upload-list__item-delete">
+				                            <i class="el-icon-delete" @click="imagehandleRemove(item)"></i>
+				                        </span>
+									</span>
+			                    </li>
+			                </ul>
+				    </el-form-item>
+			  </el-form>
+	          </el-tab-pane>
+			  <el-tab-pane label="添加描述" name="richtextedit">
+	              <div ref="eidtorToolbar" id="eidtorToolbar" class="wange-toolbar"></div>
+	              <div ref="eidtorContent" id="eidtorContent" class="wangeditor-form"></div>
+	          </el-tab-pane>
+			  </el-tabs>
+			  <div slot="footer" class="dialog-footer">
+			    <el-button v-show="propactiveName=='propimage'" type="primary" @click="savenodeimage" class="btn-line cur">保存</el-button>
+			    <el-button v-show="propactiveName=='richtextedit'" @click="savenodecontent" type="primary" class="btn-line cur">保存</el-button>
+			    <el-button v-show="propactiveName=='propedit'&&graphEntity.uuid!=0" type="primary" @click="createnode">更新</el-button>
+	          	<el-button v-show="propactiveName=='propedit'&&graphEntity.uuid==0" type="primary" @click="createnode">创建</el-button>
+	    		<el-button @click="resetsubmit">取消</el-button>
+			  </div>
 		</el-dialog>
 		<el-dialog id="batchcreateform" :title="operatenameformat(operatetype)":visible.sync="isbatchcreate" width="30%">
 		<div v-show="operatetype==1" class="mb-l">添加同级</div>
@@ -283,6 +378,23 @@ left: 812px !important;
 			<span class="pl-15">删除</span>
         </li> 
     </ul>
+  	<!-- 富文本展示 -->
+        <div id="richContainer" style="display: none;width: 400px">
+            <div class="mind-fj-box" v-show="showImageList.length>0 ||editorcontent!=''">
+                <div class="mind-carousel" v-show="showImageList.length>0">
+                    <el-carousel height="197px" :interval="2000" arrow="always">
+                        <el-carousel-item v-for="item in showImageList" :key="item.ID">
+                            <div class="carous-img">
+                                <img  :src="item.FileName" alt="">
+                            </div>
+                        </el-carousel-item>
+                    </el-carousel>
+                </div>
+                <el-scrollbar v-show="editorcontent!=''" class="mind-fj-p">
+                    <p v-html="editorcontent" ></p>
+                </el-scrollbar>
+            </div>
+        </div>
   </div>
 	</div>
 </body>
@@ -290,11 +402,14 @@ left: 812px !important;
 <div layout:fragment="jscontent">
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+     <script  type="text/javascript" th:src="@{/wangeditor/wangEditor.js}"></script>
 	<script th:inline="javascript" type="text/javascript">
-	 var initdomain=function(){
-		 var domain=[[${domain}]];
-		 this.domain=domain;
-	 }
+	var initdomain = function () {
+        var domain = [[${domain}]];
+        var domainid = [[${domainid}]];
+        this.domain = domain;
+        this.domainid = domainid;
+    }
 	</script>
 	<script th:inline="javascript" type="text/javascript" th:src="@{/js/knowledgegraphbuilder.js}"></script> 
 </div>

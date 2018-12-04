@@ -2,8 +2,10 @@ package com.warmer.kgmaker.query;
 
 public class GraphQuery{	
 
+	private int domainid;
 	private String domain;
 	private String nodename;
+	private String[] relation;
 	private int matchtype ;
     private int pageSize = 10;
     private int pageIndex = 1;
@@ -66,6 +68,30 @@ public class GraphQuery{
 	 */
 	public void setNodename(String nodename) {
 		this.nodename = nodename;
+	}
+	/**
+	 * @return the relation
+	 */
+	public String[] getRelation() {
+		return relation;
+	}
+	/**
+	 * @param relation the relation to set
+	 */
+	public void setRelation(String[] relation) {
+		this.relation = relation;
+	}
+	/**
+	 * @return the domainid
+	 */
+	public int getDomainid() {
+		return domainid;
+	}
+	/**
+	 * @param domainid the domainid to set
+	 */
+	public void setDomainid(int domainid) {
+		this.domainid = domainid;
 	}
 	
 
