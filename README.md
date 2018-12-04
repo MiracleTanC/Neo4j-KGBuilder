@@ -11,6 +11,7 @@ Welcome to the Neo4j wiki!
 4. 导出成图片
 5. csv导入
 6. 导出csv
+7.添加图片和富文本
 
 
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg1.gif)
@@ -18,6 +19,8 @@ Welcome to the Neo4j wiki!
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg3.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg4.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/m99.gif)
+![知识图谱构建小工具](http://file.miaoleyan.com/kg52.gif)
+![知识图谱构建小工具](http://file.miaoleyan.com/kg51.gif)
 
 ## 后续优化:
 1. ~~新建单节点,节点的位置能指定(或者和鼠标点下的位置一致) over 2018-11-16~~
