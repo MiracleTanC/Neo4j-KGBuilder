@@ -655,7 +655,7 @@ public class KGraphRepository implements IKGraphRepository {
 
 	public void updateNodeFileStatus(String domain, long nodeId, int status) {
 		try {
-			String nodeCypher = String.format("match (n:%s) where id(n)=%s set n.hasfile=%s ", domain, status, nodeId);
+			String nodeCypher = String.format("match (n:%s) where id(n)=%s set n.hasfile=%s ", domain,nodeId, status);
 			neo4jUtil.excuteCypherSql(nodeCypher);
 
 		} catch (Exception e) {
