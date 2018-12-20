@@ -894,6 +894,7 @@
 			 linktextGroup = svg.append("g").attr("class", "linetext");
 			 nodeGroup = svg.append("g").attr("class", "node");
 			 nodetextGroup = svg.append("g").attr("class", "nodetext");
+			 nodesymbolGroup = svg.append("g").attr("class", "nodesymbol");
 			 s.on("contextmenu",function(){
 		         let [x, y] = d3.mouse(this);
 		     	   let { translate, scale } = getTranslateAndScale();		       
@@ -1133,6 +1134,7 @@
 			dragended:dragended,
 			drawnode:drawnode,
 			drawnodetext:drawnodetext,
+			drawnodesymbol:drawnodesymbol,
 			drawlink:drawlink,
 			drawlinktext:drawlinktext,
 			deletenode:deletenode,
