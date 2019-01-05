@@ -9,12 +9,12 @@ spring:
     cache : false
     mode: HTML5
   neo4j:
-      url: bolt://192.168.100.92:7687
+      url: bolt://localhost:7687
       username: neo4j
       password: 123456
   datasource:
-      url: jdbc:mysql://192.168.100.92:3306/bd?useSSL=false&serverTimezone=UTC 
-      driverClassName: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/bd?useSSL=false&serverTimezone=UTC 
+      driverClassName: com.mysql.cj.jdbc.Driver
       username: root
       password: 123456
       type: com.zaxxer.hikari.HikariDataSource

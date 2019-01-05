@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" layout:decorator="share/layout">
 
 <head>
@@ -63,6 +63,9 @@ left: 812px !important;
     max-height: 100%;
     line-height: 197px;
     vertical-align: middle;
+}
+.circle_opreate{
+	display: none;
 }
 </style>
 <link th:href="@{/wangeditor/wangEditor.css}" rel="stylesheet"/>
@@ -138,20 +141,16 @@ left: 812px !important;
       <!-- 头部over -->
       <!-- 中部 -->
       <el-scrollbar class="mind-cen" id="graphcontainerdiv">
-        <div  class="graphcontainer"></div>
+        <div id="graphcontainer"  class="graphcontainer"></div>
       </el-scrollbar>
       <!-- 中部over -->
-        <div class="svg-set-box">
-			
-		</div>
+        <div class="svg-set-box"></div>
       <!-- 底部 -->
 		<el-dialog title="csv导入图谱" :visible.sync="dialogFormVisible" width="30%">
 			  <el-form >
 			    <el-form-item label="图谱领域" label-width="120px">
 			      <el-autocomplete style="width:100%"
-				      v-model="uploadparam.domain"
-				      :fetch-suggestions="querySearch"
-				      placeholder="请输入内容">
+				      v-model="uploadparam.domain" placeholder="请输入内容"><!--:fetch-suggestions="querySearch"-->
 				  </el-autocomplete>
 			    </el-form-item>
 			    <el-form-item label="选择文件" label-width="120px">
@@ -185,12 +184,11 @@ left: 812px !important;
 			  <el-form >
 			    <el-form-item label="图谱领域" label-width="120px">
 			      <el-autocomplete style="width:100%"
-				      v-model="uploadparam.domain"
-				      :fetch-suggestions="querySearch"
-				      placeholder="请输入内容">
+				      v-model="uploadparam.domain" placeholder="请输入内容"><!--:fetch-suggestions="querySearch"-->
 				  </el-autocomplete>
 			    </el-form-item>
 			    <el-button type="primary" @click="exportcsv">确 定</el-button>
+				  </el-form >
 			</el-dialog>
 		<el-dialog id="editform" title="属性编辑" :visible.sync="isedit" width="30%">
 			<el-tabs type="card" tab-position="top" v-model="propactiveName" @tab-click="prophandleClick" style="margin: 10px">
@@ -307,47 +305,9 @@ left: 812px !important;
     </div>
    
     <!-- 右侧over -->
-    <ul class="el-dropdown-menu el-popper" id="my_custom_menu" style="display: none;">
-         <li  class="el-dropdown-menu__item" @click="btnedit"> 
-	    	<svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-editor"></use>
-            </svg>
-            <span class="pl-15">编辑</span>
-        </li> 
-        <li  class="el-dropdown-menu__item" @click="btnopennode"> 
-	    	<svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-zk-all"></use>
-            </svg>
-            <span class="pl-15">展开</span>
-        </li> 
-        <li  class="el-dropdown-menu__item" @click="btnaddsame"> 
-	    	<svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-lr-san"></use>
-            </svg>
-            <span class="pl-15">添加同级</span>
-        </li> 
-        <li  class="el-dropdown-menu__item" @click="btnaddchild"> 
-	    	<svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-fhxiaji"></use>
-            </svg>
-            <span class="pl-15">添加下级</span>
-        </li> 
-        <li  class="el-dropdown-menu__item" @click="btnaddlink"> 
-	    	<svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-lianxian1"></use>
-            </svg>
-            <span class="pl-15">添加连线</span>
-        </li> 
-        <li class="el-dropdown-menu__item" @click="deletenode"> 
-	    	<svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-shanchu"></use>
-            </svg>
-            <span class="pl-15">删除</span>
-        </li> 
-    </ul>
     <!-- 空白处右键 -->
-    <ul class="el-dropdown-menu el-popper" id="blank_custom_menu" style="display: none;">
-    	<li  class="el-dropdown-menu__item" @click="createnode"> 
+    <ul class="el-dropdown-menu el-popper blankmenubar" id="blank_menubar" style="display: none;">
+    	<li  class="el-dropdown-menu__item" @click="btnaddsingle">
 	    	<svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-jiedian"></use>
             </svg>
@@ -361,7 +321,7 @@ left: 812px !important;
         </li> 
     </ul>
     <!-- 连线按钮组 -->
-    <ul class="el-dropdown-menu el-popper" id="link_custom_menu" style="display: none;">
+    <ul class="el-dropdown-menu el-popper linkmenubar" id="link_menubar" style="display: none;">
     	<li  class="el-dropdown-menu__item" @click="updatelinkName"> 
 	    	<svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-editor"></use>
@@ -408,6 +368,6 @@ left: 812px !important;
         this.domainid = domainid;
     }
 	</script>
-	<script th:inline="javascript" type="text/javascript" th:src="@{/js/knowledgegraphbuilder.js}"></script> 
+	<script th:inline="javascript" type="text/javascript" th:src="@{/js/kgbuilder.js}"></script> 
 </div>
 </html>

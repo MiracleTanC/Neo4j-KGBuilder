@@ -1,33 +1,5 @@
 package com.warmer.kgmaker.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvWriter;
@@ -38,14 +10,21 @@ import com.warmer.kgmaker.entity.QAEntityItem;
 import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.service.IKGGraphService;
 import com.warmer.kgmaker.service.IKnowledgegraphService;
-import com.warmer.kgmaker.util.DateUtil;
-import com.warmer.kgmaker.util.GraphPageRecord;
-import com.warmer.kgmaker.util.Neo4jUtil;
-import com.warmer.kgmaker.util.R;
-import com.warmer.kgmaker.util.StringUtil;
+import com.warmer.kgmaker.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
 
 @Controller
-@RequestMapping(value = "/kg")
+@RequestMapping(value = "/")
 public class KGManagerController extends BaseController {
 	@Autowired
 	private Neo4jUtil neo4jUtil;
@@ -56,28 +35,14 @@ public class KGManagerController extends BaseController {
 	@Autowired
 	private IKnowledgegraphService kgservice;
 
-	@GetMapping("/index")
+	@GetMapping("/")
+	public String home(Model model) {
+		return "kg/home";
+	}
+	@GetMapping("/kg/index")
 	public String index(Model model) {
 		return "kg/index";
 	}
-
-	/*@ResponseBody
-	@RequestMapping(value = "/getgraph")
-	public R<GraphPageRecord<HashMap<String, Object>>> getGraphDomain(GraphQuery queryItem) {
-		R<GraphPageRecord<HashMap<String, Object>>> result = new R<GraphPageRecord<HashMap<String, Object>>>();
-		GraphPageRecord<HashMap<String, Object>> resultRecord = new GraphPageRecord<HashMap<String, Object>>();
-		try {
-			resultRecord = KGGraphService.getPageDomain(queryItem);
-			result.code = 200;
-			result.setData(resultRecord);
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.code = 500;
-			result.setMsg("服务器错误");
-		}
-
-		return result;
-	}*/
 	@ResponseBody
 	@RequestMapping(value = "/getgraph") // call db.labels
 	public R<GraphPageRecord<Map<String, Object>>> getgraph(GraphQuery queryItem) {
