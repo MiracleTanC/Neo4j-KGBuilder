@@ -33,6 +33,7 @@ Welcome to the Neo4j wiki!
 ## 运行与启动
 1. 需要jdk1.8,安装Neo4j,安装和配置自行百度
 2. 启动后访问[http://localhost:8089/kg/index](http://localhost:8089/kg/index) 即可
+3. 新版[http://localhost:8089](http://localhost:8089)
 ## 交流
 希望感兴趣的小伙伴能一起做些事情
 ![](http://file.miaoleyan.com/nndt/8UQmv0M1CWLxFx45YSuUElouufhePenr)
