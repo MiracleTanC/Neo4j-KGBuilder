@@ -641,13 +641,11 @@ var app = new Vue({
             //_this.svg.call(d3.zoom().transform, d3.zoomIdentity);
             _this.svg.call(d3.zoom().on("zoom", function () {
                 d3.selectAll('.node').attr("transform",d3.event.transform);
+                d3.selectAll('.nodetext >text').attr("transform",d3.event.transform);
                 d3.selectAll('.line').attr("transform",d3.event.transform);
                 d3.selectAll('.linetext').attr("transform",d3.event.transform);
-                //link.attr("transform",d3.event.transform);
-                //linktext.attr("transform",d3.event.transform);
-                nodetext.attr("transform",d3.event.transform);
-                nodesymbol.attr("transform",d3.event.transform);
-                //nodebutton.attr("transform",d3.event.transform);
+                //nodetext.attr("transform",d3.event.transform);
+                d3.selectAll('.nodesymbol').attr("transform",d3.event.transform);
                 d3.selectAll('.nodebutton').attr("transform",d3.event.transform);
                 //_this.svg.selectAll("g").attr("transform", d3.event.transform);
             }));
@@ -897,7 +895,6 @@ var app = new Vue({
             var _this = this;
             var nodetextenter = nodetext.enter().append("text")
                 .style("fill", "#fff")
-                .attr("class", "nodetext")
                 .attr("dy", 4)
                 .attr("font-family", "微软雅黑")
                 .attr("text-anchor", "middle")
