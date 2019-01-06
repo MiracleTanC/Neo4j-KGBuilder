@@ -501,9 +501,8 @@ var app = new Vue({
             this.nodebuttonGroup = this.svg.append("g").attr("class", "nodebutton");
             this.addmaker();
             this.addnodebutton();
-            var _this=this;
-            _this.svg.on('click',function(){
-                _this.svg.selectAll("use").classed("circle_opreate", true);
+            this.svg.on('click',function(){
+                d3.selectAll("use").classed("circle_opreate", true);
             }, 'false');
 
         },
@@ -540,7 +539,10 @@ var app = new Vue({
                 return d.lk.name;
             });
             // 更新节点按钮组
-            var nodebutton = _this.nodebuttonGroup.selectAll(".nodebuttonGroup").data(nodes);
+            d3.selectAll(".nodebutton  >g").remove();
+            var nodebutton = _this.nodebuttonGroup.selectAll(".nodebutton").data(nodes, function (d) {
+                return d
+            });
             nodebutton.exit().remove();
             var nodebuttonEnter = _this.drawnodebutton(nodebutton);
             nodebutton = nodebuttonEnter.merge(nodebutton);
@@ -580,9 +582,10 @@ var app = new Vue({
                 }
                 return "none";
             })
-            _this.simulation.nodes(nodes).alphaTarget(0).on("tick", ticked);
+            _this.simulation.nodes(nodes).on("tick", ticked);
             _this.simulation.force("link").links(links);
-            _this.simulation.alpha(1).restart();
+            //_this.simulation.restart();
+            _this.simulation.alphaTarget(0).restart();
             function ticked() {
                 // 更新连线坐标
                 link.attr("x1", function (d) {
@@ -611,11 +614,17 @@ var app = new Vue({
                     .attr("cy", function (d) {
                         return d.y;
                     });
-
                 // 更新节点操作按钮组坐标
+                nodebutton.attr("cx", function (d) {
+                    return d.x;
+                })
+                    .attr("cy", function (d) {
+                        return d.y;
+                    });
                nodebutton.attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y+ ") scale(1)";
                 })
+
                 // 更新文字坐标
                 nodetext.attr("x", function (d) {
                     return d.x;
@@ -629,12 +638,16 @@ var app = new Vue({
                 })
             }
             // 鼠标滚轮缩放
+            //_this.svg.call(d3.zoom().transform, d3.zoomIdentity);
             _this.svg.call(d3.zoom().on("zoom", function () {
-                node.attr("transform",d3.event.transform);
-                link.attr("transform",d3.event.transform);
-                linktext.attr("transform",d3.event.transform);
+                d3.selectAll('.node').attr("transform",d3.event.transform);
+                d3.selectAll('.line').attr("transform",d3.event.transform);
+                d3.selectAll('.linetext').attr("transform",d3.event.transform);
+                //link.attr("transform",d3.event.transform);
+                //linktext.attr("transform",d3.event.transform);
                 nodetext.attr("transform",d3.event.transform);
                 nodesymbol.attr("transform",d3.event.transform);
+                //nodebutton.attr("transform",d3.event.transform);
                 d3.selectAll('.nodebutton').attr("transform",d3.event.transform);
                 //_this.svg.selectAll("g").attr("transform", d3.event.transform);
             }));
@@ -664,8 +677,7 @@ var app = new Vue({
                         case "DELETE":
                             _this.selectnodeid=d.uuid;
                             var out_buttongroup_id='.out_buttongroup_'+i;
-                            _this.svg.selectAll(out_buttongroup_id).remove();
-                            _this.deletenode();
+                            _this.deletenode(out_buttongroup_id);
                             break;
                     }
                     ACTION = '';//重置 ACTION
@@ -693,8 +705,6 @@ var app = new Vue({
             var _this = this;
             var data = _this.graphEntity;
             data.domain = _this.domain;
-            $("#link_menubar").hide();
-            d3.select('.graphcontainer').style("cursor", "crosshair");
             $.ajax({
                 data: data,
                 type: "POST",
@@ -725,7 +735,7 @@ var app = new Vue({
             });
         },
         addmaker() {
-            var arrowMarker = this.svg.append("defs").append("marker")
+            var arrowMarker = this.svg.append("marker")
                 .attr("id", "arrow")
                 .attr("markerUnits", "strokeWidth")
                 .attr("markerWidth", "18")//
@@ -847,7 +857,6 @@ var app = new Vue({
                 d3.select(this).style("stroke-width", "2");
             });
             nodeEnter.on("click", function (d,i) {
-                $('#link_menubar').hide();// 隐藏空白处右键菜单
                 var aa = d3.select(this)._groups[0][0];
                 if (aa.classList.contains("selected")) {
                     d3.select(this).style("stroke-width", "2") // 圆外面的轮廓线
@@ -954,10 +963,7 @@ var app = new Vue({
                     return 'buttongroup out_buttongroup_'+i;
                 })
                 .classed("circle_opreate", true);
-            nodebuttonEnter.call(d3.drag()
-                .on("start", _this.dragstarted)
-                .on("drag", _this.dragged)
-                .on("end", _this.dragended));
+
             return nodebuttonEnter;
         },
         drawlink(link) {
@@ -1008,7 +1014,6 @@ var app = new Vue({
         },
         drawlinktext(link) {
             var linktextEnter = link.enter().append('text')
-                .attr("class", "linetext")
                 .style('fill', '#e3af85')
                 .style('font-size', '10px')
                 .text(function (d) {
@@ -1028,7 +1033,7 @@ var app = new Vue({
             });
             return linktextEnter;
         },
-        deletenode() {
+        deletenode(out_buttongroup_id) {
             var _this = this;
             _this.$confirm('此操作将删除该节点及周边关系(不可恢复), 是否继续?', '三思而后行', {
                 confirmButtonText: '确定',
@@ -1042,6 +1047,7 @@ var app = new Vue({
                     url: contextRoot + "deletenode",
                     success: function (result) {
                         if (result.code == 200) {
+                            _this.svg.selectAll(out_buttongroup_id).remove();
                             var rships = result.data;
                             // 删除节点对应的关系
                             for (var m = 0; m < rships.length; m++) {
@@ -1075,7 +1081,7 @@ var app = new Vue({
                     }
                 })
             }).catch(function () {
-                this.$message({
+                _this.$message({
                     type: 'info',
                     message: '已取消删除'
                 });
@@ -1439,6 +1445,7 @@ $(function () {
         $('#blank_menubar').hide();
     })
     $(".graphcontainer").bind("contextmenu", function (event) {
+        app.svg.selectAll("use").classed("circle_opreate", true);
         var left = event.clientX;
         var top = event.clientY;
         document.getElementById('blank_menubar').style.position = 'absolute';
