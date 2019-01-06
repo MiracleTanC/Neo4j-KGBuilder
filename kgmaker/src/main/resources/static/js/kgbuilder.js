@@ -638,13 +638,12 @@ var app = new Vue({
                 })
             }
             // 鼠标滚轮缩放
-            //_this.svg.call(d3.zoom().transform, d3.zoomIdentity);
+            //_this.svg.call(d3.zoom().transform, d3.zoomIdentity);//缩放至初始倍数
             _this.svg.call(d3.zoom().on("zoom", function () {
                 d3.selectAll('.node').attr("transform",d3.event.transform);
-                d3.selectAll('.nodetext >text').attr("transform",d3.event.transform);
+                d3.selectAll('.nodetext').attr("transform",d3.event.transform);
                 d3.selectAll('.line').attr("transform",d3.event.transform);
                 d3.selectAll('.linetext').attr("transform",d3.event.transform);
-                //nodetext.attr("transform",d3.event.transform);
                 d3.selectAll('.nodesymbol').attr("transform",d3.event.transform);
                 d3.selectAll('.nodebutton').attr("transform",d3.event.transform);
                 //_this.svg.selectAll("g").attr("transform", d3.event.transform);
@@ -855,15 +854,6 @@ var app = new Vue({
                 d3.select(this).style("stroke-width", "2");
             });
             nodeEnter.on("click", function (d,i) {
-                var aa = d3.select(this)._groups[0][0];
-                if (aa.classList.contains("selected")) {
-                    d3.select(this).style("stroke-width", "2") // 圆外面的轮廓线
-                    d3.select(this).attr("class", "nodetext")
-                    d.fixed = false;
-                } else {
-                    d3.select(this).style("stroke-width", "20")
-                    d3.select(this).attr("class", "nodetext selected")
-                }
                 var out_buttongroup_id='.out_buttongroup_'+i;
                 _this.svg.selectAll("use").classed("circle_opreate", true);
                 _this.svg.selectAll(out_buttongroup_id).classed("circle_opreate", false);
