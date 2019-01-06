@@ -658,6 +658,8 @@ var app = new Vue({
                         case "EDIT":
                             _this.isedit = true;
                             _this.propactiveName = 'propedit';
+                            _this.txx=d.x;
+                            _this.tyy=d.y;
                             break;
                         case "MORE":
                             _this.getmorenode();
@@ -758,7 +760,6 @@ var app = new Vue({
                 .attr("class", function (d, i) {
                     return "action_" + i ;
                 });
-
             var arc = d3.arc()
                 .innerRadius(30)
                 .outerRadius(60);
@@ -766,7 +767,8 @@ var app = new Vue({
                 .attr("d", function (d) {
                     return arc(d)
                 })
-                .attr("fill", "#bbcdc5")
+                .attr("fill", "#D2D5DA")
+                .style("opacity", 0.6)
                 .attr("stroke", "#f0f0f4")
                 .attr("stroke-width", 2);
             buttonEnter.append("text")
@@ -944,7 +946,10 @@ var app = new Vue({
         },
         drawnodebutton(nodebutton) {
             var _this = this;
-            var nodebuttonEnter = nodebutton.enter().append("g").append("use") //  为每个节点组添加一个 use 子元素
+            var nodebuttonEnter = nodebutton.enter().append("g").append("use")//  为每个节点组添加一个 use 子元素
+                .attr("r", function(d){
+                    return d.r;
+                })
                 .attr("xlink:href", "#out_circle") //  指定 use 引用的内容
                 .attr('class',function(d,i){
                     return 'buttongroup out_buttongroup_'+i;
