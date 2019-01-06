@@ -22,14 +22,18 @@ Welcome to the Neo4j wiki!
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg52.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg51.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg33.png)
+![](http://file.miaoleyan.com/nndt/AR6PX7DVQa9HRxXx9tsz2150X1hrcs2S)
 
 ## 后续优化:
 1. ~~新建单节点,节点的位置能指定(或者和鼠标点下的位置一致) over 2018-11-16~~
 2. ~~做出的图谱能够导出成图片 over 2018-11-16~~
 3. ~~支持导入功能,同时支持导出关系和节点 over 2018-11-17~~
 4. 输入一段文本,通过自然语言等手段,抽出实体和关系,编辑后可形成可视化的图谱
+5. 按钮组不能随节点半径的变化而变化
 ## 运行与启动
 1. 需要jdk1.8,安装Neo4j,安装和配置自行百度
 2. 启动后访问[http://localhost:8089/kg/index](http://localhost:8089/kg/index) 即可
+3. 新版[http://localhost:8089](http://localhost:8089)
 ## 交流
+### 希望感兴趣的小伙伴能一起做些事情
 ![](http://file.miaoleyan.com/nndt/8UQmv0M1CWLxFx45YSuUElouufhePenr)
