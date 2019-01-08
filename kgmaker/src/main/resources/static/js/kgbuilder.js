@@ -487,7 +487,7 @@ var app = new Vue({
             this.svg.attr("width", width);
             this.svg.attr("height", height);
             this.simulation = d3.forceSimulation()
-                .force("link", d3.forceLink().distance(220).id(function (d) {
+                .force("link", d3.forceLink().distance(400).id(function (d) {
                     return d.uuid
                 }))
                 .force("charge", d3.forceManyBody().strength(-400))
@@ -522,8 +522,42 @@ var app = new Vue({
                 if (typeof(targetNode) == 'undefined') return;
                 links.push({source: sourceNode.uuid, target: targetNode.uuid, lk: m});
             });
+           if(links.length>0){
+               _.each(links, function(link) {
+                   var same = _.where(links, {
+                       'source': link.source,
+                       'target': link.target
+                   });
+                   var sameAlt = _.where(links, {
+                       'source': link.target,
+                       'target': link.source
+                   });
+                   var sameAll = same.concat(sameAlt);
+                   _.each(sameAll, function(s, i) {
+                       s.sameIndex = (i + 1);
+                       s.sameTotal = sameAll.length;
+                       s.sameTotalHalf = (s.sameTotal / 2);
+                       s.sameUneven = ((s.sameTotal % 2) !== 0);
+                       s.sameMiddleLink = ((s.sameUneven === true) &&(Math.ceil(s.sameTotalHalf) === s.sameIndex));
+                       s.sameLowerHalf = (s.sameIndex <= s.sameTotalHalf);
+                       s.sameArcDirection = 1;
+                       //s.sameArcDirection = s.sameLowerHalf ? 0 : 1;
+                       s.sameIndexCorrected = s.sameLowerHalf ? s.sameIndex : (s.sameIndex - Math.ceil(s.sameTotalHalf));
+                   });
+               });
+               var maxSame = _.chain(links)
+                   .sortBy(function(x) {
+                       return x.sameTotal;
+                   })
+                   .last()
+                   .value().sameTotal;
+
+               _.each(links, function(link) {
+                   link.maxSameHalf = Math.round(maxSame / 2);
+               });
+           }
             // 更新连线 links
-            var link = _this.linkGroup.selectAll("line").data(links, function (d) {
+            var link = _this.linkGroup.selectAll(".line >path").data(links, function (d) {
                 return d.uuid;
             });
             link.exit().remove();
@@ -584,11 +618,24 @@ var app = new Vue({
             })
             _this.simulation.nodes(nodes).on("tick", ticked);
             _this.simulation.force("link").links(links);
-            //_this.simulation.restart();
             _this.simulation.alphaTarget(0).restart();
+            function linkArc(d) {
+                var dx = (d.target.x - d.source.x),
+                    dy = (d.target.y - d.source.y),
+                    dr = Math.sqrt(dx * dx + dy * dy),
+                    unevenCorrection = (d.sameUneven ? 0 : 0.5);
+                var curvature = 2,
+                    arc = (1.0/curvature)*((dr * d.maxSameHalf) / (d.sameIndexCorrected - unevenCorrection));
+                if (d.sameMiddleLink) {
+                    arc = 0;
+                }
+                var dd="M" + d.source.x + "," + d.source.y + "A" + arc + "," + arc + " 0 0," + d.sameArcDirection + " " + d.target.x + "," + d.target.y;
+                return dd;
+            }
+
             function ticked() {
                 // 更新连线坐标
-                link.attr("x1", function (d) {
+                /*link.attr("x1", function (d) {
                     return d.source.x;
                    })
                     .attr("y1", function (d) {
@@ -599,14 +646,17 @@ var app = new Vue({
                     })
                     .attr("y2", function (d) {
                         return d.target.y;
-                    });
+                    });*/
+                link.attr("d", linkArc)
                 // 刷新连接线上的文字位置
-                linktext.attr("x", function (d) {
+               /* linktext.attr("x", function (d) {
                     return (d.source.x + d.target.x) / 2;
                 })
                     .attr("y", function (d) {
                         return (d.source.y + d.target.y) / 2;
-                    });
+                    })*/
+
+
                 // 更新节点坐标
                 node.attr("cx", function (d) {
                     return d.x;
@@ -737,13 +787,13 @@ var app = new Vue({
             var arrowMarker = this.svg.append("marker")
                 .attr("id", "arrow")
                 .attr("markerUnits", "strokeWidth")
-                .attr("markerWidth", "18")//
-                .attr("markerHeight", "18")
-                .attr("viewBox", "0 0 12 12")
-                .attr("refX", "30")// 13
-                .attr("refY", "6")
+                .attr("markerWidth", "20")//
+                .attr("markerHeight", "20")
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", "22")// 13
+                .attr("refY", "0")
                 .attr("orient", "auto");
-            var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";// 定义箭头形状
+            var arrow_path = "M0,-5L10,0L0,5";// 定义箭头形状
             arrowMarker.append("path").attr("d", arrow_path).attr("fill", "#fce6d4");
         },
         addnodebutton() {
@@ -960,10 +1010,15 @@ var app = new Vue({
         },
         drawlink(link) {
             var _this = this;
-            var linkEnter = link.enter().append("line")
+            var linkEnter = link.enter().append("path")
                 .attr("stroke-width", 1)
                 .attr("stroke", "#fce6d4")
-                .attr("marker-end", "url(#arrow)");// 箭头
+                .attr("fill", "none")
+                .attr("id", function (d) {
+                    return "invis_" + d.lk.sourceid + "-" + d.lk.name + "-" + d.lk.targetid;
+                })
+                .attr("marker-end", "url(#arrow)")
+                ;// 箭头
             linkEnter.on("dblclick", function (d) {
                 _this.selectnodeid = d.lk.uuid;
                 if (_this.isdeletelink) {
@@ -971,18 +1026,6 @@ var app = new Vue({
                 } else {
                     _this.updatelinkName();
                 }
-            });
-            linkEnter.on("mouseover", function (d) {
-                var cc = $(this).offset();
-                app.selectnodeid = d.lk.uuid;
-                app.selectlinkname = d.lk.name;
-                d3.select('#link_menubar')
-                    .style('position', 'absolute')
-                    .style('left', cc.left + "px")
-                    .style('top', cc.top + "px")
-                    .style('display', 'block');
-                d3.event.preventDefault();// 禁止系统默认右键
-                d3.event.stopPropagation();// 禁止空白处右键
             });
             linkEnter.on("contextmenu", function (d) {
                 var cc = $(this).offset();
@@ -1007,12 +1050,19 @@ var app = new Vue({
         drawlinktext(link) {
             var linktextEnter = link.enter().append('text')
                 .style('fill', '#e3af85')
-                .style('font-size', '10px')
+                .append("textPath")
+                .attr("startOffset", "50%")
+                .attr("text-anchor", "middle")
+                .attr("xlink:href", function(d) {
+                    return "#invis_" + d.lk.sourceid + "-" + d.lk.name + "-" + d.lk.targetid;
+                })
+                .style("font-size", 14)
                 .text(function (d) {
                     if (d.lk.name != '') {
                         return d.lk.name;
                     }
                 });
+
             linktextEnter.on("mouseover", function (d) {
                 app.selectnodeid = d.lk.uuid;
                 app.selectlinkname = d.lk.name;
@@ -1023,6 +1073,7 @@ var app = new Vue({
                     .style('top', cc.top + "px")
                     .style('display', 'block');
             });
+
             return linktextEnter;
         },
         deletenode(out_buttongroup_id) {
@@ -1458,7 +1509,7 @@ $(function () {
     });
 
     $(".linkmenubar").bind("mouseleave", function (event) {
-        $(this).hide();
+        d3.select('#link_menubar').style('display', 'none');
     });
     $("body").bind("mousedown", function (event) {
         if (!(event.target.id === "link_menubar" || $(event.target).parents("#link_menubar").length > 0)) {
