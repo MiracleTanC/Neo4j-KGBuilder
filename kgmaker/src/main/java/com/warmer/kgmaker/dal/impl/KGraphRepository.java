@@ -1,13 +1,5 @@
 package com.warmer.kgmaker.dal.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
 import com.alibaba.fastjson.JSON;
 import com.warmer.kgmaker.dal.IKGraphRepository;
 import com.warmer.kgmaker.entity.QAEntityItem;
@@ -15,6 +7,13 @@ import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.util.GraphPageRecord;
 import com.warmer.kgmaker.util.Neo4jUtil;
 import com.warmer.kgmaker.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class KGraphRepository implements IKGraphRepository {
@@ -60,9 +59,9 @@ public class KGraphRepository implements IKGraphRepository {
 	 */
 	public void deleteKGdomain(String domain) {
 		try {
-			String rSql = String.format("MATCH (n:%s) -[r]-(m)  delete r", domain);
+			String rSql = String.format("MATCH (n:`%s`) -[r]-(m)  delete r", domain);
 			neo4jUtil.excuteCypherSql(rSql);
-			String deleteNodeSql = String.format("MATCH (n:%s) delete n", domain);
+			String deleteNodeSql = String.format("MATCH (n:`%s`) delete n", domain);
 			neo4jUtil.excuteCypherSql(deleteNodeSql);
 
 		} catch (Exception e) {
@@ -164,7 +163,7 @@ public class KGraphRepository implements IKGraphRepository {
 		try {
 			int skipCount = (pageIndex - 1) * pageSize;
 			int limitCount = pageSize;
-			String domainSql = String.format("START n=node(*) MATCH (n:%s) RETURN n SKIP %s LIMIT %s", domain,
+			String domainSql = String.format("START n=node(*) MATCH (n:`%s`) RETURN n SKIP %s LIMIT %s", domain,
 					skipCount, limitCount);
 			if (!StringUtil.isBlank(domain)) {
 				ents = neo4jUtil.GetGraphNode(domainSql);
@@ -210,7 +209,7 @@ public class KGraphRepository implements IKGraphRepository {
 		long totalcount = 0;
 		try {
 			if (!StringUtil.isBlank(domain)) {
-				String nodeSql = String.format("MATCH (n:%s) <-[r]->(m)  where id(n)=%s return count(m)", domain,
+				String nodeSql = String.format("MATCH (n:`%s`) <-[r]->(m)  where id(n)=%s return count(m)", domain,
 						nodeid);
 				totalcount = neo4jUtil.GetGraphValue(nodeSql);
 			}
@@ -228,7 +227,7 @@ public class KGraphRepository implements IKGraphRepository {
 	public void createdomain(String domain) {
 		try {
 			String cypherSql = String.format(
-					"create (n:%s{entitytype:0,name:'',filter:[],entitytype:'0',showstyle:'0'}) return id(n)", domain);
+					"create (n:`%s`{entitytype:0,name:'',filter:[],entitytype:'0',showstyle:'0'}) return id(n)", domain);
 			neo4jUtil.excuteCypherSql(cypherSql);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -245,7 +244,7 @@ public class KGraphRepository implements IKGraphRepository {
 	public HashMap<String, Object> getmorerelationnode(String domain, String nodeid) {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		try {
-			String cypherSql = String.format("MATCH (n:%s) -[r]-(m) where id(n)=%s  return * limit 100", domain,
+			String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 100", domain,
 					nodeid);
 			result = neo4jUtil.GetGraphNodeAndShip(cypherSql);
 		} catch (Exception e) {
@@ -266,7 +265,7 @@ public class KGraphRepository implements IKGraphRepository {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		List<HashMap<String, Object>> graphNodeList = new ArrayList<HashMap<String, Object>>();
 		try {
-			String cypherSql = String.format("MATCH (n:%s) where id(n)=%s set n.name='%s' return n", domain, nodeid,
+			String cypherSql = String.format("MATCH (n:`%s`) where id(n)=%s set n.name='%s' return n", domain, nodeid,
 					nodename);
 			graphNodeList = neo4jUtil.GetGraphNode(cypherSql);
 			if (graphNodeList.size() > 0) {
@@ -291,14 +290,14 @@ public class KGraphRepository implements IKGraphRepository {
 		try {
 			if (entity.getUuid() != 0) {
 				String sqlkeyval = neo4jUtil.getkeyvalCyphersql(entity);
-				String cypherSql = String.format("match (n:%s) where id(n)=%s set %s return n", domain,
+				String cypherSql = String.format("match (n:`%s`) where id(n)=%s set %s return n", domain,
 						entity.getUuid(), sqlkeyval);
 				graphNodeList = neo4jUtil.GetGraphNode(cypherSql);
 			} else {
 				entity.setColor("#ff4500");// 默认颜色
 				entity.setR(30);// 默认半径
 				String propertiesString = neo4jUtil.getFilterPropertiesJson(JSON.toJSONString(entity));
-				String cypherSql = String.format("create (n:%s%s) return n", domain, propertiesString);
+				String cypherSql = String.format("create (n:`%s` %s) return n", domain, propertiesString);
 				graphNodeList = neo4jUtil.GetGraphNode(cypherSql);
 			}
 			if (graphNodeList.size() > 0) {
@@ -332,7 +331,7 @@ public class KGraphRepository implements IKGraphRepository {
 		List<HashMap<String, Object>> nodes = new ArrayList<HashMap<String, Object>>();
 		List<HashMap<String, Object>> ships = new ArrayList<HashMap<String, Object>>();
 		try {
-			String cypherSqlFmt = "create (n:%s{name:'%s',color:'#ff4500',r:30}) return n";
+			String cypherSqlFmt = "create (n:`%s` {name:'%s',color:'#ff4500',r:30}) return n";
 			String cypherSql = String.format(cypherSqlFmt, domain, sourcename);// 概念实体
 			List<HashMap<String, Object>> graphNodeList = neo4jUtil.GetGraphNode(cypherSql);
 			if (graphNodeList.size() > 0) {
@@ -347,7 +346,7 @@ public class KGraphRepository implements IKGraphRepository {
 						nodes.add(targetNode);
 						String targetuuid = String.valueOf(targetNode.get("uuid"));
 						String rSql = String.format(
-								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
+								"match(n:`%s`),(m:`%s`) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
 								domain, domain, sourceuuid, targetuuid, relation);
 						List<HashMap<String, Object>> rshipList = neo4jUtil.GetGraphRelationShip(rSql);
 						ships.addAll(rshipList);
@@ -385,8 +384,8 @@ public class KGraphRepository implements IKGraphRepository {
 		List<HashMap<String, Object>> nodes = new ArrayList<HashMap<String, Object>>();
 		List<HashMap<String, Object>> ships = new ArrayList<HashMap<String, Object>>();
 		try {
-			String cypherSqlFmt = "create (n:%s{name:'%s',color:'#ff4500',r:30}) return n";
-			String cypherSql = String.format("match (n:%s) where id(n)=%s return n", domain, sourceid);
+			String cypherSqlFmt = "create (n:`%s`{name:'%s',color:'#ff4500',r:30}) return n";
+			String cypherSql = String.format("match (n:`%s`) where id(n)=%s return n", domain, sourceid);
 			List<HashMap<String, Object>> sourcenodeList = neo4jUtil.GetGraphNode(cypherSql);
 			if (sourcenodeList.size() > 0) {
 				nodes.addAll(sourcenodeList);
@@ -399,7 +398,7 @@ public class KGraphRepository implements IKGraphRepository {
 						String targetuuid = String.valueOf(targetNode.get("uuid"));
 						// 创建关系
 						String rSql = String.format(
-								"match(n:%s),(m:%s) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
+								"match(n:`%s`),(m:`%s`) where id(n)=%s and id(m)=%s create (n)-[r:RE {name:'%s'}]->(m) return r",
 								domain, domain, sourceid, targetuuid, relation);
 						List<HashMap<String, Object>> shipList = neo4jUtil.GetGraphRelationShip(rSql);
 						ships.addAll(shipList);
@@ -430,7 +429,7 @@ public class KGraphRepository implements IKGraphRepository {
 	public List<HashMap<String, Object>> batchcreatesamenode(String domain, Integer entitytype, String[] sourcenames) {
 		List<HashMap<String, Object>> rss = new ArrayList<HashMap<String, Object>>();
 		try {
-			String cypherSqlFmt = "create (n:%s{name:'%s',color:'#ff4500',r:30}) return n";
+			String cypherSqlFmt = "create (n:`%s`{name:'%s',color:'#ff4500',r:30}) return n";
 			for (String tn : sourcenames) {
 				String sourcenodeSql = String.format(cypherSqlFmt, domain, tn, entitytype);
 				List<HashMap<String, Object>> targetNodeList = neo4jUtil.GetGraphNode(sourcenodeSql);
@@ -459,7 +458,7 @@ public class KGraphRepository implements IKGraphRepository {
 	public HashMap<String, Object> createlink(String domain, long sourceid, long targetid, String ship) {
 		HashMap<String, Object> rss = new HashMap<String, Object>();
 		try {
-			String cypherSql = String.format("MATCH (n:%s),(m:%s) WHERE id(n)=%s AND id(m) = %s "
+			String cypherSql = String.format("MATCH (n:`%s`),(m:`%s`) WHERE id(n)=%s AND id(m) = %s "
 					+ "CREATE (n)-[r:RE{name:'%s'}]->(m)" + "RETURN r", domain, domain, sourceid, targetid, ship);
 			List<HashMap<String, Object>> cypherResult = neo4jUtil.GetGraphRelationShip(cypherSql);
 			if (cypherResult.size() > 0) {
@@ -486,7 +485,7 @@ public class KGraphRepository implements IKGraphRepository {
 	public HashMap<String, Object> updatelink(String domain, long shipid, String shipname) {
 		HashMap<String, Object> rss = new HashMap<String, Object>();
 		try {
-			String cypherSql = String.format("MATCH (n:%s) -[r]->(m) where id(r)=%s set r.name='%s' return r", domain,
+			String cypherSql = String.format("MATCH (n:`%s`) -[r]->(m) where id(r)=%s set r.name='%s' return r", domain,
 					shipid, shipname);
 			List<HashMap<String, Object>> cypherResult = neo4jUtil.GetGraphRelationShip(cypherSql);
 			if (cypherResult.size() > 0) {
@@ -508,13 +507,13 @@ public class KGraphRepository implements IKGraphRepository {
 	public List<HashMap<String, Object>> deletenode(String domain, long nodeid) {
 		List<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
 		try {
-			String nSql = String.format("MATCH (n:%s)  where id(n)=%s return n", domain, nodeid);
+			String nSql = String.format("MATCH (n:`%s`)  where id(n)=%s return n", domain, nodeid);
 			result = neo4jUtil.GetGraphNode(nSql);
-			String rSql = String.format("MATCH (n:%s) <-[r]->(m) where id(n)=%s return r", domain, nodeid);
+			String rSql = String.format("MATCH (n:`%s`) <-[r]->(m) where id(n)=%s return r", domain, nodeid);
 			neo4jUtil.GetGraphRelationShip(rSql);
-			String deleteRelationSql = String.format("MATCH (n:%s) <-[r]->(m) where id(n)=%s delete r", domain, nodeid);
+			String deleteRelationSql = String.format("MATCH (n:`%s`) <-[r]->(m) where id(n)=%s delete r", domain, nodeid);
 			neo4jUtil.excuteCypherSql(deleteRelationSql);
-			String deleteNodeSql = String.format("MATCH (n:%s) where id(n)=%s delete n", domain, nodeid);
+			String deleteNodeSql = String.format("MATCH (n:`%s`) where id(n)=%s delete n", domain, nodeid);
 			neo4jUtil.excuteCypherSql(deleteNodeSql);
 			return result;
 		} catch (Exception e) {
@@ -531,7 +530,7 @@ public class KGraphRepository implements IKGraphRepository {
 	 */
 	public void deletelink(String domain, long shipid) {
 		try {
-			String cypherSql = String.format("MATCH (n:%s) -[r]->(m) where id(r)=%s delete r", domain, shipid);
+			String cypherSql = String.format("MATCH (n:`%s`) -[r]->(m) where id(r)=%s delete r", domain, shipid);
 			neo4jUtil.excuteCypherSql(cypherSql);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -564,9 +563,9 @@ public class KGraphRepository implements IKGraphRepository {
 					String nodestart = ns[0];
 					String ship = ns[1];
 					String nodeend = ns[2];
-					String nodestartSql = String.format("MERGE (n:%s{name:'%s',entitytype:'%s'})  return n", domain,
+					String nodestartSql = String.format("MERGE (n:`%s`{name:'%s',entitytype:'%s'})  return n", domain,
 							nodestart, entitytype);
-					String nodeendSql = String.format("MERGE (n:%s{name:'%s',entitytype:'%s'})  return n", domain,
+					String nodeendSql = String.format("MERGE (n:`%s`{name:'%s',entitytype:'%s'})  return n", domain,
 							nodeend, entitytype);
 					// 创建初始节点
 					List<HashMap<String, Object>> startNode = neo4jUtil.GetGraphNode(nodestartSql);
@@ -584,13 +583,13 @@ public class KGraphRepository implements IKGraphRepository {
 					}
 					if (sourceid != null && sourceid > 0 && operatetype == 2) {// 添加下级
 						String shipSql = String.format(
-								"MATCH (n:%s),(m:%s) WHERE id(n)=%s AND id(m) = %s "
+								"MATCH (n:`%s`),(m:`%s`) WHERE id(n)=%s AND id(m) = %s "
 										+ "CREATE (n)-[r:RE{name:'%s'}]->(m)" + "RETURN r",
 								domain, domain, sourceid, startId, "");
 						List<HashMap<String, Object>> shipResult = neo4jUtil.GetGraphRelationShip(shipSql);
 						shipList.add(shipResult.get(0));
 					}
-					String shipSql = String.format("MATCH (n:%s),(m:%s) WHERE id(n)=%s AND id(m) = %s "
+					String shipSql = String.format("MATCH (n:`%s`),(m:`%s`) WHERE id(n)=%s AND id(m) = %s "
 							+ "CREATE (n)-[r:RE{name:'%s'}]->(m)" + "RETURN r", domain, domain, startId, endId, ship);
 					List<HashMap<String, Object>> shipResult = neo4jUtil.GetGraphRelationShip(shipSql);
 					shipList.addAll(shipResult);
@@ -611,11 +610,11 @@ public class KGraphRepository implements IKGraphRepository {
 			if (params != null && params.size() > 0) {
 				String nodeStr = neo4jUtil.getFilterPropertiesJson(JSON.toJSONString(params));
 				String nodeCypher = String
-						.format("UNWIND %s as row " + " MERGE (n:%s {name:row.SourceNode,source:row.Source})"
-								+ " MERGE (m:%s {name:row.TargetNode,source:row.Source})", nodeStr, domain, domain);
+						.format("UNWIND %s as row " + " MERGE (n:`%s` {name:row.SourceNode,source:row.Source})"
+								+ " MERGE (m:`%s` {name:row.TargetNode,source:row.Source})", nodeStr, domain, domain);
 				neo4jUtil.excuteCypherSql(nodeCypher);
-				String relationShipCypher = String.format("UNWIND %s as row " + " MATCH (n:%s {name:row.SourceNode})"
-						+ " MATCH (m:%s {name:row.TargetNode})" + " MERGE (n)-[:RE{name:row.RelationShip}]->(m)",
+				String relationShipCypher = String.format("UNWIND %s as row " + " MATCH (n:`%s` {name:row.SourceNode})"
+						+ " MATCH (m:`%s` {name:row.TargetNode})" + " MERGE (n)-[:RE{name:row.RelationShip}]->(m)",
 						nodeStr, domain, domain);
 				neo4jUtil.excuteCypherSql(relationShipCypher);
 			}
@@ -637,15 +636,15 @@ public class KGraphRepository implements IKGraphRepository {
 		String loadNodeCypher2 = null;
 		String addIndexCypher = null;
 		addIndexCypher = " CREATE INDEX ON :" + domain + "(name);";
-		loadNodeCypher1 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:" + domain
-				+ "{name:line[0]});";
-		loadNodeCypher2 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:" + domain
-				+ "{name:line[1]});";
+		loadNodeCypher1 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:`" + domain
+				+ "` {name:line[0]});";
+		loadNodeCypher2 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:`" + domain
+				+ "` {name:line[1]});";
 		// 拼接生产关系导入cypher
 		String loadRelCypher = null;
 		String type = "RE";
-		loadRelCypher = " USING PERIODIC COMMIT 500 LOAD CSV FROM  '" + csvUrl + "' AS line " + " MATCH (m:" + domain
-				+ "),(n:" + domain + ") WHERE m.name=line[0] AND n.name=line[1] " + " MERGE (m)-[r:" + type + "]->(n) "
+		loadRelCypher = " USING PERIODIC COMMIT 500 LOAD CSV FROM  '" + csvUrl + "' AS line " + " MATCH (m:`" + domain
+				+ "`),(n:`" + domain + "`) WHERE m.name=line[0] AND n.name=line[1] " + " MERGE (m)-[r:" + type + "]->(n) "
 				+ "	SET r.name=line[2];";
 		neo4jUtil.excuteCypherSql(addIndexCypher);
 		neo4jUtil.excuteCypherSql(loadNodeCypher1);
@@ -655,7 +654,7 @@ public class KGraphRepository implements IKGraphRepository {
 
 	public void updateNodeFileStatus(String domain, long nodeId, int status) {
 		try {
-			String nodeCypher = String.format("match (n:%s) where id(n)=%s set n.hasfile=%s ", domain,nodeId, status);
+			String nodeCypher = String.format("match (n:`%s`) where id(n)=%s set n.hasfile=%s ", domain,nodeId, status);
 			neo4jUtil.excuteCypherSql(nodeCypher);
 
 		} catch (Exception e) {
