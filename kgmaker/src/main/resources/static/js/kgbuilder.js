@@ -13,8 +13,10 @@ var app = new Vue({
         nodesymbolGroup:null,
         nodebuttonGroup:null,
         nodebuttonAction:'',
+        tooltip:null,
         txx:{},
         tyy:{},
+        nodedetail:null,
         pagesizelist: [{size: 100, isactive: true}, {size: 500, isactive: false}, {size: 1000,isactive: false}, {size: 2000, isactive: false}],
         colorList: ["#ff8373", "#f9c62c", "#a5ca34", "#6fce7a", "#70d3bd", "#ea91b0"],
         color5: '#ff4500',
@@ -501,6 +503,7 @@ var app = new Vue({
             this.nodebuttonGroup = this.svg.append("g").attr("class", "nodebutton");
             this.addmaker();
             this.addnodebutton();
+            this.tooltip =  this.svg.append("div").style("opacity", 0);
             this.svg.on('click',function(){
                 d3.selectAll("use").classed("circle_opreate", true);
             }, 'false');
@@ -877,8 +880,15 @@ var app = new Vue({
                 .text(function (d) {
                     return d.name;
                 })
+           
             nodeEnter.on("mouseover", function (d, i) {
-                _this.timer = setTimeout(function () {
+            	_this.nodedetail=d;
+            	 d3.select('#nodedetail')
+                 .style('position', 'absolute')
+                 .style('left', d.x + "px")
+                 .style('top', d.y + "px")
+                 .style('display', 'block');
+                 _this.timer = setTimeout(function () {
                     d3.select('#richContainer')
                         .style('position', 'absolute')
                         .style('left', d.x + "px")
@@ -890,6 +900,7 @@ var app = new Vue({
                 }, 3000);
             });
             nodeEnter.on("mouseout", function (d, i) {
+            	d3.select('#nodedetail').style('display', 'none');
                 clearTimeout( _this.timer);
             });
             nodeEnter.on("dblclick", function (d) {
@@ -904,6 +915,7 @@ var app = new Vue({
                 var aa = d3.select(this)._groups[0][0];
                 if (aa.classList.contains("selected")) return;
                 d3.select(this).style("stroke-width", "2");
+                d3.select('#nodedetail').style('display', 'none');
             });
             nodeEnter.on("click", function (d,i) {
                 var out_buttongroup_id='.out_buttongroup_'+i;
@@ -1498,6 +1510,7 @@ $(function () {
         event.preventDefault();
     });
     $(".graphcontainer").bind("click", function (event) {
+    	d3.select('#nodedetail').style('display', 'none');
         var cursor=document.getElementById("graphcontainer").style.cursor;
         if(cursor=='crosshair'){
             d3.select('.graphcontainer').style("cursor", "");
@@ -1524,6 +1537,10 @@ $(function () {
         if (!(event.target.id === "richContainer" || $(event.target).parents("#richContainer").length > 0)) {
             $("#richContainer").hide();
         }
+        if (!(event.target.id === "nodedetail" || $(event.target).parents("#nodedetail").length > 0)) {
+        	d3.select('#nodedetail').style('display', 'none');
+        }
+        
     });
 })
 	 
