@@ -11,7 +11,8 @@ Welcome to the Neo4j wiki!
 4. 导出成图片
 5. csv导入
 6. 导出csv
-7.添加图片和富文本
+7. 添加图片和富文本
+8. 节点之间多个关系
 
 
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg1.gif)
@@ -22,14 +23,15 @@ Welcome to the Neo4j wiki!
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg52.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg51.gif)
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg33.png)
-![](http://file.miaoleyan.com/nndt/AR6PX7DVQa9HRxXx9tsz2150X1hrcs2S)
-
+![知识图谱构建小工具](http://file.miaoleyan.com/nndt/pgMA43Y9y4TOXz1hKQ2YVcVuzb75awGs)
+![知识图谱构建小工具](http://file.miaoleyan.com/nndt/knrN8VAaptk4VZ4Uc3vPALqiMqPwhwEu)
 ## 后续优化:
 1. ~~新建单节点,节点的位置能指定(或者和鼠标点下的位置一致) over 2018-11-16~~
 2. ~~做出的图谱能够导出成图片 over 2018-11-16~~
 3. ~~支持导入功能,同时支持导出关系和节点 over 2018-11-17~~
 4. 输入一段文本,通过自然语言等手段,抽出实体和关系,编辑后可形成可视化的图谱
 5. 按钮组不能随节点半径的变化而变化
+6. ~~节点间多关系线和文字重叠~~
 ## 运行与启动
 1. 需要jdk1.8,安装Neo4j,安装和配置自行百度
 2. 启动后访问[http://localhost:8089/kg/index](http://localhost:8089/kg/index) 即可
