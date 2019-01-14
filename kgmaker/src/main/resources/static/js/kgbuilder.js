@@ -763,7 +763,6 @@
                 url: contextRoot + "createnode",
                 success: function (result) {
                     if (result.code == 200) {
-                        d3.select('.graphcontainer').style("cursor", "");
                         if (_this.graphEntity.uuid != 0) {
                             for (var i = 0; i < _this.graph.nodes.length; i++) {
                                 if (_this.graph.nodes[i].uuid == _this.graphEntity.uuid) {
@@ -785,6 +784,32 @@
                 }
             });
         },
+        createSingleNode() {
+            var _this = this;
+            var data = {name:'',r:30};
+            data.domain = _this.domain;
+            $.ajax({
+                data: data,
+                type: "POST",
+                traditional: true,
+                url: contextRoot + "createnode",
+                success: function (result) {
+                    if (result.code == 200) {
+                        d3.select('.graphcontainer').style("cursor", "");
+                        var newnode = result.data;
+                        newnode.x = _this.txx;
+                        newnode.y = _this.tyy;
+                        newnode.fx = _this.txx;
+                        newnode.fy = _this.tyy;
+                        _this.graph.nodes.push(newnode);
+                        _this.resetentity();
+                        _this.updategraph();
+                        _this.isedit = false;
+                        _this.resetsubmit();
+                    }
+                }
+            });
+    },
         addmaker() {
             var arrowMarker = this.svg.append("marker")
                 .attr("id", "arrow")
@@ -1506,7 +1531,7 @@ $(function () {
             d3.select('.graphcontainer').style("cursor", "");
             app.txx=event.offsetX;
             app.tyy=event.offsetY;
-            app.createnode();
+            app.createSingleNode();
         }
         event.preventDefault();
     });
