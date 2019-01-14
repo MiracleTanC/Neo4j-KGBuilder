@@ -66,93 +66,23 @@ left: 812px !important;
 }
 .circle_opreate{
 	display: none;
-}.map_tanchu {
-	width: 170px;
+}
+.node_detail {
+	width: 100%;
 	line-height: 35px;
-	color: #fff;
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
-	/* background-color: #0875cc; */
 	font-size: 12px;
 	padding-bottom: 10px;
-	border: 2px #fdfd08 solid;
+	background: rgba(198, 226, 255,0.2);
+	display:none;
 }
-
-.map_tanchu h5 {
-	font-size: 12px;
-	line-height: 30px;
-	text-align: center;
-	/* background-color: #086ab8; */
-}
-
-.map_tanchu h4 span {
-	color: #fff;
-	padding-left: 5px;
-}
-
-.map_tanchu h4 {
-	line-height: 40px;
-	font-size: 14px;
-	text-align: center;
-	/*white-space: nowrap;
-		      	            text-overflow: ellipsis;
-		      	            overflow: hidden;*/
-}
-
-.map_tanchu span {
-	color: #ffee61;
-	font-size: 12px;
-	text-align: right;
-	padding-left: 5px;
-}
-
-.map_tanchu p {
-	line-height: 24px;
-	font-size: 14px;
-	text-align: center;
-	word-wrap: break-word;
-	word-break: normal;
-	white-space: normal;
-}
-
-.map_tanchu ul {
-	padding: 5px 0px 5px 20px;
-}
-
-.map_tanchu ul li {
-	line-height: 25px;
-	text-align: left;
-}
-
-.map_tanchu ul li span {
-	color: #fff;
-	font-size: 12px;
-	text-align: right;
-	padding-left: 5px;
-}
-
-.map_tanchu ul li a:link, .map_tanchu ul li a:visited {
-	color: #fff;
-}
-
-.map_tanchu ul li a:hover, .map_tanchu ul li a:active {
-	color: #cce8ff;
-}
-.win{
-   position: absolute;
-   display: block;
-   border-style: solid; 
-   white-space: nowrap; 
-   z-index: 9999999; 
-   transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s, top 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s;
-   background-color: rgba(50, 50, 50, 0.7); 
-   border-width: 0px; 
-   border-color: rgb(51, 51, 51);
-   border-radius: 4px;
-   color: rgb(255, 255, 255); 
-   font: 14px/21px &quot;Microsoft YaHei&quot; 
-   padding: 5px;
+.node_pd{
+	padding:4px;
+    font-size: 13px;
+    font-family: -webkit-body;
+    font-weight: 600;
 }
 </style>
 <link th:href="@{/wangeditor/wangEditor.css}" rel="stylesheet"/>
@@ -194,8 +124,6 @@ left: 812px !important;
             <el-input placeholder="请输入关键词" v-model="nodename" @keyup.enter.native="getdomaingraph"></el-input>
           </div>
           <span v-show="domain!=''">
-	          <span class="mt-m">当前节点：<i>{{selectnode.name}}</i></span>
-	          <span class="mt-m">关系节点数量：<b>{{selectnode.count}}</b></span>
 	          <span class="dibmr">
 				<span>显示节点个数：</span>
 				<a v-for="(m,index) in pagesizelist" @click="setmatchsize(m,this)" :title="m.size" href="javascript:void(0)" :class="[m.isactive ? 'sd-active' : '', 'sd']" >{{m.size}}</a>
@@ -228,6 +156,10 @@ left: 812px !important;
       <!-- 头部over -->
       <!-- 中部 -->
       <el-scrollbar class="mind-cen" id="graphcontainerdiv">
+      	<div id="nodedetail" class="node_detail">
+             <h5>节点信息</h5>
+             <span class="node_pd" v-for="(m,k) in nodedetail">{{k}}:{{m}}</span>
+        </div>
         <div id="graphcontainer"  class="graphcontainer"></div>
       </el-scrollbar>
       <!-- 中部over -->
@@ -439,19 +371,7 @@ left: 812px !important;
                 </el-scrollbar>
             </div>
         </div>
-         <div id="nodedetail" style="display: block;width: 400px;">
-            <div class='win'>
-	      	        <div class='map_tanchu'>
-	      	           <h5>节点信息</h5>
-	      	                <ul class='clearfix'>
-	      	                   <li v-for="(m,k) in nodedetail"><span>{{k}}:{{m}}</span></li>
-	      	                 </ul>
-	      	            <div class='clear'></div>
-	      	            <h5 style="text-aglin:center">在节点停留3秒富文本</h5>
-	      	        </div>
-	      	        
-   		      </div>
-        </div>
+         
   </div>
 	</div>
 </body>

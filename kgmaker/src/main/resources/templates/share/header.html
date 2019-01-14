@@ -4,8 +4,8 @@
 	<div th:fragment="header">
 		 <div class="menu">
 		    <nav class="nav" id="topnav">
-		      <h1 class="logo"><a href="/"><img style="width: 60px;margin-top: 26px;" th:src="@{/images/logo/logo_o.png}"></a></h1>
-		      <ul v-if="navList">
+		      <h1 class="logo"><a href="/">֪知识图谱构建与可视化</a></h1>
+		      <ul v-if="navList" style="float: left;margin-left: 60px;">
 			      <template v-for="nav in navList">
 				      <li @mouseover="selectStyle(nav)" @mouseout="outStyle(nav)">
 				        <a :class="{'a_active':currentUrl==nav.linkUrl}"  :href="nav.linkUrl">{{nav.title}}</a>

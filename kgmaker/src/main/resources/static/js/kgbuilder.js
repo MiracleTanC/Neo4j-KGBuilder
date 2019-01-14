@@ -1,5 +1,4 @@
-﻿// noinspection LossyEncoding
-var app = new Vue({
+﻿var app = new Vue({
     el: '#app',
     data: {
         svg:null,
@@ -880,14 +879,8 @@ var app = new Vue({
                 .text(function (d) {
                     return d.name;
                 })
-           
             nodeEnter.on("mouseover", function (d, i) {
-            	_this.nodedetail=d;
-            	 d3.select('#nodedetail')
-                 .style('position', 'absolute')
-                 .style('left', d.x + "px")
-                 .style('top', d.y + "px")
-                 .style('display', 'block');
+            	 _this.nodedetail=d;
                  _this.timer = setTimeout(function () {
                     d3.select('#richContainer')
                         .style('position', 'absolute')
@@ -897,10 +890,9 @@ var app = new Vue({
                     _this.editorcontent = "";
                     _this.showImageList = [];
                     _this.getNodeDetail(d.uuid);
-                }, 3000);
+                }, 2000);
             });
             nodeEnter.on("mouseout", function (d, i) {
-            	d3.select('#nodedetail').style('display', 'none');
                 clearTimeout( _this.timer);
             });
             nodeEnter.on("dblclick", function (d) {
@@ -915,19 +907,15 @@ var app = new Vue({
                 var aa = d3.select(this)._groups[0][0];
                 if (aa.classList.contains("selected")) return;
                 d3.select(this).style("stroke-width", "2");
-                d3.select('#nodedetail').style('display', 'none');
             });
             nodeEnter.on("click", function (d,i) {
+                d3.select('#nodedetail').style('display', 'block');
                 var out_buttongroup_id='.out_buttongroup_'+i;
                 _this.svg.selectAll("use").classed("circle_opreate", true);
                 _this.svg.selectAll(out_buttongroup_id).classed("circle_opreate", false);
                 _this.graphEntity = d;
                 _this.selectnodeid = d.uuid;
                 _this.selectnodename = d.name;
-
-                // 更新工具栏节点信息
-                _this.getcurrentnodeinfo(d);
-
                 // 添加连线状态
                 if (_this.isaddlink) {
                     _this.selecttargetnodeid = d.uuid;
@@ -1510,7 +1498,9 @@ $(function () {
         event.preventDefault();
     });
     $(".graphcontainer").bind("click", function (event) {
-    	d3.select('#nodedetail').style('display', 'none');
+    	if (event.target.tagName!="circle") {
+        	d3.select('#nodedetail').style('display', 'none');
+        }
         var cursor=document.getElementById("graphcontainer").style.cursor;
         if(cursor=='crosshair'){
             d3.select('.graphcontainer').style("cursor", "");

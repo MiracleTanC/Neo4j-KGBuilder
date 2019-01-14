@@ -98,10 +98,10 @@ a:hover { text-decoration: none; color: #00A7EB; }
 .f_l { float: left }
 .f_r { float: right }
 .mt20 { margin-top: 20px }
-.logo { float: left; margin-right: 180px; font-size: 26px; }
+.logo { float: left;margin-left: 20px;width: 260px;font-size: 26px;}
 .logo a { color: #00A7EB }
 .menu { height: 80px; line-height: 80px; width: 100%; background-color: #000; }
-.nav { height: 80px; width: 90%; margin: 0 auto; }
+.nav { height: 80px; width: 100%; margin: 0 auto; }
 .nav li { float: left; position: relative; }
 .nav li a { color: #bdbdbd; padding: 0 20px; display: inline-block; }
 .nav li a:hover { color: #fff; }
