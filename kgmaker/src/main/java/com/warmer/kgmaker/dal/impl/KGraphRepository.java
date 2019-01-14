@@ -227,7 +227,7 @@ public class KGraphRepository implements IKGraphRepository {
 	public void createdomain(String domain) {
 		try {
 			String cypherSql = String.format(
-					"create (n:`%s`{entitytype:0,name:'',filter:[],entitytype:'0',showstyle:'0'}) return id(n)", domain);
+					"create (n:`%s`{entitytype:0,name:''}) return id(n)", domain);
 			neo4jUtil.excuteCypherSql(cypherSql);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -13,6 +13,7 @@
         nodebuttonGroup:null,
         nodebuttonAction:'',
         tooltip:null,
+        tipsshow:true,
         txx:{},
         tyy:{},
         nodedetail:null,
@@ -104,6 +105,9 @@
         this.getlabels();
     },
     methods: {
+    	btntipsclose(){
+    		this.tipsshow=false;
+    	},
         initEditor() {
             var  _this=this;
             if (_this.editor != null) return;
@@ -492,7 +496,7 @@
                     return d.uuid
                 }))
                 .force("charge", d3.forceManyBody().strength(-400))
-                .force("collide", d3.forceCollide().strength(-30))
+                .force("collide", d3.forceCollide())
                 .force("center", d3.forceCenter(width / 2, (height - 200) / 2));
             this.linkGroup = this.svg.append("g").attr("class", "line");
             this.linktextGroup = this.svg.append("g").attr("class", "linetext");
@@ -504,7 +508,7 @@
             this.addnodebutton();
             this.tooltip =  this.svg.append("div").style("opacity", 0);
             this.svg.on('click',function(){
-                d3.selectAll("use").classed("circle_opreate", true);
+                d3.selectAll("buttongroup >use").classed("circle_opreate", true);
             }, 'false');
 
         },
@@ -575,7 +579,7 @@
                 return d.lk.name;
             });
             // 更新节点按钮组
-            d3.selectAll(".nodebutton  >g").remove();
+            d3.selectAll(".nodebutton >g").remove();
             var nodebutton = _this.nodebuttonGroup.selectAll(".nodebutton").data(nodes, function (d) {
                 return d
             });
@@ -620,7 +624,7 @@
             })
             _this.simulation.nodes(nodes).on("tick", ticked);
             _this.simulation.force("link").links(links);
-            _this.simulation.alphaTarget(0).restart();
+            _this.simulation.alphaTarget(1).restart();
             function linkArc(d) {
                 var dx = (d.target.x - d.source.x),
                     dy = (d.target.y - d.source.y),
@@ -692,6 +696,8 @@
             // 鼠标滚轮缩放
             //_this.svg.call(d3.zoom().transform, d3.zoomIdentity);//缩放至初始倍数
             _this.svg.call(d3.zoom().on("zoom", function () {
+            	d3.select('#link_menubar').style('display', 'none');
+            	d3.select('#nodedetail').style('display', 'none');
                 d3.selectAll('.node').attr("transform",d3.event.transform);
                 d3.selectAll('.nodetext').attr("transform",d3.event.transform);
                 d3.selectAll('.line').attr("transform",d3.event.transform);
@@ -703,8 +709,6 @@
             _this.svg.on("dblclick.zoom", null); // 静止双击缩放
             //按钮组事件
             _this.svg.selectAll(".buttongroup").on("click", function (d,i) {
-                console.log(_this.nodebuttonAction);
-                console.log(d);
                 if (_this.nodebuttonAction) {
                     switch (_this.nodebuttonAction) {
                         case "EDIT":
@@ -802,14 +806,11 @@
                         newnode.fx = _this.txx;
                         newnode.fy = _this.tyy;
                         _this.graph.nodes.push(newnode);
-                        _this.resetentity();
                         _this.updategraph();
-                        _this.isedit = false;
-                        _this.resetsubmit();
                     }
                 }
             });
-    },
+        },
         addmaker() {
             var arrowMarker = this.svg.append("marker")
                 .attr("id", "arrow")
@@ -936,7 +937,7 @@
             nodeEnter.on("click", function (d,i) {
                 d3.select('#nodedetail').style('display', 'block');
                 var out_buttongroup_id='.out_buttongroup_'+i;
-                _this.svg.selectAll("use").classed("circle_opreate", true);
+                _this.svg.selectAll("buttongroup >use").classed("circle_opreate", true);
                 _this.svg.selectAll(out_buttongroup_id).classed("circle_opreate", false);
                 _this.graphEntity = d;
                 _this.selectnodeid = d.uuid;
@@ -1042,8 +1043,7 @@
                 .attr("id", function (d) {
                     return "invis_" + d.lk.sourceid + "-" + d.lk.name + "-" + d.lk.targetid;
                 })
-                .attr("marker-end", "url(#arrow)")
-                ;// 箭头
+                .attr("marker-end", "url(#arrow)");// 箭头
             linkEnter.on("dblclick", function (d) {
                 _this.selectnodeid = d.lk.uuid;
                 if (_this.isdeletelink) {
@@ -1065,7 +1065,7 @@
                 d3.event.stopPropagation();// 禁止空白处右键
             });
             linkEnter.on("mouseenter", function (d) {
-                d3.select(this).style("stroke-width", "6").attr("stroke", "#ff9e9e").attr("marker-end", "url(#arrow2)");
+                d3.select(this).style("stroke-width", "6").attr("stroke", "#ff9e9e").attr("marker-end", "url(#arrow)");
             });
             linkEnter.on("mouseleave", function (d) {
                 d3.select(this).style("stroke-width", "1").attr("stroke", "#fce6d4").attr("marker-end", "url(#arrow)");
@@ -1311,7 +1311,6 @@
             };
         },
         matchdomaingraph(domain, event) {
-            //var domainname= domainname.substring(1,domainname.length-1);
             this.domain = domain.name;
             this.domainid = domain.id;
             this.getdomaingraph()
@@ -1513,7 +1512,7 @@ $(function () {
         $('#blank_menubar').hide();
     })
     $(".graphcontainer").bind("contextmenu", function (event) {
-        app.svg.selectAll("use").classed("circle_opreate", true);
+        app.svg.selectAll("buttongroup >use").classed("circle_opreate", true);
         var left = event.clientX;
         var top = event.clientY;
         document.getElementById('blank_menubar').style.position = 'absolute';

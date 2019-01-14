@@ -68,6 +68,7 @@ left: 812px !important;
 	display: none;
 }
 .node_detail {
+	position: absolute;
 	width: 100%;
 	line-height: 35px;
 	-webkit-border-radius: 10px;
@@ -78,11 +79,21 @@ left: 812px !important;
 	background: rgba(198, 226, 255,0.2);
 	display:none;
 }
-.node_pd{
+.node_pd{	
 	padding:4px;
     font-size: 13px;
     font-family: -webkit-body;
     font-weight: 600;
+}
+.operatetips{
+	position: absolute;
+    right: 10px;
+    float: right;
+    top: 0;
+    width: 220px;
+    padding: 30px;
+    border: 2px #EE7942 solid;
+    border-radius: 4px;
 }
 </style>
 <link th:href="@{/wangeditor/wangEditor.css}" rel="stylesheet"/>
@@ -90,7 +101,7 @@ left: 812px !important;
 
 <body>
 	<div layout:fragment="content">
-		  <div class="mind-box">
+	<div class="mind-box">
     <!-- 左侧 -->
     <el-scrollbar class="mind-l">
       <div class="ml-m">
@@ -160,6 +171,25 @@ left: 812px !important;
              <h5>节点信息</h5>
              <span class="node_pd" v-for="(m,k) in nodedetail">{{k}}:{{m}}</span>
         </div>
+        <div v-show="tipsshow" id="operatetips" class="operatetips">
+        	 <span style="color:red;position:absolute;top:6px;left:10px;cursor:pointer;" @click="btntipsclose">x</span>
+             <span style="color: #EE4000; ">至前端小哥哥小姐姐：如果你们只是参考d3.js创建图谱的力导向图，打开源码后找到</span>
+             <span style="color: #EE4000; ">/kgmaker/src/main/resources</span>
+             <span style="color: #EE4000; ">/templates/kg</span>
+             <span style="color: #EE4000; ">/demoforfont-end.html,这是一个静态页</span>
+             <h3>tips</h3>
+             <ul>
+             	<li>1.选中节点或者节点名称，双击修改名称</li>
+             	<li>2.连线选择之后，再点击其他节点，完成节点间的连线</li>
+             	<li>3.鼠标滑到连线上，连线变粗，双击修改连线名称，若已有名称，则可根据提示修改</li>
+             	<li>4.批量添加，没有添加节点文字控制（如有需要可自己定制）</li>
+             	<li>5.追加意为在该节点下添加下级节点，并添加默认连线</li>
+             	<li>6.展开意为查询与该节点有直接关系的节点，（如有需要可定制自己的cypher语句）</li>
+             	<li>7.导入csv,需保证csv编码为utf-8,代码中使用远程导入，可使用服务器importdata(可查看相关博文)</li>
+             	<li>8.为节点添加富文本或者图片后，在节点上停留2秒可以查看内容</li>
+             	<li><a style="color:orange;" href="https://github.com/MiracleTanC/Neo4j">Github源码</a></li>
+             </ul>
+        </div>
         <div id="graphcontainer"  class="graphcontainer"></div>
       </el-scrollbar>
       <!-- 中部over -->
@@ -192,8 +222,6 @@ left: 812px !important;
 					</el-upload>
 			    </el-form-item>
 			  </el-form>
-			  
-			   
 			  <div slot="footer" class="dialog-footer">
 			    <el-button @click="dialogFormVisible = false">取 消</el-button>
 			    <el-button type="primary" @click="submitUpload">确 定</el-button>
@@ -320,9 +348,7 @@ left: 812px !important;
         </div>
 		</el-dialog>
       <!-- 底部over -->
-       
     </div>
-   
     <!-- 右侧over -->
     <!-- 空白处右键 -->
     <ul class="el-dropdown-menu el-popper blankmenubar" id="blank_menubar" style="display: none;">
@@ -378,8 +404,6 @@ left: 812px !important;
 
 <div layout:fragment="jscontent">
 	<script src="https://cdn.bootcss.com/lodash.js/3.5.0/lodash.min.js"></script>
-	<!--<script src="https://cdn.bootcss.com/lodash.js/4.17.11/lodash.min.js"></script>-->
-	<!--<script src="https://cdn.bootcss.com/lodash.js/4.17.11/lodash.fp.js"></script>-->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
      <script  type="text/javascript" th:src="@{/wangeditor/wangEditor.js}"></script>
