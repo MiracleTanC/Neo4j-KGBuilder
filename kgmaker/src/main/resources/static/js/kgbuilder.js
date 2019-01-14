@@ -508,7 +508,7 @@
             this.addnodebutton();
             this.tooltip =  this.svg.append("div").style("opacity", 0);
             this.svg.on('click',function(){
-                d3.selectAll("buttongroup >use").classed("circle_opreate", true);
+                d3.selectAll(".buttongroup").classed("circle_opreate", true);
             }, 'false');
 
         },
@@ -937,7 +937,7 @@
             nodeEnter.on("click", function (d,i) {
                 d3.select('#nodedetail').style('display', 'block');
                 var out_buttongroup_id='.out_buttongroup_'+i;
-                _this.svg.selectAll("buttongroup >use").classed("circle_opreate", true);
+                _this.svg.selectAll(".buttongroup").classed("circle_opreate", true);
                 _this.svg.selectAll(out_buttongroup_id).classed("circle_opreate", false);
                 _this.graphEntity = d;
                 _this.selectnodeid = d.uuid;
@@ -1512,7 +1512,7 @@ $(function () {
         $('#blank_menubar').hide();
     })
     $(".graphcontainer").bind("contextmenu", function (event) {
-        app.svg.selectAll("buttongroup >use").classed("circle_opreate", true);
+        app.svg.selectAll(".buttongroup").classed("circle_opreate", true);
         var left = event.clientX;
         var top = event.clientY;
         document.getElementById('blank_menubar').style.position = 'absolute';
