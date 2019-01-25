@@ -1,0 +1,76 @@
+﻿<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" layout:decorator="share/layout">
+
+<head>
+<title>知识图谱可视化</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style type="text/css">
+
+</style>
+</head>
+
+<body>
+	<div layout:fragment="content">
+	    <el-input placeholder="请输入问题" v-model="question" ></el-input>
+	    <el-button @click="btnquery">分词</el-button>
+	    <table>
+			<tr>
+				<td v-for="m in wordItems">
+					{{m.nature}}
+				</td>
+			</tr>
+	    <tr>
+	      <td v-for="m in wordItems">
+	      {{m.word}}
+	      </td>
+	    </tr>
+	    <tr>
+			<td v-for="m in wordItems">
+			  {{m.pos}}
+			  </td>
+		</tr>
+	    </table>
+	</div>
+</body>
+
+<div layout:fragment="jscontent">
+	<script src="https://cdn.bootcss.com/lodash.js/3.5.0/lodash.min.js"></script>
+	<script th:inline="javascript" type="text/javascript">
+	var app = new Vue({
+	    el: '#app',
+	    data: {
+	    	question:'',
+	    	wordItems:[]
+	    },
+	    filters: {
+	        labelformat: function (value) {
+	            var domain = value.substring(1, value.length - 1);
+	            return domain;
+	        },
+	    },
+	    mounted() {
+	      
+	    },
+	    created() {
+	       
+	    },
+	    methods: {
+	    	btnquery(){
+	    		var _this = this;
+	            var data = {q: _this.question};
+	            $.ajax({
+	                data: data,
+	                type: "POST",
+	                url: contextRoot + "kg/getnlpword",
+	                success: function (result) {
+	                    if (result.code == 200) {
+	                       _this.wordItems=result.data;
+	                    }
+	                }
+	            })
+	    	},
+	    }
+	})
+	</script>
+</div>
+</html>
