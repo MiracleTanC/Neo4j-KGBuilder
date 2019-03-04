@@ -406,8 +406,8 @@ left: 812px !important;
 
 <div layout:fragment="jscontent">
 	<script src="https://cdn.bootcss.com/lodash.js/3.5.0/lodash.min.js"></script>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js" th:src="@{/js/d3.v4.min.js}"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js" th:src="@{/js/html2canvas.min.js}"></script>
      <script  type="text/javascript" th:src="@{/wangeditor/wangEditor.js}"></script>
 	<script th:inline="javascript" type="text/javascript">
 	var initdomain = function () {
