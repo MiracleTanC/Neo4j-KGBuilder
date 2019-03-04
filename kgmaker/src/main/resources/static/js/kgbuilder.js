@@ -402,15 +402,14 @@
             $("#link_menubar").hide();
             this.operatetype = 3;
         },
-        deletedomain(value) {
+        deletedomain(id,value) {
             var _this = this;
             _this.$confirm('此操作将删除该标签及其下节点和关系(不可恢复), 是否继续?', '三思而后行', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(function (res) {
-                var domainstr = value.value.substring(1, value.length - 1);
-                var data = {domain: domainstr};
+                var data = {domainid:id,domain: value};
                 $.ajax({
                     data: data,
                     type: "POST",
@@ -480,6 +479,23 @@
                     if (result.code == 200) {
                         //_this.domainlabels=result.data;
                         _this.pageModel = result.data;
+                        _this.pageModel.totalPage=parseInt((result.data.totalCount-1)/result.data.pageSize)+1
+                    }
+                }
+            });
+        },
+        getmoredomain() {
+            var _this = this;
+            _this.pageModel.pageIndex=_this.pageModel.pageIndex+1
+            var data = {pageIndex:_this.pageModel.pageIndex};
+            $.ajax({
+                data: data,
+                type: "POST",
+                url: contextRoot + "getgraph",
+                success: function (result) {
+                    if (result.code == 200) {
+                    	_this.pageModel.nodeList.push.apply(_this.pageModel.nodeList,result.data.nodeList);
+                    	//_this.pageModel.nodeList.concat(result.data.nodeList);
                     }
                 }
             });
@@ -967,6 +983,7 @@
                 .attr("font-family", "微软雅黑")
                 .attr("text-anchor", "middle")
                 .text(function (d) {
+                	if(typeof(d.name)=='undefined') return '';
                     var length = d.name.length;
                     if (d.name.length > 4) {
                         var s = d.name.slice(0, 4) + "...";

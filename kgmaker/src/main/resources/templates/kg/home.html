@@ -106,11 +106,13 @@ left: 812px !important;
     <el-scrollbar class="mind-l">
       <div class="ml-m">
         <h2 class="ml-ht">图谱列表</h2>
+        <h3 style="color:red">大家测试的数据不用删除，留着后来的同学方便使用，谢谢</h3>
         <div class="ml-a-box" style="min-height:280px">
           <el-button type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="createdomain">新建图谱</el-button>
           <a @click="matchdomaingraph(m,$event)" v-for="m in pageModel.nodeList" href="javascript:void(0)">
-          <el-tag closable style="margin:2px" @close="deletedomain(m.name)">{{m.name}}</el-tag>
+          	<el-tag closable style="margin:2px" @close="deletedomain(m.id,m.name)">{{m.name}}</el-tag>
           </a>
+          <el-button v-if="pageModel.pageIndex<pageModel.totalPage" type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="getmoredomain">加载更多</el-button>
         </div>
         <div id="follow-us" class="guanzhu" style="padding: 20px;">
 		      <h2 class="hometitle">交流</h2>

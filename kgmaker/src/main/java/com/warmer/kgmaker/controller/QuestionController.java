@@ -27,15 +27,15 @@ public class QuestionController {
 	
 	/**
      * 搜狗文本分类语料库5个类目，每个类目下1000篇文章，共计5000篇文章
-     */
+     *//*
     public static final String CORPUS_FOLDER = TestUtility.ensureTestData("搜狗文本分类语料库迷你版", "http://hanlp.linrunsoft.com/release/corpus/sogou-text-classification-corpus-mini.zip");
-    /**
+    *//**
      * 模型保存路径
-     */
+     *//*
     public static final String MODEL_PATH = "data/test/classification-model.ser";
-    /**
+    *//**
 	 * 关键字与其词性的map键值对集合 == 句子抽象
-	 */
+	 *//*
 	Map<String, String> abstractMap;
 	@RequestMapping("/query")
 	public HashMap<String, String> query(@RequestParam(value = "question") String question) throws Exception {
@@ -116,25 +116,25 @@ public class QuestionController {
 		// 句子还原
 		Set<String> set = abstractMap.keySet();
 		for (String key : set) {
-			/**
+			*//**
 			 * 如果句子模板中含有抽象的词性
-			 */
+			 *//*
 			if (queryPattern.contains(key)) {
 				
-				/**
+				*//**
 				 * 则替换抽象词性为具体的值 
-				 */
+				 *//*
 				String value = abstractMap.get(key);
 				queryPattern = queryPattern.replace(key, value);
 			}
 		}
 		String extendedQuery = queryPattern;
-		/**
+		*//**
 		 * 当前句子处理完，抽象map清空释放空间并置空，等待下一个句子的处理
-		 */
+		 *//*
 		abstractMap.clear();
 		abstractMap = null;
 		return extendedQuery;
-	}
+	}*/
     
 }

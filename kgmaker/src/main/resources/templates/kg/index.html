@@ -78,8 +78,9 @@ left: 812px !important;
         <div class="ml-a-box" style="min-height:280px">
           <el-button type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="createdomain">新建图谱</el-button>
           <a @click="matchdomaingraph(m,$event)" v-for="m in pageModel.nodeList" href="javascript:void(0)">
-          <el-tag closable style="margin:2px" @close="deletedomain(m.name)">{{m.name}}</el-tag>
+          		<el-tag closable style="margin:2px" @close="deletedomain(m.name)">{{m.name}}</el-tag>
           </a>
+          <el-button type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="getmoredomain">查看更多</el-button>
         </div>
         <div id="follow-us" class="guanzhu" style="padding: 20px;">
 		      <h2 class="hometitle">交流</h2>
