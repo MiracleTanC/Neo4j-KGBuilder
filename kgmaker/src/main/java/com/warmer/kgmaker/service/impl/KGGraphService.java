@@ -117,7 +117,13 @@ public class KGGraphService implements IKGGraphService {
     public void updateNodeFileStatus(String domain, long nodeId, int status) {
         kgRepository.updateNodeFileStatus(domain,nodeId,status);
     }
-	@Override
+
+    @Override
+    public void updateCorrdOfNode(String domain, String uuid, Double fx, Double fy) {
+        kgRepository.updateCorrdOfNode(domain,uuid,fx,fy);
+    }
+
+    @Override
 	public void batchInsertByCSV(String domain, String csvUrl, int status) {
 		kgRepository.batchInsertByCSV(domain, csvUrl, status);
 	}

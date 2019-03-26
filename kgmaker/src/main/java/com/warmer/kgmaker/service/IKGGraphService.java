@@ -1,13 +1,13 @@
 package com.warmer.kgmaker.service;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.warmer.kgmaker.entity.QAEntityItem;
 import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.util.GraphPageRecord;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public interface IKGGraphService {
 	/**
@@ -210,4 +210,5 @@ public interface IKGGraphService {
 	 * @param status
 	 */
 	void updateNodeFileStatus(String domain,long nodeId, int status);
+	void updateCorrdOfNode(String domain, String uuid, Double fx, Double fy);
 }

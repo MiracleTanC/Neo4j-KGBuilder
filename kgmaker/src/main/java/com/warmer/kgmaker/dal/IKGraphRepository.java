@@ -1,12 +1,12 @@
 package com.warmer.kgmaker.dal;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.warmer.kgmaker.entity.QAEntityItem;
 import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.util.GraphPageRecord;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -211,4 +211,5 @@ public interface IKGraphRepository {
 	 * @param status
 	 */
 	void batchInsertByCSV(String domain, String csvUrl, int status) ;
+	void updateCorrdOfNode(String domain, String uuid, Double fx, Double fy);
 }

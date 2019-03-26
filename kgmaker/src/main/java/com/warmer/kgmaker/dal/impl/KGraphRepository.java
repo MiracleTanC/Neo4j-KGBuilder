@@ -661,5 +661,21 @@ public class KGraphRepository implements IKGraphRepository {
 			e.printStackTrace();
 		}
 	}
-
+	@Override
+	public void updateCorrdOfNode(String domain, String uuid, Double fx, Double fy) {
+		String cypher = null;
+		if (fx == null && fy==null) {
+			cypher = " MATCH (n:" + domain +") where ID(n)=" + uuid
+					+ " set n.fx=null, n.fy=null; ";
+		} else {
+			if ("0.0".equals(fx.toString()) && "0.0".equals(fy.toString())) {
+				cypher = " MATCH (n:" + domain +") where ID(n)=" + uuid
+						+ " set n.fx=null, n.fy=null; ";
+			} else {
+				cypher = " MATCH (n:" + domain +") where ID(n)=" + uuid
+						+ " set n.fx=" + fx + ", n.fy=" + fy + ";";
+			}
+		}
+		neo4jUtil.excuteCypherSql(cypher);
+	}
 }

@@ -179,7 +179,20 @@ public class KGManagerController extends BaseController {
 		}
 		return result;
 	}
-
+	@ResponseBody
+	@RequestMapping(value = "/updateCorrdOfNode")
+	public R<String> updateCorrdOfNode(String domain, String uuid, Double fx, Double fy) {
+		R<String> result = new R<String>();
+		try {
+			KGGraphService.updateCorrdOfNode(domain, uuid, fx, fy);
+			result.code = 200;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.code = 500;
+			result.setMsg("服务器错误");
+		}
+		return result;
+	}
 	@ResponseBody
 	@RequestMapping(value = "/createnode")
 	public R<HashMap<String, Object>> createnode(QAEntityItem entity, HttpServletRequest request,

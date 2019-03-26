@@ -893,6 +893,25 @@
         },
         dragended(d) {
             if (!d3.event.active) this.simulation.alphaTarget(0);
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+            var domain = this.domain;
+            var uuid = d.uuid;
+            var fx = d.fx;
+            var fy = d.fy;
+            var ajaxdata = {domain:domain,uuid:uuid,fx:fx,fy:fy};
+            $.ajax({
+                data: ajaxdata,
+                type: "POST",
+                url: contextRoot+"updateCorrdOfNode",
+                success: function (result) {
+                    if (result.code == 200) {
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown)
+                }
+            });
         },
         drawnode(node) {
             var _this = this;
