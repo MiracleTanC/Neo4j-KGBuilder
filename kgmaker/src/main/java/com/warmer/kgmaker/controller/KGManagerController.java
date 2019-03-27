@@ -85,7 +85,29 @@ public class KGManagerController extends BaseController {
 		}
 		return result;
 	}
-
+	@ResponseBody
+	@RequestMapping(value = "/getcypherresult")
+	public R<HashMap<String, Object>> getcypherresult(String cypher) {
+		R<HashMap<String, Object>> result = new R<HashMap<String, Object>>();
+		String error="";
+		try {
+			HashMap<String, Object> graphData = neo4jUtil.GetGraphNodeAndShip(cypher);
+			result.code = 200;
+			result.data = graphData;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.code = 500;
+			error=e.getMessage();
+			result.setMsg("服务器错误");
+		}
+		finally {
+			if(StringUtil.isNotBlank(error)){
+				result.code = 500;
+				result.setMsg(error);
+			}
+		}
+		return result;
+	}
 
 	@ResponseBody
 	@RequestMapping(value = "/getrelationnodecount")

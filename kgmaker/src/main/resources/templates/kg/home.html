@@ -95,6 +95,12 @@ left: 812px !important;
     border: 2px #EE7942 solid;
     border-radius: 4px;
 }
+	.cypher_toolbar{
+		line-height: 70px;
+		height: 85px;
+		padding: 0 22px;
+		border-bottom: 1px solid #ededed;
+	}
 </style>
 <link th:href="@{/wangeditor/wangEditor.css}" rel="stylesheet"/>
 </head>
@@ -144,6 +150,9 @@ left: 812px !important;
           </span>
         </div>
         <div class="fr">
+			<a href="javascript:void(0)" @click="showCypher" class="svg-a-sm">
+				<i class="el-icon-caret-right">执行Cypher</i>
+			</a>
           <a href="javascript:void(0)" @click="updategraph" class="svg-a-sm">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-shuaxin"></use>
@@ -166,6 +175,10 @@ left: 812px !important;
 		</el-dropdown>
         </div>
       </div>
+		<div class="cypher_toolbar clearfix" v-show="cyphertextshow">
+			<div style="width: 80%;float: left"><el-input type="textarea"  :rows="2" placeholder="请输入Cypher" v-model="cyphertext"> </el-input></div>
+			<div style="padding: 7px;"> <el-button type="success" @click="cypherrun" style="margin-left: 15px;" icon="el-icon-caret-right" plain>执行</el-button></div>
+		</div>
       <!-- 头部over -->
       <!-- 中部 -->
       <el-scrollbar class="mind-cen" id="graphcontainerdiv">

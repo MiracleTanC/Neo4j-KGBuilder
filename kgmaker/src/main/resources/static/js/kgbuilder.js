@@ -43,6 +43,8 @@
         domainid: 0,
         nodename: '',
         pagesize: 100,
+        cyphertext:'',
+        cyphertextshow:false,
         propactiveName: 'propedit',
         contentactiveName: 'propimage',
         uploadimageurl: contextRoot + "qiniu/upload",
@@ -108,6 +110,27 @@
     	btntipsclose(){
     		this.tipsshow=false;
     	},
+        showCypher(){
+            this.cyphertextshow=!this.cyphertextshow;
+        },
+        cypherrun(){
+            var _this = this;
+            var data = {cypher: _this.cyphertext};
+            $.ajax({
+                data: data,
+                type: "POST",
+                url: contextRoot + "getcypherresult",
+                success: function (result) {
+                    if (result.code == 200) {
+                        _this.graph.nodes = result.data.node;
+                        _this.graph.links = result.data.relationship;
+                        _this.updategraph();
+                    }else{
+                        _this.$message.error(result.msg);
+                    }
+                }
+            })
+        },
         initEditor() {
             var  _this=this;
             if (_this.editor != null) return;

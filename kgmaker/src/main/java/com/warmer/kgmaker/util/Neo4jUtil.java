@@ -1,18 +1,7 @@
 package com.warmer.kgmaker.util;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Value;
+import com.alibaba.fastjson.JSON;
+import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
@@ -20,7 +9,9 @@ import org.neo4j.driver.v1.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSON;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Component
 public class Neo4jUtil {
@@ -361,6 +352,7 @@ public class Neo4jUtil {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		return mo;
 	}
