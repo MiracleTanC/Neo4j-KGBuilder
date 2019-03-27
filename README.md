@@ -15,6 +15,7 @@ demo地址：[http://kg.miaoleyan.com/](http://kg.miaoleyan.com/).
 6. 导出csv
 7. 添加图片和富文本
 8. 节点之间多个关系
+9. 增加直接执行cypher功能
 
 
 ![知识图谱构建小工具](http://file.miaoleyan.com/kg1.gif)
