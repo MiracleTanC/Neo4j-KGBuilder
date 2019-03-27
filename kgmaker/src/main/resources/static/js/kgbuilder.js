@@ -45,6 +45,7 @@
         pagesize: 100,
         cyphertext:'',
         cyphertextshow:false,
+        jsonshow:false,
         propactiveName: 'propedit',
         contentactiveName: 'propimage',
         uploadimageurl: contextRoot + "qiniu/upload",
@@ -113,8 +114,25 @@
         showCypher(){
             this.cyphertextshow=!this.cyphertextshow;
         },
+        cypherjson(){
+            if(this.graph.nodes.length==0&&this.graph.links.length==0){
+                this.$message.error("请先选择领域或者执行cypher");
+                return;
+            }
+            this.jsonshow=!this.jsonshow;
+            var json=this.graph;
+            var options={
+                collapsed:false,//收缩所有节点
+                withQuotes:false//为key添加双引号
+            }
+            $("#json-renderer").JSONView(json,options);
+        },
         cypherrun(){
             var _this = this;
+            if(_this.cyphertext==""){
+                _this.$message.error("请输入cypher语句");
+                return;
+            }
             var data = {cypher: _this.cyphertext};
             $.ajax({
                 data: data,
@@ -1581,6 +1599,9 @@ $(function () {
     	if (event.target.tagName!="circle") {
         	d3.select('#nodedetail').style('display', 'none');
         }
+        if (!(event.target.id === "jsoncontainer" || $(event.target).parents("#jsoncontainer").length > 0)) {
+            app.jsonshow=false;
+        }
         var cursor=document.getElementById("graphcontainer").style.cursor;
         if(cursor=='crosshair'){
             d3.select('.graphcontainer').style("cursor", "");
@@ -1595,9 +1616,6 @@ $(function () {
         d3.select('#link_menubar').style('display', 'none');
     });
     $("body").bind("mousedown", function (event) {
-        if (!(event.target.id === "link_menubar" || $(event.target).parents("#link_menubar").length > 0)) {
-            $("#link_menubar").hide();
-        }
         if (!(event.target.id === "linkmenubar" || $(event.target).parents("#linkmenubar").length > 0)) {
             $("#linkmenubar").hide();
         }

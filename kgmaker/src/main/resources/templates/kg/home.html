@@ -95,6 +95,18 @@ left: 812px !important;
     border: 2px #EE7942 solid;
     border-radius: 4px;
 }
+.jsoncontainer{
+	position: absolute;
+	right: 30%;
+	float: right;
+	top: 0;
+	width: 60%;
+	height: 60%;
+	padding: 30px;
+	border: 2px #EE7942 solid;
+	border-radius: 4px;
+	background: #fff;
+}
 	.cypher_toolbar{
 		line-height: 70px;
 		height: 85px;
@@ -102,7 +114,9 @@ left: 812px !important;
 		border-bottom: 1px solid #ededed;
 	}
 </style>
+<link href="https://cdn.bootcss.com/jquery-jsonview/1.2.3/jquery.jsonview.min.css" rel="stylesheet">
 <link th:href="@{/wangeditor/wangEditor.css}" rel="stylesheet"/>
+	<script src="https://cdn.bootcss.com/jquery-jsonview/1.2.3/jquery.jsonview.js"></script>
 </head>
 
 <body>
@@ -150,10 +164,13 @@ left: 812px !important;
           </span>
         </div>
         <div class="fr">
+			<a href="javascript:void(0)" @click="cypherjson" class="svg-a-sm">
+				<i class="el-icon-tickets" >显示json</i>
+			</a>
 			<a href="javascript:void(0)" @click="showCypher" class="svg-a-sm">
 				<i class="el-icon-caret-right">执行Cypher</i>
 			</a>
-          <a href="javascript:void(0)" @click="updategraph" class="svg-a-sm">
+          	<a href="javascript:void(0)" @click="updategraph" class="svg-a-sm">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-shuaxin"></use>
             </svg>刷新
@@ -177,7 +194,9 @@ left: 812px !important;
       </div>
 		<div class="cypher_toolbar clearfix" v-show="cyphertextshow">
 			<div style="width: 80%;float: left"><el-input type="textarea"  :rows="2" placeholder="请输入Cypher" v-model="cyphertext"> </el-input></div>
-			<div style="padding: 7px;"> <el-button type="success" @click="cypherrun" style="margin-left: 15px;" icon="el-icon-caret-right" plain>执行</el-button></div>
+			<div style="padding: 7px;">
+				<el-button type="success" @click="cypherrun" style="margin-left: 15px;" icon="el-icon-caret-right" plain>执行</el-button>
+			</div>
 		</div>
       <!-- 头部over -->
       <!-- 中部 -->
@@ -205,6 +224,9 @@ left: 812px !important;
              	<li><a style="color:orange;" href="https://github.com/MiracleTanC/Neo4j">Github源码</a></li>
              </ul>
         </div>
+		  <el-scrollbar v-show="jsonshow" id="jsoncontainer"  class="jsoncontainer">
+			  <pre id="json-renderer"></pre>
+		  </el-scrollbar>
         <div id="graphcontainer"  class="graphcontainer"></div>
       </el-scrollbar>
       <!-- 中部over -->
@@ -421,6 +443,7 @@ left: 812px !important;
 	<script src="https://cdn.bootcss.com/lodash.js/3.5.0/lodash.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js" th:src="@{/js/d3.v4.min.js}"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js" th:src="@{/js/html2canvas.min.js}"></script>
+
      <script  type="text/javascript" th:src="@{/wangeditor/wangEditor.js}"></script>
 	<script th:inline="javascript" type="text/javascript">
 	var initdomain = function () {
