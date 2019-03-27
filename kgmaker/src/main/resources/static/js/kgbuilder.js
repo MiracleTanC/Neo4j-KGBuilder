@@ -521,7 +521,6 @@
             this.nodesymbolGroup = this.svg.append("g").attr("class", "nodesymbol");
             this.nodebuttonGroup = this.svg.append("g").attr("class", "nodebutton");
             this.addmaker();
-            this.addnodebutton();
             this.tooltip =  this.svg.append("div").style("opacity", 0);
             this.svg.on('click',function(){
                 d3.selectAll(".buttongroup").classed("circle_opreate", true);
@@ -533,6 +532,17 @@
             var lks = this.graph.links;
             var nodes = this.graph.nodes;
             var links = [];
+            //由后端传过来的节点坐标，固定节点，由于是字符串，需要转换
+            nodes.forEach(function (n) {
+                if(typeof (n.fx)=="undefined"||n.fx==""||n.fx==null){
+                    n.fx=null;
+                }
+                if(typeof (n.fy)=="undefined"||n.fy==""||n.fy==null){
+                    n.fy=null;
+                }
+                if((typeof n.fx) == "string") n.fx = parseFloat(n.fx);
+                if((typeof n.fy) == "string") n.fy = parseFloat(n.fy);
+            });
             lks.forEach(function (m) {
                 var sourceNode = nodes.filter(function (n) {
                     return n.uuid === m.sourceid;
@@ -544,6 +554,8 @@
                 if (typeof(targetNode) == 'undefined') return;
                 links.push({source: sourceNode.uuid, target: targetNode.uuid, lk: m});
             });
+            //为每一个节点定制按钮组
+            _this.addnodebutton();
            if(links.length>0){
                _.each(links, function(link) {
                    var same = _.where(links, {
@@ -656,29 +668,7 @@
             }
 
             function ticked() {
-                // 更新连线坐标
-                /*link.attr("x1", function (d) {
-                    return d.source.x;
-                   })
-                    .attr("y1", function (d) {
-                        return d.source.y;
-                    })
-                    .attr("x2", function (d) {
-                        return d.target.x;
-                    })
-                    .attr("y2", function (d) {
-                        return d.target.y;
-                    });*/
                 link.attr("d", linkArc)
-                // 刷新连接线上的文字位置
-               /* linktext.attr("x", function (d) {
-                    return (d.source.x + d.target.x) / 2;
-                })
-                    .attr("y", function (d) {
-                        return (d.source.y + d.target.y) / 2;
-                    })*/
-
-
                 // 更新节点坐标
                 node.attr("cx", function (d) {
                     return d.x;
@@ -840,46 +830,51 @@
             var arrow_path = "M0,-5L10,0L0,5";// 定义箭头形状
             arrowMarker.append("path").attr("d", arrow_path).attr("fill", "#fce6d4");
         },
-        addnodebutton() {
-            var _this = this;
-            var nodebutton = this.svg.append("defs").append("g")
-                .attr("id", "out_circle")
+        addnodebutton(r) {
+            //先删除所有为节点自定义的按钮组
+            d3.selectAll("svg >defs").remove();
+            var nodes = this.graph.nodes;
             var database = [1,1,1,1,1];
             var pie = d3.pie();
             var piedata = pie(database);
-            var buttonEnter=nodebutton.selectAll(".buttongroup")
-                .data(piedata)
-                .enter()
-                .append("g")
-                .attr("class", function (d, i) {
-                    return "action_" + i ;
-                });
-            var arc = d3.arc()
-                .innerRadius(30)
-                .outerRadius(60);
-            buttonEnter.append("path")
-                .attr("d", function (d) {
-                    return arc(d)
-                })
-                .attr("fill", "#D2D5DA")
-                .style("opacity", 0.6)
-                .attr("stroke", "#f0f0f4")
-                .attr("stroke-width", 2);
-            buttonEnter.append("text")
-                .attr("transform", function (d, i) {
-                    return "translate(" + arc.centroid(d) + ")";
-                })
-                .attr("text-anchor", "middle")
-                .text(function (d, i) {
-                    var zi = new Array()
-                    zi[0] = "编辑";
-                    zi[1] = "展开";
-                    zi[2] = "追加";
-                    zi[3] = "连线";
-                    zi[4] = "删除";
-                    return zi[i]
-                })
-                .attr("font-size", 10);
+            var nodebutton = this.svg.append("defs");
+            nodes.forEach(function(m){
+                var nbtng=nodebutton.append("g")
+                    .attr("id", "out_circle"+m.uuid);//为每一个节点定制一个按钮组，在画按钮组的时候为其指定该id
+                var buttonEnter=nbtng.selectAll(".buttongroup")
+                    .data(piedata)
+                    .enter()
+                    .append("g")
+                    .attr("class", function (d, i) {
+                        return "action_" + i ;
+                    });
+                var arc = d3.arc()
+                    .innerRadius(m.r)
+                    .outerRadius(m.r+30);
+                buttonEnter.append("path")
+                    .attr("d", function (d) {
+                        return arc(d)
+                    })
+                    .attr("fill", "#D2D5DA")
+                    .style("opacity", 0.6)
+                    .attr("stroke", "#f0f0f4")
+                    .attr("stroke-width", 2);
+                buttonEnter.append("text")
+                    .attr("transform", function (d, i) {
+                        return "translate(" + arc.centroid(d) + ")";
+                    })
+                    .attr("text-anchor", "middle")
+                    .text(function (d, i) {
+                        var zi = new Array()
+                        zi[0] = "编辑";
+                        zi[1] = "展开";
+                        zi[2] = "追加";
+                        zi[3] = "连线";
+                        zi[4] = "删除";
+                        return zi[i]
+                    })
+                    .attr("font-size", 10);
+            })
         },
         dragstarted(d) {
             if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
@@ -1062,7 +1057,9 @@
                 .attr("r", function(d){
                     return d.r;
                 })
-                .attr("xlink:href", "#out_circle") //  指定 use 引用的内容
+                .attr("xlink:href", function (d) {
+                    return "#out_circle"+d.uuid;
+                }) //  指定 use 引用的内容
                 .attr('class',function(d,i){
                     return 'buttongroup out_buttongroup_'+i;
                 })
