@@ -404,7 +404,8 @@ public class KGManagerController extends BaseController {
 			}
 			bos.flush();
 			bos.close();
-			String csvUrl = config.getServerurl() + "/download/" + file.getOriginalFilename();
+			String url = request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+			String csvUrl = url + "/download/" + file.getOriginalFilename();
 			KGGraphService.batchInsertByCSV(label, csvUrl, 0);
 			res.put("code", 200);
 			res.put("message", "success!");
