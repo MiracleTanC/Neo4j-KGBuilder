@@ -639,7 +639,7 @@
             var linkEnter = _this.drawlink(link);
             link = linkEnter.merge(link);
             // 更新连线文字
-            var linktext = _this.linktextGroup.selectAll("text").data(links, function (d) {
+            var linktext = _this.linktextGroup.selectAll("text >textPath").data(links, function (d) {
                 return d.uuid;
             });
             linktext.exit().remove();
@@ -889,6 +889,10 @@
                     .attr("class", function (d, i) {
                         return "action_" + i ;
                     });
+                var defaultR=30;
+                if(typeof (m.r)=='undefined'){
+                    m.r=defaultR;
+                }
                 var arc = d3.arc()
                     .innerRadius(m.r)
                     .outerRadius(m.r+30);
