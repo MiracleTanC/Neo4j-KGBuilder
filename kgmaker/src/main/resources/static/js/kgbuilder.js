@@ -639,6 +639,9 @@
             var linkEnter = _this.drawlink(link);
             link = linkEnter.merge(link);
             // 更新连线文字
+            _this.linktextGroup.selectAll("text").data(links, function (d) {
+                return d.uuid;
+            }).exit().remove();//移除多余的text dom
             var linktext = _this.linktextGroup.selectAll("text >textPath").data(links, function (d) {
                 return d.uuid;
             });
