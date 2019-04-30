@@ -4,7 +4,7 @@ Welcome to the Neo4j wiki!
 ## 技术栈
 小工具是前台是基于vue + d3.js ,后台是springboot配合Neo4j.
 ## 演示
-demo地址：[http://kg.miaoleyan.com/](http://kg.miaoleyan.com/).
+demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home).
 
 实现的基本功能:
 1. 新增节点,添加连线,快速添加节点和关系
