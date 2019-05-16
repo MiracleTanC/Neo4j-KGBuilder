@@ -18,16 +18,6 @@ demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home
 9. 增加直接执行cypher功能
 
 
-![知识图谱构建小工具](http://file.miaoleyan.com/kg1.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/kg2.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/kg3.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/kg4.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/m99.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/kg52.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/kg51.gif)
-![知识图谱构建小工具](http://file.miaoleyan.com/kg33.png)
-![知识图谱构建小工具](http://file.miaoleyan.com/nndt/pgMA43Y9y4TOXz1hKQ2YVcVuzb75awGs)
-![知识图谱构建小工具](http://file.miaoleyan.com/nndt/knrN8VAaptk4VZ4Uc3vPALqiMqPwhwEu)
 ## 后续优化:
 1. ~~新建单节点,节点的位置能指定(或者和鼠标点下的位置一致) over 2018-11-16~~
 2. ~~做出的图谱能够导出成图片 over 2018-11-16~~
