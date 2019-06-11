@@ -202,9 +202,10 @@ left: 812px !important;
       <!-- 中部 -->
       <el-scrollbar class="mind-cen" id="graphcontainerdiv">
       	<div id="nodedetail" class="node_detail">
-             <h5>节点信息</h5>
+             <h5>详细数据</h5>
              <span class="node_pd" v-for="(m,k) in nodedetail">{{k}}:{{m}}</span>
         </div>
+
         <div v-show="tipsshow" id="operatetips" class="operatetips">
         	 <span style="color:red;position:absolute;top:6px;left:10px;cursor:pointer;" @click="btntipsclose">x</span>
              <span style="color: #EE4000; ">至前端小哥哥小姐姐：如果你们只是参考d3.js创建图谱的力导向图，打开源码后找到</span>

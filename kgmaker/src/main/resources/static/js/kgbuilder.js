@@ -549,7 +549,9 @@
             this.svg.attr("width", width);
             this.svg.attr("height", height);
             this.simulation = d3.forceSimulation()
-                .force("link", d3.forceLink().distance(400).id(function (d) {
+                .force("link", d3.forceLink().distance(function(d){
+                    return Math.floor(Math.random() * (700 - 200)) + 200;
+                }).id(function (d) {
                     return d.uuid
                 }))
                 .force("charge", d3.forceManyBody().strength(-400))
@@ -660,7 +662,7 @@
             nodebutton = nodebuttonEnter.merge(nodebutton);
             // 更新节点
             var node = _this.nodeGroup.selectAll("circle").data(nodes, function (d) {
-                return d
+                return d.uuid;
             });
             node.exit().remove();
             var nodeEnter = _this.drawnode(node);
@@ -1147,6 +1149,8 @@
             });
             linkEnter.on("mouseenter", function (d) {
                 d3.select(this).style("stroke-width", "6").attr("stroke", "#ff9e9e").attr("marker-end", "url(#arrow)");
+                _this.nodedetail=d.lk;
+                d3.select('#nodedetail').style('display', 'block');
             });
             linkEnter.on("mouseleave", function (d) {
                 d3.select(this).style("stroke-width", "1").attr("stroke", "#fce6d4").attr("marker-end", "url(#arrow)");
@@ -1603,7 +1607,7 @@ $(function () {
         event.preventDefault();
     });
     $(".graphcontainer").bind("click", function (event) {
-    	if (event.target.tagName!="circle") {
+    	if (event.target.tagName!="circle"&&event.target.tagName!="link") {
         	d3.select('#nodedetail').style('display', 'none');
         }
         if (!(event.target.id === "jsoncontainer" || $(event.target).parents("#jsoncontainer").length > 0)) {
