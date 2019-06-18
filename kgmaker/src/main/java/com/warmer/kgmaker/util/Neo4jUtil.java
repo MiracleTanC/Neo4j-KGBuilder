@@ -259,6 +259,7 @@ public class Neo4jUtil {
                                 rships.put("uuid", uuid);
                                 rships.put("sourceid", sourceid);
                                 rships.put("targetid", targetid);
+								shipids.add(uuid);
                                 if (rships != null && !rships.isEmpty()) {
                                     ships.add(rships);
                                 }
@@ -329,6 +330,7 @@ public class Neo4jUtil {
 									rships.put("uuid", uuid);
 									rships.put("sourceid", sourceid);
 									rships.put("targetid", targetid);
+									shipids.add(uuid);
 									if (rships != null && !rships.isEmpty()) {
 										ships.add(rships);
 									}
@@ -352,6 +354,7 @@ public class Neo4jUtil {
                                     rships.put("uuid", uuid);
                                     rships.put("sourceid", sourceid);
                                     rships.put("targetid", targetid);
+									shipids.add(uuid);
                                     if (rships != null && !rships.isEmpty()) {
                                         ships.add(rships);
                                     }
