@@ -126,7 +126,6 @@ left: 812px !important;
     <el-scrollbar class="mind-l">
       <div class="ml-m">
         <h2 class="ml-ht">图谱列表</h2>
-        <h3 style="color:red">大家测试的数据不用删除，留着后来的同学方便使用，谢谢</h3>
         <div class="ml-a-box" style="min-height:280px">
           <el-button type="info"style="margin: 2px 0 4px 2px;" plain size="small" @click="createdomain">新建图谱</el-button>
           <a @click="matchdomaingraph(m,$event)" v-for="m in pageModel.nodeList" href="javascript:void(0)">
@@ -185,9 +184,9 @@ left: 812px !important;
 		    操作<i class="el-icon-arrow-down el-icon--right"></i>
 		  </el-button>
 		  <el-dropdown-menu slot="dropdown">
-		    <el-dropdown-item command="image">导出图片</el-dropdown-item>
-		    <el-dropdown-item command="import">导入CSV</el-dropdown-item>
-		    <el-dropdown-item command="export">导出CSV</el-dropdown-item>
+			  <el-dropdown-item command="image">导出图片</el-dropdown-item>
+			  <el-dropdown-item command="import">导入</el-dropdown-item>
+			  <el-dropdown-item command="export">导出</el-dropdown-item>
 		  </el-dropdown-menu>
 		</el-dropdown>
         </div>
@@ -207,23 +206,23 @@ left: 812px !important;
         </div>
 
         <div v-show="tipsshow" id="operatetips" class="operatetips">
-        	 <span style="color:red;position:absolute;top:6px;left:10px;cursor:pointer;" @click="btntipsclose">x</span>
-             <span style="color: #EE4000; ">至前端小哥哥小姐姐：如果你们只是参考d3.js创建图谱的力导向图，打开源码后找到</span>
-             <span style="color: #EE4000; ">/kgmaker/src/main/resources</span>
-             <span style="color: #EE4000; ">/templates/kg</span>
-             <span style="color: #EE4000; ">/demoforfont-end.html,这是一个静态页</span>
-             <h3>tips</h3>
-             <ul>
-             	<li>1.选中节点或者节点名称，双击修改名称</li>
-             	<li>2.连线选择之后，再点击其他节点，完成节点间的连线</li>
-             	<li>3.鼠标滑到连线上，连线变粗，双击修改连线名称，若已有名称，则可根据提示修改</li>
-             	<li>4.批量添加，没有添加节点文字控制（如有需要可自己定制）</li>
-             	<li>5.追加意为在该节点下添加下级节点，并添加默认连线</li>
-             	<li>6.展开意为查询与该节点有直接关系的节点，（如有需要可定制自己的cypher语句）</li>
-             	<li>7.导入csv,需保证csv编码为utf-8,代码中使用远程导入，可使用服务器importdata(可查看相关博文)</li>
-             	<li>8.为节点添加富文本或者图片后，在节点上停留2秒可以查看内容</li>
-             	<li><a style="color:orange;" href="https://github.com/MiracleTanC/Neo4j">Github源码</a></li>
-             </ul>
+			<span style="color:red;position:absolute;top:6px;left:10px;cursor:pointer;" @click="btntipsclose">x</span>
+			<span style="color: #EE4000; ">至前端小哥哥小姐姐：如果你们只是参考d3.js创建图谱的力导向图，打开源码后找到</span>
+			<span style="color: #EE4000; ">/kgmaker/src/main/resources</span>
+			<span style="color: #EE4000; ">/templates/kg</span>
+			<span style="color: #EE4000; ">/demoforfont-end.html,这是一个静态页</span>
+			<div style="color: #EE4000; width: 100%"><a style="color:orange;" href="https://github.com/MiracleTanC/Neo4j">Github源码</a></div>
+			<h3>tips</h3>
+			<ul>
+				<li>1.选中节点或者节点名称，双击修改名称</li>
+				<li>2.连线选择之后，再点击其他节点，完成节点间的连线</li>
+				<li>3.鼠标滑到连线上，连线变粗，双击修改连线名称，若已有名称，则可根据提示修改</li>
+				<li>4.批量添加，没有添加节点文字控制（如有需要可自己定制）</li>
+				<li>5.追加意为在该节点下添加下级节点，并添加默认连线</li>
+				<li>6.展开意为查询与该节点有直接关系的节点，（如有需要可定制自己的cypher语句）</li>
+				<li>7.导入csv,需保证csv编码为utf-8,代码中使用远程导入，可使用服务器importdata(可查看相关博文)</li>
+				<li>8.为节点添加富文本或者图片后，在节点上停留2秒可以查看内容</li>
+			</ul>
         </div>
 		  <el-scrollbar v-show="jsonshow" id="jsoncontainer"  class="jsoncontainer">
 			  <pre id="json-renderer"></pre>
@@ -235,6 +234,7 @@ left: 812px !important;
       <!-- 底部 -->
 		<el-dialog title="csv导入图谱" :visible.sync="dialogFormVisible" width="30%">
 			  <el-form >
+				  <div><span>注意字符集为utf-8无bom格式，三元组结构：节点-节点-关系</span></div>
 			    <el-form-item label="图谱领域" label-width="120px">
 			      <el-autocomplete style="width:100%"
 				      v-model="uploadparam.domain" placeholder="请输入内容"><!--:fetch-suggestions="querySearch"-->
@@ -246,7 +246,7 @@ left: 812px !important;
 					  :headers="headers"
 					  ref="upload"
 					  :action="uploadurl"
-					  accept=".csv"
+					  accept=".csv,.xls,.xlsx"
 					  :show-file-list="true"
 					  :data="uploadparam"
 					  :on-success="csvsuccess"

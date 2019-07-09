@@ -11,6 +11,13 @@ import com.warmer.kgmaker.query.GraphQuery;
 import com.warmer.kgmaker.service.IKGGraphService;
 import com.warmer.kgmaker.service.IKnowledgegraphService;
 import com.warmer.kgmaker.util.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -385,27 +392,37 @@ public class KGManagerController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/importgraph")
 	public JSONObject importgraph(@RequestParam(value = "file", required = true) MultipartFile file,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+								  HttpServletRequest request, HttpServletResponse response) throws Exception {
 		JSONObject res = new JSONObject();
+		if (file == null) {
+			res.put("code", "500");
+			res.put("msg", "请先选择有效的文件");
+			return res;
+		}
+		// 领域不能为空
+		String label = request.getParameter("domain");
+		if (StringUtil.isBlank(label)) {
+			res.put("code", "500");
+			res.put("msg", "请先选择领域");
+			return res;
+		}
+		List<Map<String, Object>> dataList = getFormatData(file);
 		try {
-			String label = request.getParameter("domain");
-			String path = config.getLocation();
-			File fileItem = new File(path);
-			if (!fileItem.exists()) {
-				fileItem.mkdirs();
+			List<List<String>> list = new ArrayList<>();
+			for (Map<String, Object> item : dataList) {
+				List<String> lst = new ArrayList<>();
+				lst.add(item.get("sourcenode").toString());
+				lst.add(item.get("targetnode").toString());
+				lst.add(item.get("relationship").toString());
+				list.add(lst);
 			}
-			FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
-			BufferedOutputStream bos = new BufferedOutputStream(
-					new FileOutputStream(path + File.separator + file.getOriginalFilename()));
-			byte[] bs = new byte[1024];
-			int len;
-			while ((len = fileInputStream.read(bs)) != -1) {
-				bos.write(bs, 0, len);
-			}
-			bos.flush();
-			bos.close();
-			String url = request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-			String csvUrl = url + "/download/" + file.getOriginalFilename();
+			String savePath = config.getLocation();
+			String csvKey = "tc" + System.currentTimeMillis() + ".csv";
+			String csvPath = savePath+"/" + csvKey;
+			CSVUtil.createCsvFile(list, csvPath);
+			String serverUrl=request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+			String csvUrl = "http://"+serverUrl+ "/kg/download/" + csvKey;
+			//String csvUrl = "https://neo4j.com/docs/cypher-manual/3.5/csv/artists.csv";
 			KGGraphService.batchInsertByCSV(label, csvUrl, 0);
 			res.put("code", 200);
 			res.put("message", "success!");
@@ -416,7 +433,69 @@ public class KGManagerController extends BaseController {
 		}
 		return res;
 	}
-
+	private List<Map<String, Object>> getFormatData(MultipartFile file) throws Exception {
+		List<Map<String, Object>> mapList = new ArrayList<>();
+		try {
+			String fileName = file.getOriginalFilename();
+			if (!fileName.endsWith(".csv")) {
+				Workbook workbook = null;
+				if (ExcelUtil.isExcel2007(fileName)) {
+					workbook = new XSSFWorkbook(file.getInputStream());
+				} else {
+					workbook = new HSSFWorkbook(file.getInputStream());
+				}
+				// 有多少个sheet
+				int sheets = workbook.getNumberOfSheets();
+				for (int i = 0; i < sheets; i++) {
+					Sheet sheet = workbook.getSheetAt(i);
+					int rowSize = sheet.getPhysicalNumberOfRows();
+					for (int j = 0; j < rowSize; j++) {
+						Row row = sheet.getRow(j);
+						int cellSize = row.getPhysicalNumberOfCells();
+						if (cellSize != 3) continue; //只读取3列
+						row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+						Cell cell0 = row.getCell(0);//节点1
+						row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+						Cell cell1 = row.getCell(1);//节点2
+						row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);
+						Cell cell2 = row.getCell(2);//关系
+						if (null == cell0 || null == cell1 || null == cell2) {
+							continue;
+						}
+						String sourceNode = cell0.getStringCellValue();
+						String targetNode = cell1.getStringCellValue();
+						String relationShip = cell2.getStringCellValue();
+						if (StringUtil.isBlank(sourceNode) || StringUtils.isBlank(targetNode) || StringUtils.isBlank(relationShip))
+							continue;
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("sourcenode", sourceNode);
+						map.put("targetnode", targetNode);
+						map.put("relationship", relationShip);
+						mapList.add(map);
+					}
+				}
+			} else if (fileName.endsWith(".csv")) {
+				List<List<String>> list = CSVUtil.readCsvFile(file);
+				for (int i = 0; i < list.size(); i++) {
+					List<String> lst = list.get(i);
+					if (lst.size() != 3) continue;
+					String sourceNode = lst.get(0);
+					String targetNode = lst.get(1);
+					String relationShip = lst.get(2);
+					if (StringUtil.isBlank(sourceNode) || StringUtils.isBlank(targetNode) || StringUtils.isBlank(relationShip))
+						continue;
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("sourcenode", sourceNode);
+					map.put("targetnode", targetNode);
+					map.put("relationship", relationShip);
+					mapList.add(map);
+				}
+			}
+		} catch (Exception ex) {
+			throw new Exception(ex);
+		}
+		return mapList;
+	}
 	@ResponseBody
 	@RequestMapping(value = "/exportgraph")
 	public JSONObject exportgraph(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -455,7 +534,8 @@ public class KGManagerController extends BaseController {
 			}
 		}
 		csvWriter.close();
-		String csvUrl = config.getServerurl() + "/kg/download/" + fileName;
+		String serverUrl=request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+		String csvUrl = serverUrl + "/kg/download/" + fileName;
 		res.put("code", 200);
 		res.put("csvurl", csvUrl);
 		res.put("message", "success!");
@@ -466,14 +546,14 @@ public class KGManagerController extends BaseController {
 	// 文件下载相关代码
 	@GetMapping(value = "/download/{filename}")
 	public String download(@PathVariable("filename") String filename, HttpServletRequest request,
-			HttpServletResponse response) {
+						   HttpServletResponse response) {
 		String filePath = config.getLocation();
-		String fileUrl = filePath + File.separator + filename;
+		String fileUrl = filePath + File.separator + filename+".csv";
 		if (fileUrl != null) {
 			File file = new File(fileUrl);
 			if (file.exists()) {
-				// response.setContentType("application/force-download");// 设置强制下载不打开
-				response.addHeader("Content-Disposition", "attachment;fileName=" + filename);// 设置文件名
+				//response.setContentType("application/force-download");// 设置强制下载不打开
+				response.addHeader("Content-Disposition", "attachment;fileName=" + filename+".csv");// 设置文件名
 				byte[] buffer = new byte[1024];
 				FileInputStream fis = null;
 				BufferedInputStream bis = null;
