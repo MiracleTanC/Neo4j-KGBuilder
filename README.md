@@ -21,14 +21,14 @@ demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home
 1. ~~新建单节点,节点的位置能指定(或者和鼠标点下的位置一致) over 2018-11-16~~
 2. ~~做出的图谱能够导出成图片 over 2018-11-16~~
 3. ~~支持导入功能,同时支持导出关系和节点 over 2018-11-17~~
-4. 输入一段文本,通过自然语言等手段,抽出实体和关系,编辑后可形成可视化的图谱
+4. 输入一段文本,通过自然语言等手段,抽出实体和关系,编辑后可形成可视化的图谱（暂不开放）
 5. ~~按钮组不能随节点半径的变化而变化~~
 6. ~~节点间多关系线和文字重叠~~
 ## 运行与启动
 ### 安装jdk
 可参考：[https://blog.csdn.net/qq_42003566/article/details/82629570](https://blog.csdn.net/qq_42003566/article/details/82629570)
 ### 安装Neo4j
-可参考：[https://www.cnblogs.com/ljhdo/p/5521577.html](https://www.cnblogs.com/ljhdo/p/5521577.html)
+可参考：[https://www.cnblogs.com/ljhdo/p/5521577.html](https://www.cnblogs.com/ljhdo/p/5521577.html),注意开放外网访问  0.0.0.0
 ### IDEA 导入项目 
 导入成功后对着项目根目录，右键->maven->reimport，等待其执行完成，倘若下载jar包太慢，自己配置外部maven仓库[https://blog.csdn.net/liu_shi_jun/article/details/78733633](https://blog.csdn.net/liu_shi_jun/article/details/78733633)
 以上配置在linux下配置自行百度
@@ -38,6 +38,7 @@ demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home
 在idea 右侧 有 maven project 工具栏，点击展开lifecycle-clean,然后install,等待完成后在控制台可以看见打包的目录，例如：[INFO] Installing F:\git\Neo4j\kgmaker\target\kgmaker-0.0.1-SNAPSHOT.jar 复制jar包，去windows  或者linux下 切换到jar包目录执行  jar包   java -jar xxx.jar  即可启动，想部署到tomcat自行百度，springboot配置外部tomcat
 ### 访问路径
 启动后访问[http://localhost](http://localhost) 
+
 供前端小哥哥小姐姐参考的静态网页：打开文件夹，找到 /kgmaker/src/main/resources/templates/kg/demoforfont-end.html
 ### 图谱三元组导入
 支持,.xlsx,.xls,.csv，编码格式一定要是utf-8 无bom格式的，格式：节点-节点-关系，在本地测试时上传下载的文件要和neo4j在同一台电脑，当然如果能传到七牛或者hdfs上也是一样的，必须确认neo4j能访问到，否则load不成功
