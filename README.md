@@ -39,6 +39,9 @@ demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home
 ### 访问路径
 启动后访问[http://localhost](http://localhost) 
 供前端小哥哥小姐姐参考的静态网页：打开文件夹，找到 /kgmaker/src/main/resources/templates/kg/demoforfont-end.html
+### 图谱三元组导入
+支持,.xlsx,.xls,.csv，编码格式一定要是utf-8 无bom格式的，格式：节点-节点-关系，在本地测试时上传下载的文件要和neo4j在同一台电脑，当然如果能传到七牛或者hdfs上也是一样的，必须确认neo4j能访问到，否则load不成功
+
 ## 交流
 ### 希望感兴趣的小伙伴能一起做些事情
 ![](http://file.miaoleyan.com/nndt/8UQmv0M1CWLxFx45YSuUElouufhePenr)
