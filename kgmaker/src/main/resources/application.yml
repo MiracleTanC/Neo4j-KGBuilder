@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 8080
 spring:
   servlet:
     multipart:
@@ -9,13 +9,13 @@ spring:
     cache : false
     mode: HTML5
   neo4j:
-      url: bolt://118.31.43.234:7687
+      url: bolt://localhost:7687
       username: neo4j
       password: 123456
   datasource:
-      url: jdbc:mysql://118.31.43.234:3306/kg?useSSL=false&serverTimezone=UTC 
+      url: jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC
       driverClassName: com.mysql.cj.jdbc.Driver
-      username: tan
+      username: root
       password: 123456
       type: com.zaxxer.hikari.HikariDataSource
 mybatis:
@@ -39,8 +39,8 @@ qiniu:
       name: file.miaoleyan.com
   prefixName: /nndt
 #--------七牛云配置
-img:  #//如果是Windows情况下，格式是 D:\\blog\\image   linx 格式"/home/blog/image";
-   location : D:\\blog\\image    
+img:  #//如果是Windows情况下，格式是 D:\\blog\\image\\   linx 格式"/home/blog/image/";
+   location : D:\\blog\\image\\
 file:
   serverurl:  http://localhost:8089
-  location : D:\\kgmanager\\csv   #如果是Windows情况下，格式是 D:\\kgmanager\\csv   linx 格式"/home/kgmanager/csv";
+  location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linx 格式"/home/kgmanager/csv/";

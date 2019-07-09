@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.io.File;
 import java.util.HashMap;
 
 @RunWith(SpringJUnit4ClassRunner.class) // SpringJUnit支持，由此引入Spring-Test框架支持！
@@ -26,5 +27,12 @@ public class KgmakerApplicationTests {
 		HashMap<String, Object> result=neo4jUtil.GetGraphNodeAndShip(cyphersql);
 		System.out.println(JSON.toJSON(result));
 	}
-
+	@Test
+	public void TestMakeDir(){
+		String strPath = "D:\\tan\\tan.txt";
+		File file = new File(strPath);
+		if(!file.exists()){
+			file.mkdirs();
+		}
+	}
 }

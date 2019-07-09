@@ -417,11 +417,10 @@ public class KGManagerController extends BaseController {
 				list.add(lst);
 			}
 			String savePath = config.getLocation();
-			String csvKey = "tc" + System.currentTimeMillis() + ".csv";
-			String csvPath = savePath+"/" + csvKey;
-			CSVUtil.createCsvFile(list, csvPath);
+			String filename = "tc" + System.currentTimeMillis() + ".csv";
+			CSVUtil.createCsvFile(list, savePath,filename);
 			String serverUrl=request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-			String csvUrl = "http://"+serverUrl+ "/kg/download/" + csvKey;
+			String csvUrl = "http://"+serverUrl+ "/download/" + filename;
 			//String csvUrl = "https://neo4j.com/docs/cypher-manual/3.5/csv/artists.csv";
 			KGGraphService.batchInsertByCSV(label, csvUrl, 0);
 			res.put("code", 200);
@@ -548,7 +547,7 @@ public class KGManagerController extends BaseController {
 	public String download(@PathVariable("filename") String filename, HttpServletRequest request,
 						   HttpServletResponse response) {
 		String filePath = config.getLocation();
-		String fileUrl = filePath + File.separator + filename+".csv";
+		String fileUrl = filePath + filename;
 		if (fileUrl != null) {
 			File file = new File(fileUrl);
 			if (file.exists()) {

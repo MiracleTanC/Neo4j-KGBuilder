@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,11 +20,13 @@ import java.util.List;
 public class CSVUtil {
 	protected static Logger log = LoggerFactory.getLogger(CSVUtil.class);
 
-	public static void createCsvFile(List<List<String>> list, String fileNm) {
+	public static void createCsvFile(List<List<String>> list, String path,String fileName) {
+		String fileNm=path+fileName;
 		log.info("CSVUtil->createFile方法开始. " + fileNm);
-
+		File dir=new File(path);
+		if(!dir.exists())
+			dir.mkdirs();
 		CsvWriter csvWriter = new CsvWriter(fileNm, ',', Charset.forName("UTF-8"));
-
 		int rowSize = list.size();
 		int colSize = list.get(0).size();
 		for (int i = 0; i < rowSize; i++) {
