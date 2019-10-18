@@ -45,4 +45,4 @@ demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home
 
 ## 交流
 ### 希望感兴趣的小伙伴能一起做些事情
-![](http://file.miaoleyan.com/nndt/8UQmv0M1CWLxFx45YSuUElouufhePenr)
+![](http://file.miaoleyan.com/neo4j-kgbuilder.jpg)
