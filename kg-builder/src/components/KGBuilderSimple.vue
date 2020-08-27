@@ -120,6 +120,10 @@ export default {
   props: ["pid"],
   data() {
     return {
+      qaGraphNode: {},
+      qaGraphNodeText: {},
+      qaGraphLink: {},
+      qaGraphLinkText: {},
       theme: 0,
       loading: false,
       width: 1000,
@@ -130,10 +134,6 @@ export default {
       arrowMarker: {},
       simulation: {},
       isFullscreen: false,
-      qaGraphNode: {},
-      qaGraphNodeText: {},
-      qaGraphLink: {},
-      qaGraphLinkText: {},
       graph: {
         nodes: [],
         links: []
@@ -226,6 +226,31 @@ export default {
         .attr("d", arrowPath)
         .attr("fill", "#ccc");
     },
+    drawnode(node) {
+      var _this = this;
+      var nodeEnter = node.enter().append("circle");
+      nodeEnter.on("click", function(d) {
+        console.log("触发单击:" + d);
+
+        // eslint-disable-next-line no-debugger
+        debugger;
+        _this.opennode();
+        console.log("ddd");
+        //
+      });
+      nodeEnter.on("dblclick", function(d) {
+        event.preventDefault();
+        console.log("触发双击:" + d);
+      });
+      nodeEnter.call(
+        d3
+          .drag()
+          .on("start", _this.dragstarted)
+          .on("drag", _this.dragged)
+          .on("end", _this.dragended)
+      );
+      return nodeEnter;
+    },
     opennode() {
       var _this = this;
       var noddd = [
@@ -246,62 +271,30 @@ export default {
           uuid: "2636501111"
         }
       ];
+      var newships = [
+        {
+          sourceid: "46178580",
+          targetid: "2636501111",
+          name: "",
+          targetcode: "2730107",
+          uuid: "91804213",
+          sourcecode: "27301"
+        },
+        {
+          sourceid: "46178580",
+          targetid: "4617858011",
+          name: "",
+          targetcode: "273010723",
+          uuid: "91804389",
+          sourcecode: "2730107"
+        }
+      ];
       _this.graph.nodes = _this.graph.nodes.concat(noddd);
+      _this.graph.links = _this.graph.links.concat(newships);
       _this.updategraph();
     },
-    drawnode(nodes) {
+    drawnodetext(nodetext) {
       var _this = this;
-      var node = this.qaGraphNode.selectAll("circle").data(nodes, function(d) {
-        return d.uuid;
-      });
-      node.exit().remove();
-      var nodeEnter = node.enter().append("circle");
-      nodeEnter.on("click", function(d) {
-        console.log("触发单击:" + d);
-        _this.opennode();
-      });
-      nodeEnter.on("dblclick", function(d) {
-        event.preventDefault();
-        _this.opennode();
-        console.log("触发双击:" + d);
-      });
-      nodeEnter.call(
-        d3
-          .drag()
-          .on("start", _this.dragstarted)
-          .on("drag", _this.dragged)
-          .on("end", _this.dragended)
-      );
-      node = nodeEnter.merge(node).text(function(d) {
-        return d.name;
-      });
-      node.attr("r", function(d) {
-        return d.index === 0 ? 28 : 20;
-      });
-      node.attr("fill", function(d) {
-        if (d.cur === "1") {
-          return _this.colorList[0];
-        } else {
-          return _this.colorList[2];
-        }
-      });
-      node
-        .append("title") // 为每个节点设置title
-        .text(function(d) {
-          if (typeof d.name !== "undefined") {
-            return d.name;
-          }
-        });
-      return node;
-    },
-    drawnodetext(nodes) {
-      var _this = this;
-      var nodetext = this.qaGraphNodeText
-        .selectAll("text")
-        .data(nodes, function(d) {
-          return d.uuid;
-        });
-      nodetext.exit().remove();
       var nodetextEnter = nodetext.enter().append("text");
       nodetextEnter.call(
         d3
@@ -310,6 +303,88 @@ export default {
           .on("drag", _this.dragged)
           .on("end", _this.dragended)
       );
+      return nodetextEnter;
+    },
+    drawlink(link) {
+      var _this = this;
+      var linkEnter = link
+        .enter()
+        .append("line")
+        .attr("stroke-width", 1)
+        .attr("stroke", function() {
+          return _this.colorList[2];
+        })
+        .attr("marker-end", "url(#arrow)"); // 箭头
+      return linkEnter;
+    },
+    drawlinktext(linktext) {
+      var linktextEnter = linktext
+        .enter()
+        .append("text")
+        .attr("class", "linetext")
+        .style("fill", "#875034")
+        .style("font-size", "16px")
+        .text(function(d) {
+          return d.lk.name;
+        });
+      return linktextEnter;
+    },
+    updategraph() {
+      var _this = this;
+      var lks = _this.graph.links;
+      var nodes = _this.graph.nodes;
+      nodes.forEach(function(n) {
+        if (n.center === 1 || n.center === "1") {
+          n.fx = _this.width / 2;
+          n.fy = _this.height / 2;
+        }
+        if (typeof n.fx === "undefined" || n.fx === "") {
+          n.fx = null;
+        }
+        if (typeof n.fy === "undefined" || n.fy === "") {
+          n.fy = null;
+        }
+      });
+      var links = [];
+      // eslint-disable-next-line no-debugger
+      debugger;
+      lks.forEach(function(m) {
+        var sourceNode = nodes.filter(function(n) {
+          return n.uuid === m.sourceid;
+        })[0];
+        if (typeof sourceNode === "undefined") return;
+        var targetNode = nodes.filter(function(n) {
+          return n.uuid === m.targetid;
+        })[0];
+        if (typeof targetNode === "undefined") return;
+        links.push({ source: sourceNode.uuid, target: targetNode.uuid, lk: m });
+      });
+      // 更新节点
+      //_this.qaGraphNode = _this.drawnode(nodes);
+      var node = _this.qaGraphNode.selectAll("circle").data(nodes, function(d) {
+        return d.uuid;
+      });
+      node.exit().remove();
+      var nodeEnter = _this.drawnode(node);
+      node = nodeEnter.merge(node).text(function(d) {
+        return d.name;
+      });
+      node.attr("r", 25);
+      node.attr("fill", "red");
+      node
+        .append("title") // 为每个节点设置title
+        .text(function(d) {
+          return d.name;
+        });
+      // 更新节点文字
+      //_this.qaGraphNodeText = _this.drawnodetext(nodes);
+      var nodetext = _this.qaGraphNodeText
+        .selectAll("text")
+        .data(nodes, function(d) {
+          return d.uuid;
+        });
+      nodetext.exit().remove();
+      var nodetextEnter = _this.drawnodetext(nodetext);
       nodetext = nodetextEnter.merge(nodetext).text(function(d) {
         return d.name;
       });
@@ -337,83 +412,26 @@ export default {
           }
           return "";
         });
-      return nodetext;
-    },
-    drawlink(links) {
-      var _this = this;
-      var link = this.qaGraphLink.selectAll("line").data(links, function(d) {
+      // 更新连线 links
+      // _this.qaGraphLink = _this.drawlink(links);
+      var link = _this.qaGraphLink.selectAll("line").data(links, function(d) {
         return d.uuid;
       });
       link.exit().remove();
-      var linkEnter = link
-        .enter()
-        .append("line")
-        .attr("stroke-width", 1)
-        .attr("stroke", function() {
-          return _this.colorList[2];
-        })
-        .attr("marker-end", "url(#arrow)"); // 箭头
+      var linkEnter = _this.drawlink(link);
       link = linkEnter.merge(link);
-      return link;
-    },
-    drawlinktext(links) {
-      //var _this = this;
-      var linktext = this.qaGraphLinkText
+      // 更新连线文字
+      //_this.qaGraphLinkText = _this.drawlinktext(links);
+      var linktext = _this.qaGraphLinkText
         .selectAll("text")
         .data(links, function(d) {
           return d.uuid;
         });
       linktext.exit().remove();
-      var linktextEnter = linktext
-        .enter()
-        .append("text")
-        .attr("class", "linetext")
-        .style("fill", "#875034")
-        .style("font-size", "16px")
-        .text(function(d) {
-          return d.lk.name;
-        });
+      var linktextEnter = _this.drawlinktext(linktext);
       linktext = linktextEnter.merge(linktext).text(function(d) {
         return d.lk.name;
       });
-      return linktext;
-    },
-    updategraph() {
-      var _this = this;
-      var lks = _this.graph.links;
-      var nodes = _this.graph.nodes;
-      nodes.forEach(function(n) {
-        if (n.center === 1 || n.center === "1") {
-          n.fx = _this.width / 2;
-          n.fy = _this.height / 2;
-        }
-        if (typeof n.fx === "undefined" || n.fx === "") {
-          n.fx = null;
-        }
-        if (typeof n.fy === "undefined" || n.fy === "") {
-          n.fy = null;
-        }
-      });
-      var links = [];
-      lks.forEach(function(m) {
-        var sourceNode = nodes.filter(function(n) {
-          return n.uuid === m.sourceid;
-        })[0];
-        if (typeof sourceNode === "undefined") return;
-        var targetNode = nodes.filter(function(n) {
-          return n.uuid === m.targetid;
-        })[0];
-        if (typeof targetNode === "undefined") return;
-        links.push({ source: sourceNode.uuid, target: targetNode.uuid, lk: m });
-      });
-      // 更新节点
-      var graphNode = _this.drawnode(nodes);
-      // 更新节点文字
-      var graphNodeText = _this.drawnodetext(nodes);
-      // 更新连线 links
-      var graphLink = _this.drawlink(links);
-      // 更新连线文字
-      var graphLinkText = _this.drawlinktext(links);
       _this.simulation
         .nodes(nodes)
         .alphaTarget(0)
@@ -421,7 +439,7 @@ export default {
         .on("tick", ticked);
       function ticked() {
         // 更新连线坐标
-        graphLink
+        link
           .attr("x1", function(d) {
             return d.source.x;
           })
@@ -435,7 +453,7 @@ export default {
             return d.target.y;
           });
         // 刷新连接线上的文字位置
-        graphLinkText
+        linktext
           .attr("x", function(d) {
             if (
               typeof d.source.x === "undefined" ||
@@ -455,7 +473,7 @@ export default {
             return y;
           });
         // 更新节点坐标
-        graphNode
+        node
           .attr("cx", function(d) {
             return d.x;
           })
@@ -463,7 +481,7 @@ export default {
             return d.y;
           });
         // 更新文字坐标
-        graphNodeText
+        nodetext
           .attr("x", function(d) {
             return d.x;
           })
