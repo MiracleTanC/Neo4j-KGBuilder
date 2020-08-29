@@ -74,12 +74,12 @@
       <div class="ctwh-dibmr" style="float: right">
         <ul class="toolbar">
           <li>
-            <a href="javascript:;" @click="zoomin"
+            <a href="javascript:;" @click="zoomIn"
               ><span><i class="el-icon-zoom-in"></i>放大</span></a
             >
           </li>
           <li>
-            <a href="javascript:;" @click="zoomout"
+            <a href="javascript:;" @click="zoomOut"
               ><span><i class="el-icon-zoom-out"></i>缩小</span></a
             >
           </li>
@@ -101,7 +101,7 @@
               v-else
               id="fullscreenbtn"
               href="javascript:;"
-              @click="exitfullscreen"
+              @click="exitFullScreen"
             >
               <span><i class="el-icon-full-screen"></i>退出全屏</span>
             </a>
@@ -131,6 +131,7 @@ export default {
       simulation: {},
       isFullscreen: false,
       qaGraphNode: {},
+      qaButtonGroup: {},
       qaGraphNodeText: {},
       qaGraphLink: {},
       qaGraphLinkText: {},
@@ -138,6 +139,7 @@ export default {
         nodes: [],
         links: []
       },
+      defaultR: 30,
       colorList: [
         "#ff8373",
         "#f9c62c",
@@ -152,13 +154,21 @@ export default {
         { size: 500, isactive: true },
         { size: 1000, isactive: false }
       ],
+      toolbarData: [
+        { name: "编辑", value: 1, code: "edit" },
+        { name: "展开", value: 1, code: "more" },
+        { name: "追加", value: 1, code: "append" },
+        { name: "连线", value: 1, code: "link" },
+        { name: "删除", value: 1, code: "delete" }
+      ],
+      selectUuid: 0,
       nodeRecordList: []
     };
   },
   components: {},
   mounted() {
     this.initGraphContainer();
-    this.addmaker();
+    this.addMaker();
     this.initGraph();
   },
   created() {},
@@ -199,6 +209,14 @@ export default {
       this.qaGraphLinkText = this.svg.append("g").attr("class", "linetext");
       this.qaGraphNode = this.svg.append("g").attr("class", "node");
       this.qaGraphNodeText = this.svg.append("g").attr("class", "nodetext");
+      this.nodebuttonGroup = this.svg.append("g").attr("class", "nodebutton");
+      this.svg.on(
+        "click",
+        function() {
+          d3.selectAll(".buttongroup").classed("notshow", true);
+        },
+        false
+      );
     },
     initGraph() {
       var _this = this;
@@ -206,10 +224,10 @@ export default {
         var data = response.data;
         _this.graph.nodes = data.node;
         _this.graph.links = data.relationship;
-        _this.updategraph();
+        _this.updateGraph();
       });
     },
-    addmaker() {
+    addMaker() {
       var arrowMarker = this.svg
         .append("marker")
         .attr("id", "arrow")
@@ -226,7 +244,7 @@ export default {
         .attr("d", arrowPath)
         .attr("fill", "#ccc");
     },
-    opennode() {
+    openNode() {
       var _this = this;
       var noddd = [
         {
@@ -247,9 +265,9 @@ export default {
         }
       ];
       _this.graph.nodes = _this.graph.nodes.concat(noddd);
-      _this.updategraph();
+      _this.updateGraph();
     },
-    drawnode(nodes) {
+    drawNode(nodes) {
       var _this = this;
       var node = this.qaGraphNode.selectAll("circle").data(nodes, function(d) {
         return d.uuid;
@@ -257,20 +275,30 @@ export default {
       node.exit().remove();
       var nodeEnter = node.enter().append("circle");
       nodeEnter.on("click", function(d) {
-        console.log("触发单击:" + d);
-        _this.opennode();
+        console.log("触发单击");
+        _this.selectUuid = d.uuid;
+
+        var out_buttongroup_id = ".out_buttongroup_" + d.uuid;
+        var selectItem = d3.select(out_buttongroup_id)._groups[0][0];
+        if (selectItem.classList.contains("notshow")) {
+          _this.svg.selectAll(".buttongroup").classed("notshow", true);
+          d3.select(out_buttongroup_id).classed("notshow", false);
+        } else {
+          d3.select(out_buttongroup_id).classed("notshow", true);
+        }
+        event.stopPropagation();
       });
       nodeEnter.on("dblclick", function(d) {
         event.preventDefault();
-        _this.opennode();
+        _this.openNode();
         console.log("触发双击:" + d);
       });
       nodeEnter.call(
         d3
           .drag()
-          .on("start", _this.dragstarted)
+          .on("start", _this.dragStarted)
           .on("drag", _this.dragged)
-          .on("end", _this.dragended)
+          .on("end", _this.dragEnded)
       );
       node = nodeEnter.merge(node).text(function(d) {
         return d.name;
@@ -288,13 +316,14 @@ export default {
       node
         .append("title") // 为每个节点设置title
         .text(function(d) {
-          if (typeof d.name !== "undefined") {
+          if (!d.name) {
             return d.name;
           }
+          return "";
         });
       return node;
     },
-    drawnodetext(nodes) {
+    drawNodeText(nodes) {
       var _this = this;
       var nodetext = this.qaGraphNodeText
         .selectAll("text")
@@ -306,20 +335,16 @@ export default {
       nodetextEnter.call(
         d3
           .drag()
-          .on("start", _this.dragstarted)
+          .on("start", _this.dragStarted)
           .on("drag", _this.dragged)
-          .on("end", _this.dragended)
+          .on("end", _this.dragEnded)
       );
       nodetext = nodetextEnter.merge(nodetext).text(function(d) {
         return d.name;
       });
       nodetext
         .style("fill", function() {
-          if (_this.theme === 0) {
-            return "#333";
-          } else {
-            return "#fff";
-          }
+          return "#333";
         })
         .attr("class", "nodetext")
         .attr("dy", "3.6em")
@@ -332,14 +357,14 @@ export default {
       nodetext
         .append("title") // 为每个节点设置title
         .text(function(d) {
-          if (typeof d.name !== "undefined") {
+          if (d.name) {
             return d.name;
           }
           return "";
         });
       return nodetext;
     },
-    drawlink(links) {
+    drawLink(links) {
       var _this = this;
       var link = this.qaGraphLink.selectAll("line").data(links, function(d) {
         return d.uuid;
@@ -356,9 +381,9 @@ export default {
       link = linkEnter.merge(link);
       return link;
     },
-    drawlinktext(links) {
-      //var _this = this;
-      var linktext = this.qaGraphLinkText
+    drawLinkText(links) {
+      var _this = this;
+      var linktext = _this.qaGraphLinkText
         .selectAll("text")
         .data(links, function(d) {
           return d.uuid;
@@ -378,7 +403,111 @@ export default {
       });
       return linktext;
     },
-    updategraph() {
+    drawButtonGroup(nodes) {
+      var _this = this;
+      d3.selectAll(".nodebutton >g").remove();
+      var nodebutton = _this.nodebuttonGroup
+        .selectAll(".nodebutton")
+        .data(nodes, function(d) {
+          return d.uuid;
+        });
+      nodebutton.exit().remove();
+      var nodebuttonEnter = nodebutton
+        .enter()
+        .append("use") //  为每个节点组添加一个 use 子元素
+        .attr("r", function(d) {
+          if (!d.r) {
+            return _this.defaultR;
+          }
+          return d.r;
+        })
+        .attr("uuid", function(d) {
+          return d.uuid;
+        })
+        .attr("xlink:href", function(d) {
+          if (!d.r) {
+            return "#out_circle_" + _this.defaultR;
+          }
+          return "#out_circle_" + d.r;
+        }) //  指定 use 引用的内容
+        .attr("class", function(d) {
+          return "buttongroup out_buttongroup_" + d.uuid;
+        })
+        .classed("notshow", true);
+      nodebutton = nodebuttonEnter.merge(nodebutton);
+      return nodebutton;
+    },
+    drawToolButton() {
+      var _this = this;
+      //先删除所有为节点自定义的按钮组
+      d3.selectAll("svg >defs").remove();
+      var nodes = _this.graph.nodes;
+      var pie = d3.pie().value(function(d) {
+        return d.value; //处理数据，指定value作为计算比例的字段
+      });
+      var piedata = pie(_this.toolbarData);
+      var nodeButtonGroup = this.svg.append("defs");
+      var nodeRArr = [];
+      nodes.forEach(function(m) {
+        if (!m.r) {
+          m.r = _this.defaultR;
+        }
+        //按半径分别定义每种按钮组的图标
+        if (nodeRArr.indexOf(m.r) == -1) {
+          nodeRArr.push(m.r);
+          var nbtng = nodeButtonGroup
+            .append("g")
+            .attr("id", "out_circle_" + m.r); //为每一个节点定制一个按钮组，在画按钮组的时候为其指定该id
+          var buttonGroupEnter = nbtng
+            .selectAll(".buttongroup")
+            .data(piedata)
+            .enter()
+            .append("g")
+            .attr("class", function(d) {
+              return "action_" + d.data.code;
+            });
+          var arc = d3
+            .arc()
+            .innerRadius(m.r)
+            .outerRadius(m.r + 30);
+          buttonGroupEnter
+            .append("path")
+            .attr("d", function(d) {
+              return arc(d);
+            })
+            .attr("fill", "#E6A23C")
+            .style("opacity", 0.6)
+            .attr("stroke", "#6CB7ED")
+            .attr("stroke-width", 1);
+          buttonGroupEnter
+            .append("text")
+            .attr("transform", function(d) {
+              return "translate(" + arc.centroid(d) + ")";
+            })
+            .attr("text-anchor", "middle")
+            .text(function(d) {
+              return d.data.name;
+            })
+            .style("fill", function() {
+              return "#fff";
+            })
+            .attr("font-size", 10);
+        }
+      });
+    },
+    bindEventButtonGroup() {
+      var _this = this;
+      //按钮组事件绑定
+      _this.toolbarData.forEach(function(m) {
+        var btnClass = ".action_" + m.code;
+        _this.svg.selectAll(btnClass).on("click", function(d) {
+          console.log(
+            d.data.name + ":" + d.data.code + ":uuid:" + _this.selectUuid
+          );
+        });
+      });
+    },
+    formatData() {
       var _this = this;
       var lks = _this.graph.links;
       var nodes = _this.graph.nodes;
@@ -399,21 +528,35 @@ export default {
         var sourceNode = nodes.filter(function(n) {
           return n.uuid === m.sourceid;
         })[0];
-        if (typeof sourceNode === "undefined") return;
+        if (!sourceNode) return;
         var targetNode = nodes.filter(function(n) {
           return n.uuid === m.targetid;
         })[0];
-        if (typeof targetNode === "undefined") return;
+        if (!targetNode) return;
         links.push({ source: sourceNode.uuid, target: targetNode.uuid, lk: m });
       });
+      var data = {};
+      data.nodes = nodes;
+      data.links = links;
+      return data;
+    },
+    updateGraph() {
+      var _this = this;
+      var data = _this.formatData();
+      var nodes = data.nodes;
+      var links = data.links;
+      //定义按钮组引用的use元素
+      _this.drawToolButton(nodes);
       // 更新节点
-      var graphNode = _this.drawnode(nodes);
+      var graphNode = _this.drawNode(nodes);
       // 更新节点文字
-      var graphNodeText = _this.drawnodetext(nodes);
+      var graphNodeText = _this.drawNodeText(nodes);
+      // 更新按钮组
+      var graphNodeButtonGroup = _this.drawButtonGroup(nodes);
       // 更新连线 links
-      var graphLink = _this.drawlink(links);
+      var graphLink = _this.drawLink(links);
       // 更新连线文字
-      var graphLinkText = _this.drawlinktext(links);
+      var graphLinkText = _this.drawLinkText(links);
       _this.simulation
         .nodes(nodes)
         .alphaTarget(0)
@@ -437,20 +580,12 @@ export default {
         // 刷新连接线上的文字位置
         graphLinkText
           .attr("x", function(d) {
-            if (
-              typeof d.source.x === "undefined" ||
-              typeof d.target.x === "undefined"
-            )
-              return 0;
+            if (!d.source.x || d.target.x) return 0;
             var x = (parseFloat(d.source.x) + parseFloat(d.target.x)) / 2;
             return x;
           })
           .attr("y", function(d) {
-            if (
-              typeof d.source.y === "undefined" ||
-              typeof d.target.y === "undefined"
-            )
-              return 0;
+            if (!d.source.y || !d.target.y) return 0;
             var y = (parseFloat(d.source.y) + parseFloat(d.target.y)) / 2;
             return y;
           });
@@ -462,6 +597,17 @@ export default {
           .attr("cy", function(d) {
             return d.y;
           });
+        // 更新节点操作按钮组坐标
+        graphNodeButtonGroup
+          .attr("cx", function(d) {
+            return d.x;
+          })
+          .attr("cy", function(d) {
+            return d.y;
+          })
+          .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ") scale(1)";
+          });
         // 更新文字坐标
         graphNodeText
           .attr("x", function(d) {
@@ -471,7 +617,6 @@ export default {
             return d.y;
           });
       }
-
       _this.simulation.force("link").links(links);
       _this.simulation.force(
         "center",
@@ -485,8 +630,13 @@ export default {
         .on("zoom", _this.zoomed);
       _this.svg.call(_this.zoom);
       _this.svg.on("dblclick.zoom", null); // 静止双击缩放
+
+      // 静止双击缩放
+      _this.svg.on("dblclick.zoom", null);
+      //为按钮组绑定事件
+      _this.bindEventButtonGroup();
     },
-    dragstarted(d) {
+    dragStarted(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
@@ -495,13 +645,18 @@ export default {
       d.fx = d3.event.x;
       d.fy = d3.event.y;
     },
-    dragended(d) {
+    dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0);
       d.fx = d3.event.x;
       d.fy = d3.event.y;
     },
     zoomed() {
-      this.svg.selectAll("g").attr("transform", d3.event.transform);
+      d3.selectAll(".node").attr("transform", d3.event.transform);
+      d3.selectAll(".nodetext text").attr("transform", d3.event.transform);
+      d3.selectAll(".line").attr("transform", d3.event.transform);
+      d3.selectAll(".linetext text").attr("transform", d3.event.transform);
+      d3.selectAll(".nodebutton").attr("transform", d3.event.transform);
+      //_this.svg.selectAll("g").attr("transform", d3.event.transform);
     },
     zoomClick(direction) {
       var self = this;
@@ -514,10 +669,10 @@ export default {
       }
       self.zoom.scaleBy(self.svg, targetZoom); // 执行该方法后 会触发zoom事件
     },
-    zoomin() {
+    zoomIn() {
       this.zoomClick(1);
     },
-    zoomout() {
+    zoomOut() {
       this.zoomClick(-1);
     },
     refresh() {
@@ -526,9 +681,9 @@ export default {
     showFull() {
       this.isFullscreen = !this.isFullscreen;
       var full = document.getElementById("kg_container");
-      this.fullscreen(full);
+      this.fullScreen(full);
     },
-    fullscreen(element) {
+    fullScreen(element) {
       if (element.requestFullscreen) {
         element.requestFullscreen();
       } else if (element.mozRequestFullScreen) {
@@ -539,7 +694,7 @@ export default {
         element.msRequestFullscreen();
       }
     },
-    exitfullscreen() {
+    exitFullScreen() {
       this.isFullscreen = !this.isFullscreen;
       if (document.exitFullscreen) {
         document.exitFullscreen();
@@ -606,5 +761,8 @@ li {
 .toolbar li {
   float: left;
   width: 60px;
+}
+.notshow {
+  display: none;
 }
 </style>
