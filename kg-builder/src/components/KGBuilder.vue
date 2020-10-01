@@ -191,23 +191,42 @@ export default {
       var noddd = [
         {
           flag: '1',
-          code: '27301',
+          code: '27301111',
           parentCode: '273',
           grade: '2',
           name: '儒家2',
           uuid: '4617858011',
         },
         {
-          code: '2730107',
+          code: '273012222',
           flag: '1',
-          parentCode: '27301',
+          parentCode: '273',
           grade: '3',
           name: '故事轶闻2',
           uuid: '2636501111',
         },
       ]
+      var newships = [
+        {
+          sourceid: '273',
+          targetid: '2636501111',
+          name: '',
+          targetcode: '2730107',
+          uuid: '91804213',
+          sourcecode: '27301',
+        },
+        {
+          sourceid: '273',
+          targetid: '4617858011',
+          name: '',
+          targetcode: '273010723',
+          uuid: '91804389',
+          sourcecode: '2730107',
+        },
+      ]
       _this.graph.nodes = _this.graph.nodes.concat(noddd)
-      _this.updateGraph()
+      _this.graph.links = _this.graph.links.concat(newships)
+      _this.updategraph()
     },
     drawNode(nodes) {
       var _this = this
@@ -239,7 +258,47 @@ export default {
       })
       nodeEnter.on('mouseleave', function () {
         console.log('鼠标移出')
-        d3.select(this).style('stroke-width', '2')
+        d3.select(this).style('stroke-width', 2)
+        //todo其他节点和连线一并显示
+        d3.select('.node').style('fill-opacity', 1)
+        d3.select('.nodetext').style('fill-opacity', 1)
+        d3.selectAll('.linetext').style('fill-opacity', 1)
+      })
+      nodeEnter.on('mouseover', function (d) {
+        //todo鼠标放上去只显示相关节点，其他节点和连线隐藏
+        d3.selectAll('.node').style('fill-opacity', 0.2)
+
+        var relvantNodeIds = []
+        var relvantNodes = _this.graph.links.filter(function (n) {
+          return n.sourceid == d.uuid || n.targetid == d.uuid
+        })
+        relvantNodes.forEach(function (item) {
+          relvantNodeIds.push(item.sourceid)
+          relvantNodeIds.push(item.targetid)
+        })
+        _this.qaGraphNode
+          .selectAll('circle')
+          .style('fill-opacity', function (c) {
+            if (relvantNodeIds.indexOf(c.uuid) > -1) {
+              return 1.0
+            }
+          })
+        d3.selectAll('.nodetext').style('fill-opacity', 0.2)
+        _this.qaGraphNodeText
+          .selectAll('.nodetext')
+          .style('fill-opacity', function (c) {
+            if (relvantNodeIds.indexOf(c.uuid) > -1) {
+              return 1.0
+            }
+          })
+        d3.selectAll('.linetext').style('fill-opacity', 0.2)
+        _this.qaGraphLinkText
+          .selectAll('.linetext')
+          .style('fill-opacity', function (c) {
+            if (c.lk.targetid === d.uuid) {
+              return 1.0
+            }
+          })
       })
       nodeEnter.call(
         d3
@@ -251,7 +310,7 @@ export default {
       node = nodeEnter.merge(node).text(function (d) {
         return d.name
       })
-      node.style('opacity', 0.8)
+      //node.style('opacity', 0.8)
       node.style('stroke', function (d) {
         if (d.color) {
           return d.color
@@ -260,19 +319,42 @@ export default {
       })
       node.style('stroke-opacity', 0.6)
       node.attr('r', function (d) {
+        if (d.r) {
+          return d.r
+        }
         return d.index === 0 ? 28 : 20
       })
-      node.attr('fill', function (d) {
-        if (d.cur === '1') {
-          return _this.colorList[0]
+      node.attr('fill', function (d, i) {
+        //创建圆形图像
+        if (d.imgsrc) {
+          var img_w = 77,
+            img_h = 80
+          var defs = d3.selectAll('svg >defs')
+          var catpattern = defs
+            .append('pattern')
+            .attr('id', 'catpattern' + i)
+            .attr('height', 1)
+            .attr('width', 1)
+          catpattern
+            .append('image')
+            .attr('x', -(img_w / 2 - d.r))
+            .attr('y', -(img_h / 2 - d.r))
+            .attr('width', img_w)
+            .attr('height', img_h)
+            .attr('xlink:href', d.imgsrc)
+          return 'url(#catpattern' + i + ')'
         } else {
-          return _this.colorList[2]
+          if (d.cur === '1') {
+            return _this.colorList[0]
+          } else {
+            return _this.colorList[2]
+          }
         }
       })
       node
         .append('title') // 为每个节点设置title
         .text(function (d) {
-          if (!d.name) {
+          if (d.name) {
             return d.name
           }
           return ''
@@ -329,6 +411,7 @@ export default {
       var linkEnter = link
         .enter()
         .append('line')
+        //.attr('class', 'link')
         .attr('stroke-width', 1)
         .attr('stroke', function () {
           return _this.colorList[2]
@@ -588,7 +671,7 @@ export default {
       _this.bindEventButtonGroup()
     },
     dragStarted(d) {
-      if (!d3.event.active) this.simulation.alphaTarget(0.3).restart()
+      if (!d3.event.active) this.simulation.alphaTarget(0.8).restart()
       d.fx = d.x
       d.fy = d.y
     },
