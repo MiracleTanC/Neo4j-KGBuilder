@@ -262,12 +262,12 @@ export default {
         //todo其他节点和连线一并显示
         d3.select('.node').style('fill-opacity', 1)
         d3.select('.nodetext').style('fill-opacity', 1)
+        d3.selectAll('.line').style('stroke-opacity', 1)
         d3.selectAll('.linetext').style('fill-opacity', 1)
       })
       nodeEnter.on('mouseover', function (d) {
         //todo鼠标放上去只显示相关节点，其他节点和连线隐藏
-        d3.selectAll('.node').style('fill-opacity', 0.2)
-
+        d3.selectAll('.node').style('fill-opacity', 0.1)
         var relvantNodeIds = []
         var relvantNodes = _this.graph.links.filter(function (n) {
           return n.sourceid == d.uuid || n.targetid == d.uuid
@@ -276,6 +276,7 @@ export default {
           relvantNodeIds.push(item.sourceid)
           relvantNodeIds.push(item.targetid)
         })
+        //显示相关的节点
         _this.qaGraphNode
           .selectAll('circle')
           .style('fill-opacity', function (c) {
@@ -283,15 +284,30 @@ export default {
               return 1.0
             }
           })
-        d3.selectAll('.nodetext').style('fill-opacity', 0.2)
+        //透明所有节点文字
+        d3.selectAll('.nodetext').style('fill-opacity', 0.1)
+        //显示相关的节点文字
         _this.qaGraphNodeText
-          .selectAll('.nodetext')
+          .selectAll('text')
           .style('fill-opacity', function (c) {
             if (relvantNodeIds.indexOf(c.uuid) > -1) {
               return 1.0
             }
           })
-        d3.selectAll('.linetext').style('fill-opacity', 0.2)
+        //透明所有连线
+        d3.selectAll('.line').style('stroke-opacity', 0.1)
+        //显示相关的连线
+        _this.qaGraphLink
+          .selectAll('line')
+          .style('stroke-opacity', function (c) {
+            if (c.lk.targetid === d.uuid) {
+              console.log(c)
+              return 1.0
+            }
+          })
+        //透明所有连线文字
+        d3.selectAll('.linetext').style('fill-opacity', 0.1)
+        //显示相关的连线文字
         _this.qaGraphLinkText
           .selectAll('.linetext')
           .style('fill-opacity', function (c) {
@@ -310,7 +326,6 @@ export default {
       node = nodeEnter.merge(node).text(function (d) {
         return d.name
       })
-      //node.style('opacity', 0.8)
       node.style('stroke', function (d) {
         if (d.color) {
           return d.color
@@ -381,9 +396,9 @@ export default {
         return d.name
       })
       nodetext
-        /* .style("fill", function() {
-          return "#333";
-        }) */
+        .style('fill', function () {
+          return '#333'
+        })
         .attr('class', 'nodetext')
         .attr('dy', '3.6em')
         .attr('font-family', '宋体')
@@ -411,9 +426,12 @@ export default {
       var linkEnter = link
         .enter()
         .append('line')
-        //.attr('class', 'link')
+        .attr('class', 'link')
         .attr('stroke-width', 1)
         .attr('stroke', function () {
+          return _this.colorList[2]
+        })
+        .attr('fill', function () {
           return _this.colorList[2]
         })
         .attr('marker-end', 'url(#arrow)') // 箭头
@@ -800,11 +818,8 @@ li {
   display: none;
 }
 .nodetext {
-  fill: none;
   pointer-events: all;
   cursor: pointer;
-  stroke: #ed6cd1;
-  stroke-width: 1px;
   stroke-dasharray: 0 0 0 0;
   stroke-dashoffset: 10;
   transition: all ease 0.1s;
