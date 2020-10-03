@@ -165,7 +165,7 @@ export default {
     },
     initGraph() {
       var _this = this
-      axios.get('/static/kgData.json', {}).then(function (response) {
+      axios.get('/static/kgData2.json', {}).then(function (response) {
         var data = response.data
         _this.graph.nodes = data.node
         _this.graph.links = data.relationship
@@ -236,7 +236,6 @@ export default {
       node.exit().remove()
       var nodeEnter = node.enter().append('circle')
       nodeEnter.on('click', function (d) {
-        console.log('触发单击')
         _this.selectUuid = d.uuid
         var out_buttongroup_id = '.out_buttongroup_' + d.uuid
         var selectItem = d3.select(out_buttongroup_id)._groups[0][0]
@@ -249,21 +248,19 @@ export default {
         event.stopPropagation()
       })
       nodeEnter.on('dblclick', function (d) {
-        console.log('触发双击:' + d)
+        console.log(d)
         event.preventDefault()
       })
       nodeEnter.on('mouseenter', function () {
-        console.log('鼠标移入')
         d3.select(this).style('stroke-width', '6')
       })
       nodeEnter.on('mouseleave', function () {
-        console.log('鼠标移出')
         d3.select(this).style('stroke-width', 2)
         //todo其他节点和连线一并显示
         d3.select('.node').style('fill-opacity', 1)
         d3.select('.nodetext').style('fill-opacity', 1)
-        d3.selectAll('.line').style('stroke-opacity', 1)
-        d3.selectAll('.linetext').style('fill-opacity', 1)
+        d3.selectAll('.link').style('stroke-opacity', 1)
+        d3.selectAll('.linktext').style('fill-opacity', 1)
       })
       nodeEnter.on('mouseover', function (d) {
         //todo鼠标放上去只显示相关节点，其他节点和连线隐藏
@@ -298,9 +295,9 @@ export default {
         d3.selectAll('.line').style('stroke-opacity', 0.1)
         //显示相关的连线
         _this.qaGraphLink
-          .selectAll('line')
+          .selectAll('.link')
           .style('stroke-opacity', function (c) {
-            if (c.lk.targetid === d.uuid) {
+            if (c.lk.targetid === d.uuid || c.lk.sourceid === d.uuid) {
               console.log(c)
               return 1.0
             }
@@ -309,9 +306,9 @@ export default {
         d3.selectAll('.linetext').style('fill-opacity', 0.1)
         //显示相关的连线文字
         _this.qaGraphLinkText
-          .selectAll('.linetext')
+          .selectAll('.linktext')
           .style('fill-opacity', function (c) {
-            if (c.lk.targetid === d.uuid) {
+            if (c.lk.targetid === d.uuid || c.lk.sourceid === d.uuid) {
               return 1.0
             }
           })
@@ -419,17 +416,23 @@ export default {
     },
     drawLink(links) {
       var _this = this
-      var link = this.qaGraphLink.selectAll('line').data(links, function (d) {
+      var link = this.qaGraphLink.selectAll('.link').data(links, function (d) {
         return d.uuid
       })
       link.exit().remove()
       var linkEnter = link
         .enter()
-        .append('line')
+        .append('path')
         .attr('class', 'link')
         .attr('stroke-width', 1)
         .attr('stroke', function () {
           return _this.colorList[2]
+        })
+        .attr('fill', 'none')
+        .attr('id', function (d) {
+          return (
+            'invis_' + d.lk.sourceid + '-' + d.lk.name + '-' + d.lk.targetid
+          )
         })
         .attr('marker-end', 'url(#arrow)') // 箭头
       link = linkEnter.merge(link)
@@ -438,7 +441,7 @@ export default {
     drawLinkText(links) {
       var _this = this
       var linktext = _this.qaGraphLinkText
-        .selectAll('text')
+        .selectAll('.linktext')
         .data(links, function (d) {
           return d.uuid
         })
@@ -446,7 +449,15 @@ export default {
       var linktextEnter = linktext
         .enter()
         .append('text')
-        .attr('class', 'linetext')
+        .attr('class', 'linktext')
+        .append('textPath')
+        .attr('startOffset', '50%')
+        .attr('text-anchor', 'middle')
+        .attr('xlink:href', function (d) {
+          return (
+            '#invis_' + d.lk.sourceid + '-' + d.lk.name + '-' + d.lk.targetid
+          )
+        })
         .style('fill', '#875034')
         .style('font-size', '10px')
         .text(function (d) {
@@ -594,11 +605,56 @@ export default {
       data.links = links
       return data
     },
+    formatLinkAttr(links) {
+      var formatLinks = []
+      //每两个节点间的连线，不管正向反向，全算一组，每组连线分别标上序号linkGroupIndex，计算每组连线总条数groupLinkTotal
+      links.forEach(function (item) {
+        var linkGroup = []
+        //正向
+        var forwardItems = links.filter(function (sItem) {
+          return sItem.source == item.source && sItem.target == item.target
+        })
+        //反向
+        var reverseItems = links.filter(function (sItem) {
+          return sItem.source == item.target && sItem.target == item.source
+        })
+        linkGroup = linkGroup.concat(forwardItems)
+        linkGroup = linkGroup.concat(reverseItems)
+        var groupLinkTotal = forwardItems.length + reverseItems.length
+        linkGroup.forEach(function (it, i) {
+          //本组连线序号
+          it.linkGroupIndex = i + 1
+          it.groupLinkTotal = groupLinkTotal
+        })
+        formatLinks = formatLinks.concat(linkGroup)
+      })
+      formatLinks.forEach(function (item) {
+        //线的单双，单数且小于2，则只有一条直线，大于2且单数，有多条弧线和一条直线
+        var groupLinkTotalHalf = item.groupLinkTotal / 2
+        //能否被2整除，是否有余数，true=有，false=没有，有余数必然有一条直线
+        item.groupLinkUneven = item.groupLinkTotal % 2 !== 0
+        //判断是否是最中间的直线（有余数，并且序号刚好是本组连线的一版，这里向上取整）
+        item.groupLinkMiddle =
+          item.groupLinkUneven === true &&
+          Math.ceil(groupLinkTotalHalf) === item.linkGroupIndex
+        //假设有一条直线，index刚好是groupLinkTotalHalf的值，上方的曲线都为0，下方的曲线都为1
+        var groupLinkLowerHalf = item.linkGroupIndex <= groupLinkTotalHalf
+        //上方的曲线和直线方向一致，下方的曲线和直线的方向相反
+        //item.groupLinkArcDirection = groupLinkLowerHalf ? 0 : 1
+        item.groupLinkArcDirection = 1
+        //都在直线上方，则取当前序号，否则减去中间直线取序号
+        item.groupLinkIndexCorrected = groupLinkLowerHalf
+          ? item.linkGroupIndex
+          : item.linkGroupIndex - Math.ceil(groupLinkTotalHalf)
+        item.groupLinkMaxHalf = Math.round(item.groupLinkTotal / 2)
+      })
+      return formatLinks
+    },
     updateGraph() {
       var _this = this
       var data = _this.formatData()
       var nodes = data.nodes
-      var links = data.links
+      var links = _this.formatLinkAttr(data.links)
       //定义按钮组引用的use元素
       _this.drawToolButton(nodes)
       // 更新节点
@@ -618,19 +674,36 @@ export default {
         .on('tick', ticked)
       function ticked() {
         // 更新连线坐标
-        graphLink
-          .attr('x1', function (d) {
-            return d.source.x
-          })
-          .attr('y1', function (d) {
-            return d.source.y
-          })
-          .attr('x2', function (d) {
-            return d.target.x
-          })
-          .attr('y2', function (d) {
-            return d.target.y
-          })
+        graphLink.attr('d', function (d) {
+          var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy),
+            unevenCorrection = d.groupLinkUneven ? 0 : 0.2
+          var curvature = 2,
+            arc =
+              (1.0 / curvature) *
+              ((dr * d.groupLinkMaxHalf) /
+                (d.groupLinkIndexCorrected - unevenCorrection))
+          if (d.groupLinkMiddle) {
+            arc = 0
+          }
+          var dd =
+            'M' +
+            d.source.x +
+            ',' +
+            d.source.y +
+            'A' +
+            arc +
+            ',' +
+            arc +
+            ' 0 0,' +
+            d.groupLinkArcDirection +
+            ' ' +
+            d.target.x +
+            ',' +
+            d.target.y
+          return dd
+        })
         // 刷新连接线上的文字位置
         graphLinkText
           .attr('x', function (d) {

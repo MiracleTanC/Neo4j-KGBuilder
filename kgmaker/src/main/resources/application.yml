@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   servlet:
     multipart:
@@ -13,7 +13,7 @@ spring:
       username: neo4j
       password: 123456
   datasource:
-      url: jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC
+      url: jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       driverClassName: com.mysql.cj.jdbc.Driver
       username: root
       password: 123456
