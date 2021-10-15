@@ -3,7 +3,7 @@
 ## 技术栈
 小工具是前台是基于vue + d3.js ,后台是springboot配合Neo4j.
 ## 演示
-demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home).
+demo地址：[http://www.miaoleyan.com/kg/](http://www.miaoleyan.com/kg/)
 
 实现的基本功能:
 1. 新增节点,添加连线,快速添加节点和关系
@@ -40,9 +40,16 @@ demo地址：[http://www.miaoleyan.com/kg/home](http://www.miaoleyan.com/kg/home
 启动后访问[http://localhost](http://localhost) 
 
 供前端小哥哥小姐姐参考的静态网页：打开文件夹，找到 /kgmaker/src/main/resources/templates/kg/demoforfont-end.html
+### 特别说明
+ **KgBuilder是纯前端项目，不和后端交互，kgmaker是后端项目，页面也在template下，和前者没有直接关系** 
 ### 图谱三元组导入
 支持,.xlsx,.xls,.csv，编码格式一定要是utf-8 无bom格式的，格式：节点-节点-关系，在本地测试时上传下载的文件要和neo4j在同一台电脑，当然如果能传到七牛或者hdfs上也是一样的，必须确认neo4j能访问到，否则load不成功
-
+### 本项目不再维护
+可以进群和其他小伙伴交流
+### 推荐前端组件
+G6 [https://g6.antv.vision/zh/examples/gallery](https://g6.antv.vision/zh/examples/gallery)
+### 推荐图数据库
+Nebula [https://docs.nebula-graph.com.cn/2.5.1/](https://docs.nebula-graph.com.cn/2.5.1/)
 ## 交流
 ### 希望感兴趣的小伙伴能一起做些事情
-![](http://file.miaoleyan.com/neo4j-kgbuilder.jpg)
+![](https://img-blog.csdnimg.cn/20201003145558813.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BveGlhb21lbmcxODc=,size_16,color_FFFFFF,t_70#pic_center)
