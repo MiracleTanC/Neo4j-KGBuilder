@@ -642,7 +642,7 @@ public class KGGraphRepository implements KGGraphDao {
         String loadNodeCypher1 = null;
         String loadNodeCypher2 = null;
         String addIndexCypher = null;
-        addIndexCypher = " CREATE INDEX ON :" + domain + "(name);";
+        addIndexCypher = " CREATE INDEX ON :`" + domain + "`(name);";
         loadNodeCypher1 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:`" + domain
                 + "` {name:line[0]});";
         loadNodeCypher2 = " USING PERIODIC COMMIT 500 LOAD CSV FROM '" + csvUrl + "' AS line " + " MERGE (:`" + domain
@@ -674,15 +674,15 @@ public class KGGraphRepository implements KGGraphDao {
     public void updateCoordinateOfNode(String domain, String uuid, Double fx, Double fy) {
         String cypher = null;
         if (fx == null && fy == null) {
-            cypher = " MATCH (n:" + domain + ") where ID(n)=" + uuid
+            cypher = " MATCH (n:`" + domain + "`) where ID(n)=" + uuid
                     + " set n.fx=null, n.fy=null; ";
         } else {
             assert fx != null;
             if ("0.0".equals(fx.toString()) && "0.0".equals(fy.toString())) {
-                cypher = " MATCH (n:" + domain + ") where ID(n)=" + uuid
+                cypher = " MATCH (n:`" + domain + "`) where ID(n)=" + uuid
                         + " set n.fx=null, n.fy=null; ";
             } else {
-                cypher = " MATCH (n:" + domain + ") where ID(n)=" + uuid
+                cypher = " MATCH (n:`" + domain + "`) where ID(n)=" + uuid
                         + " set n.fx='" + fx + "', n.fy='" + fy + "';";
             }
         }
