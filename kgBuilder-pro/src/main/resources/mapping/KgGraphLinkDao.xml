@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warmer.web.dao.KgGraphLinkDao">
+  <resultMap id="BaseResultMap" type="com.warmer.web.entity.KgGraphLink">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="from" jdbcType="VARCHAR" property="from" />
+    <result column="to" jdbcType="VARCHAR" property="to" />
+    <result column="label" jdbcType="VARCHAR" property="label" />
+    <result column="domainId" jdbcType="INTEGER" property="domainId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, `from`, `to`, `label`, domainId
+  </sql>
+  <select id="selectByDomainId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from kg_graph_link
+    where domainId = #{domainId}
+  </select>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.warmer.web.entity.KgGraphLink" useGeneratedKeys="true">
+    insert into kg_graph_link (`from`, `to`, `label`, 
+      domainId)
+    values (#{from,jdbcType=VARCHAR}, #{to,jdbcType=VARCHAR}, #{label,jdbcType=VARCHAR}, 
+      #{domainId,jdbcType=INTEGER})
+  </insert>
+  <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="com.warmer.web.entity.KgGraphLink" useGeneratedKeys="true">
+    insert into kg_graph_link (`from`, `to`, `label`,
+                               domainId)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.from,jdbcType=VARCHAR}, #{item.to,jdbcType=VARCHAR}, #{item.label,jdbcType=VARCHAR},
+      #{item.domainId,jdbcType=INTEGER})
+    </foreach>
+  </insert>
+  <delete id="deleteByDomainId">
+    delete
+    from kg_graph_link
+    where domainId = #{domainId}
+  </delete>
+</mapper>

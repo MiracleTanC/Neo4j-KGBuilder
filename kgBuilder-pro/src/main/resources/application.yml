@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: kg-builder
+  profiles:
+    active: pro
+
+
+
+

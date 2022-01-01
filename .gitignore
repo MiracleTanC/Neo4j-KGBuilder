@@ -1,0 +1,27 @@
+*/target/**
+!kgmaker/.mvn/wrapper/maven-wrapper.jar
+.mvn/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+.mvn
+*.iml
+*.ipr
+*.class
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/kgBuilder-ui/.history/

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warmer.meta.dao.MetaDataColumnDao">
+
+    <resultMap id="BaseResultMap" type="com.warmer.meta.entity.MetaDataColumn">
+        <!--@Table meta_data_column-->
+        <result property="dataColumnId" column="DataColumnId" jdbcType="INTEGER"/>
+        <result property="dataTableId" column="DataTableId" jdbcType="INTEGER"/>
+        <result property="dataColumnCode" column="DataColumnCode" jdbcType="VARCHAR"/>
+        <result property="dataColumnName" column="DataColumnName" jdbcType="VARCHAR"/>
+        <result property="dataColumnComment" column="DataColumnComment" jdbcType="VARCHAR"/>
+        <result property="dataColumnType" column="DataColumnType" jdbcType="VARCHAR"/>
+        <result property="isPrimary" column="IsPrimary" jdbcType="INTEGER"/>
+        <result property="status" column="Status" jdbcType="INTEGER"/>
+        <result property="createUser" column="CreateUser" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CreateTime" jdbcType="TIMESTAMP"/>
+        <result property="updateUser" column="UpdateUser" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UpdateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		DataColumnId, DataTableId, DataColumnCode,IsPrimary, DataColumnName, DataColumnComment, DataColumnType, Status, CreateUser, CreateTime, UpdateUser, UpdateTime	</sql>
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List" />
+        from meta_data_column
+        where DataColumnId = #{datacolumnid}
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List" />
+        from meta_data_column
+    </select>
+    <select id="queryByTableId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from meta_data_column where DataTableId=#{dataTableId}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="dataColumnId" useGeneratedKeys="true">
+        insert into meta_data_column(DataTableId, DataColumnCode, DataColumnName, DataColumnComment, DataColumnType,IsPrimary, Status, CreateUser, CreateTime, UpdateUser, UpdateTime)
+        values (#{dataTableId}, #{dataColumnCode}, #{dataColumnName}, #{dataColumnComment}, #{dataColumnType},#{isPrimary}, #{status}, #{createUser}, #{createTime}, #{updateUser}, #{updateTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update meta_data_column
+            set
+        where DataColumnId = #{datacolumnid}
+    </update>
+
+    <!--通过主键删除-->
+    <update id="deleteById">
+        update meta_data_column set Status=0 where DataColumnId = #{datacolumnid}
+    </update>
+
+</mapper>

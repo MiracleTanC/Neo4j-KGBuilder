@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warmer.meta.dao.MetaDataSourceDao">
+
+    <resultMap id="BaseResultMap" type="com.warmer.meta.entity.MetaDataSource">
+        <!--@Table meta_data_source-->
+        <result property="dataSourceId" column="DataSourceId" jdbcType="INTEGER"/>
+        <result property="dbType" column="DbType" jdbcType="VARCHAR"/>
+        <result property="driverName" column="DriverName" jdbcType="VARCHAR"/>
+        <result property="iPAndPort" column="IPAndPort" jdbcType="VARCHAR"/>
+        <result property="connectUrl" column="ConnectUrl" jdbcType="VARCHAR"/>
+        <result property="dbName" column="DbName" jdbcType="VARCHAR"/>
+        <result property="dbCode" column="DbCode" jdbcType="VARCHAR"/>
+        <result property="dbUserName" column="DbUserName" jdbcType="VARCHAR"/>
+        <result property="dbPassWord" column="DbPassWord" jdbcType="VARCHAR"/>
+        <result property="maxPoolSize" column="MaxPoolSize" jdbcType="INTEGER"/>
+        <result property="status" column="Status" jdbcType="INTEGER"/>
+        <result property="databaseCoding" column="DatabaseCoding" jdbcType="VARCHAR"/>
+        <result property="transcoding" column="Transcoding" jdbcType="VARCHAR"/>
+        <result property="createUser" column="CreateUser" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CreateTime" jdbcType="TIMESTAMP"/>
+        <result property="updateUser" column="UpdateUser" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UpdateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		DataSourceId, DbType, DriverName, IPAndPort, ConnectUrl, DbName, DbCode, DbUserName, DbPassWord, MaxPoolSize, Status, DatabaseCoding, Transcoding, CreateUser, CreateTime, UpdateUser, UpdateTime	</sql>
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List" />
+        from meta_data_source
+        where DataSourceId = #{datasourceid}
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List" />
+        from meta_data_source
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="dataSourceId" useGeneratedKeys="true">
+        insert into meta_data_source(DbType, DriverName, IPAndPort, ConnectUrl, DbName, DbCode, DbUserName, DbPassWord, MaxPoolSize, Status, DatabaseCoding, Transcoding, CreateUser, CreateTime, UpdateUser, UpdateTime)
+        values (#{dbType}, #{driverName}, #{iPAndPort}, #{connectUrl}, #{dbName}, #{dbCode}, #{dbUserName}, #{dbPassWord}, #{maxPoolSize}, #{status}, #{databaseCoding}, #{transcoding}, #{createUser}, #{createTime}, #{updateUser}, #{updateTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update meta_data_source
+            set
+        where DataSourceId = #{datasourceid}
+    </update>
+
+    <!--通过主键删除-->
+    <update id="deleteById">
+        update meta_data_source set Status=0 where DataSourceId = #{datasourceid}
+    </update>
+
+</mapper>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.warmer.web.dao.KnowledgeGraphDao">
+	<resultMap id="BaseResultMap" type="com.warmer.web.entity.KgDomain">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="nodeCount" jdbcType="INTEGER" property="nodeCount" />
+		<result column="shipCount" jdbcType="INTEGER" property="shipCount" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="createUser" jdbcType="INTEGER" property="createUser" />
+		<result column="commend" jdbcType="INTEGER" property="commend" />
+	</resultMap>
+	<resultMap id="BaseFileResultMap" type="com.warmer.web.entity.KgNodeDetailFile">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="domainId" jdbcType="VARCHAR" property="domainId" />
+		<result column="nodeId" jdbcType="INTEGER" property="nodeId" />
+		<result column="fileName" jdbcType="VARCHAR" property="fileName" />
+		<result column="imageType" jdbcType="INTEGER" property="imageType" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="createUser" jdbcType="VARCHAR" property="createUser" />
+		<result column="createTime" jdbcType="VARCHAR" property="createTime" />
+		<result column="modifyUser" jdbcType="VARCHAR" property="modifyUser" />
+		<result column="modifyTime" jdbcType="VARCHAR" property="modifyTime" />
+	</resultMap>
+	<resultMap id="BaseDetailResultMap" type="com.warmer.web.entity.KgNodeDetail">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="domainId" jdbcType="VARCHAR" property="domainId" />
+		<result column="nodeId" jdbcType="INTEGER" property="nodeId" />
+		<result column="content" jdbcType="VARCHAR" property="content" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="createUser" jdbcType="VARCHAR" property="createUser" />
+		<result column="createTime" jdbcType="VARCHAR" property="createTime" />
+		<result column="modifyUser" jdbcType="VARCHAR" property="modifyUser" />
+		<result column="modifyTime" jdbcType="VARCHAR" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, `name`, nodeCount, shipCount,status,createUser,commend
+	</sql>
+	<select id="getDomains" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain where status=1
+	</select>
+	<select id="getDomainList" resultMap="BaseResultMap" >
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain
+		 <where >	
+		 status=1   
+	      <if test="domainName!='' and domainName!=null">
+	      	and name like '%${domainName}%'
+	      </if>
+			 <if test="type!=null">
+				 and `type`=#{type}
+			 </if>
+			 <if test="commend!=null">
+				 and `commend`=#{commend}
+			 </if>
+	    </where>
+	    order by id desc
+	</select>
+	<select id="getRecommendDomainList" resultMap="BaseResultMap" >
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain
+		<where >
+			status=1 and commend=1
+		</where>
+		order by id desc
+	</select>
+	<select id="getDomainByName" resultMap="BaseResultMap" parameterType="String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain WHERE status=1 and name =#{domainName}
+	</select>
+	<select id="getDomainById" resultMap="BaseResultMap" parameterType="Integer">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain WHERE status=1 and id =#{domainId}
+	</select>
+	<select id="selectById" resultMap="BaseResultMap" parameterType="Integer">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain WHERE status=1 and id =#{domainId}
+	</select>
+
+	<insert id="saveDomain" parameterType="map" keyColumn="id" keyProperty="id"  useGeneratedKeys="true">
+        INSERT INTO kg_domain(name, createUser,nodeCount, shipCount,status,type,commend) VALUES (#{name},#{createUser},#{nodeCount},#{shipCount},1,#{type},#{commend})
+    </insert>
+	<update id="updateDomain" parameterType="map">
+        UPDATE kg_domain
+        SET 
+        name =#{name} ,
+        createUser=#{createUser} ,
+        nodeCount=#{nodeCount},
+        shipCount=#{shipCount},
+        WHERE id = #{id}
+    </update>
+    <update id="deleteDomain" parameterType="Integer">
+        UPDATE kg_domain SET status = 0 WHERE id = #{id}
+    </update>
+
+	<insert id="saveNodeImage" parameterType="java.util.List" >
+		insert kg_nodedetail_file
+		(Domainid,NodeId,FileName,ImageType,CreateUser,CreateTime,Status)
+		values
+		<foreach collection="maplist" item="item" separator=",">
+			(#{item.domainId},#{item.nodeId} ,#{item.file} ,#{item.imageType},#{item.createUser},#{item.createTime},#{item.status})
+		</foreach>
+	</insert>
+	<insert id="saveNodeContent" parameterType="map" >
+		insert kg_nodedetail
+		(Domainid,NodeId,Content,CreateUser,CreateTime,Status)
+		values
+		(#{params.domainId},#{params.nodeId} ,#{params.content} ,#{params.createUser},#{params.createTime},#{params.status})
+	</insert>
+	<update id="updateNodeContent" parameterType="map">
+        UPDATE kg_nodedetail SET Content =#{params.content} ,ModifyTime=#{params.modifytime} WHERE Domainid=#{params.domainId} and NodeId = #{params.nodeId}
+    </update>
+	<select id="getNodeImageList" resultMap="BaseFileResultMap">
+		SELECT * from kg_nodedetail_file where Status=1 and  Domainid=#{domainId} and NodeId=#{nodeId}
+	</select>
+	<select id="getNodeContent" resultMap="BaseDetailResultMap">
+		SELECT * from kg_nodedetail where Status=1 and  Domainid=#{domainId} and NodeId=#{nodeId}
+	</select>
+	<update id="deleteNodeImage">
+		update kg_nodedetail_file set Status=0 where Domainid=#{domainId} and NodeId=#{nodeId}
+	</update>
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warmer.web.dao.KgGraphNodeMapDao">
+    <resultMap id="BaseResultMap" type="com.warmer.web.entity.KgGraphNodeMap">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="columnId" jdbcType="INTEGER" property="columnId"/>
+        <result column="ico" jdbcType="VARCHAR" property="ico"/>
+        <result column="isPrimary" jdbcType="INTEGER" property="isPrimary"/>
+        <result column="itemId" jdbcType="VARCHAR" property="itemId"/>
+        <result column="itemCode" jdbcType="VARCHAR" property="itemCode"/>
+        <result column="itemName" jdbcType="VARCHAR" property="itemName"/>
+        <result column="itemType" jdbcType="VARCHAR" property="itemType"/>
+        <result column="nodeId" jdbcType="BIGINT" property="nodeId"/>
+        <result column="domainId" jdbcType="INTEGER" property="domainId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, columnId, ico, isPrimary, itemId, itemCode, itemName, itemType, nodeId,domainId
+    </sql>
+    <select id="selectByDomainId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from kg_graph_node_map
+        where domainId = #{domainId}
+    </select>
+    <select id="selectByDomainIdAndNodeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from kg_graph_node_map
+        where domainId = #{domainId} and nodeId=#{nodeId}
+    </select>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.warmer.web.entity.KgGraphNodeMap"
+            useGeneratedKeys="true">
+        insert into kg_graph_node_map (columnId, ico, isPrimary,
+                                       itemId, itemCode, itemName,
+                                       itemType, nodeId,domainId)
+        values (#{columnId,jdbcType=INTEGER}, #{ico,jdbcType=VARCHAR}, #{isPrimary,jdbcType=INTEGER},
+                #{itemId,jdbcType=VARCHAR}, #{itemCode,jdbcType=VARCHAR}, #{itemName,jdbcType=VARCHAR},
+                #{itemType,jdbcType=VARCHAR}, #{nodeId,jdbcType=BIGINT},#{domainId,jdbcType=INTEGER})
+    </insert>
+    <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="com.warmer.web.entity.KgGraphNodeMap"
+            useGeneratedKeys="true">
+        insert into kg_graph_node_map (columnId, ico, isPrimary,
+        itemId, itemCode, itemName,
+        itemType, nodeId,domainId)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.columnId,jdbcType=INTEGER}, #{item.ico,jdbcType=VARCHAR}, #{item.isPrimary,jdbcType=INTEGER},
+            #{item.itemId,jdbcType=VARCHAR}, #{item.itemCode,jdbcType=VARCHAR}, #{item.itemName,jdbcType=VARCHAR},
+            #{item.itemType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=BIGINT},#{item.domainId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <delete id="deleteByDomainId">
+        delete
+        from kg_graph_node_map
+        where domainId = #{domainId}
+    </delete>
+
+</mapper>

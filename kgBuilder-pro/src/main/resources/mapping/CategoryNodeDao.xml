@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.warmer.web.dao.CategoryNodeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.warmer.web.entity.CategoryNode" id="searchCategoryMap">
+        <result property="categoryId" column="CategoryId" />
+        <result property="categoryNodeId" column="CategoryNodeId" />
+        <result property="categoryNodeName" column="CategoryNodeName" />
+        <result property="categoryNodeCode" column="CategoryNodeCode" />
+        <result property="systemCode" column="SystemCode" />
+        <result property="color" column="Color" />
+        <result property="parentId" column="ParentId" />
+        <result property="parentCode" column="ParentCode" />
+        <result property="treeLevel" column="TreeLevel" />
+        <result property="fileUuid" column="FileUuid" />
+        <result property="isLeaf" column="IsLeaf" />
+        <result property="status" column="Status" />
+        <result property="createUser" column="CreateUser" />
+        <result property="createTime" column="CreateTime" />
+        <result property="updateUser" column="UpdateUser" />
+        <result property="updateTime" column="UpdateTime" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+            CategoryNodeId,
+                CategoryNodeName,
+                CategoryNodeCode,
+                SystemCode,
+                Color,
+                CategoryId,
+                ParentId,
+                ParentCode,
+                TreeLevel,
+                IsLeaf,
+                Status,
+                CreateUser,
+                CreateTime,
+                UpdateUser,
+                UpdateTime
+        </sql>
+    <select id="queryForList"  resultMap="searchCategoryMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_category
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="searchCategoryMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_category
+        where CategoryNodeId = #{categoryNodeId}
+    </select>
+    <!--由上而下 查找本级及下级所有节点-->
+    <select id="queryForTree"  resultMap="searchCategoryMap">
+        with recursive r as
+       (
+           SELECT
+               CategoryNodeId,CategoryNodeName,TreeLevel,ParentId,IsLeaf
+           FROM
+               kg_category WHERE CategoryId =#{categoryId,jdbcType=INTEGER} and Status=1 and ParentId=#{categoryNodeId}
+           union all
+           select c.CategoryNodeId,c.CategoryNodeName ,c.TreeLevel,c.ParentId,c.IsLeaf from kg_category c,r where r.CategoryNodeId = c.ParentId
+       )select CategoryNodeId,CategoryNodeName ,TreeLevel,ParentId,IsLeaf from r
+    </select>
+
+    <!--  通过categoryNodeId由下而上查询本级及本级所有的父级节点-->
+    <select id="selectTreeForParent" resultMap="searchCategoryMap">
+        with recursive r as
+       (
+           select CategoryNodeId,CategoryNodeName,TreeLevel,ParentId,IsLeaf from kg_category where CategoryNodeId =#{categoryNodeId}
+           union all
+           select c.CategoryNodeId,c.CategoryNodeName,c.TreeLevel,c.ParentId,c.IsLeaf from kg_category c,r where c.CategoryNodeId=r.ParentId
+       ) select CategoryNodeId,CategoryNodeName,TreeLevel,ParentId,IsLeaf from r order by TreeLevel;
+    </select>
+    <!-- 通过编码systemCode由下而上查询本级及本级所有的父级节点-->
+    <select id="selectTreeForParentBySystemCode" resultMap="searchCategoryMap">
+        with recursive r as
+       (
+           select CategoryNodeId,CategoryNodeName,SystemCode,CategoryId,TreeLevel,ParentId,IsLeaf from kg_category where SystemCode =#{systemCode}
+           union all
+           select c.CategoryNodeId,c.CategoryNodeName,c.SystemCode,c.TreeLevel,c.ParentId,c.IsLeaf from kg_category c,r where c.CategoryNodeId=r.ParentId
+       ) select CategoryNodeId,CategoryNodeName,SystemCode,TreeLevel,ParentId,IsLeaf from r order by TreeLevel;
+    </select>
+    <!-- 最近编辑过的节点-->
+    <select id="selectRecentEditNode" resultMap="searchCategoryMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_category WHERE CategoryId =#{categoryId,jdbcType=INTEGER} and status=1   and updateTime=(select max(updateTime) from kg_category WHERE CategoryId =#{categoryId,jdbcType=INTEGER} and status=1)
+    </select>
+    <select id="selectByParentId" parameterType="java.lang.Integer" resultMap="searchCategoryMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_category
+        where CategoryId = #{categoryId} and ParentId = #{parentId} and Status=1
+    </select>
+    <select id="selectByParentIdAndName" resultMap="searchCategoryMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kg_category
+        where Status=1
+        <if test="categoryId != null and categoryId !=''">
+            AND CategoryId = #{categoryId}
+        </if>
+        <if test="parentId != null and parentId !=''">
+            AND ParentId = #{parentId}
+        </if>
+        <if test="categoryNodeName != null and categoryNodeName !=''">
+            AND CategoryNodeName = #{categoryNodeName}
+        </if>
+    </select>
+    <insert id="insert" parameterType="com.warmer.web.entity.CategoryNode" useGeneratedKeys="true" keyProperty="categoryNodeId" keyColumn="CategoryNodeId">
+        insert into kg_category (CategoryNodeName,CategoryNodeCode,CategoryId,Color,ParentId,ParentCode,TreeLevel,IsLeaf,Status,CreateUser,CreateTime,UpdateUser,UpdateTime)
+        values (#{categoryNodeName},#{categoryNodeCode},#{categoryId},#{color},#{parentId},#{parentCode},#{treeLevel},#{isLeaf},1,#{createUser},now(),#{updateUser},now())
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.ArrayList" useGeneratedKeys="true" keyProperty="categoryNodeId" keyColumn="CategoryNodeId">
+        insert into kg_category (CategoryNodeName,CategoryNodeCode,Color,CategoryId,FileUuid,ParentId,ParentCode,TreeLevel,IsLeaf,Status,CreateUser,CreateTime,UpdateUser,UpdateTime)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.categoryNodeName},#{item.categoryNodeCode},#{item.color},#{item.CategoryId},#{item.nodeDataType},#{item.fileUuid},#{item.parentId},#{item.parentCode},#{item.treeLevel},#{item.isLeaf},1,#{item.createUser},now(),#{item.updateUser},now())
+        </foreach>
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.warmer.web.entity.CategoryNode">
+        update kg_category
+        set CategoryNodeName=#{categoryNodeName},UpdateUser=#{updateUser},UpdateTime=now()
+        where CategoryNodeId = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update  kg_category set Status=0,UpdateTime=now()
+        where CategoryNodeId = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="reName" >
+        update  kg_category set CategoryNodeName=#{categoryNodeName},UpdateTime=now()
+        where CategoryNodeId = #{categoryNodeId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateCodeByPrimaryKey" >
+        update kg_category
+        set SystemCode=#{systemCode,jdbcType=VARCHAR},CategoryNodeCode=#{systemCode,jdbcType=VARCHAR}
+        where CategoryNodeId = #{categoryNodeId,jdbcType=INTEGER}
+    </update>
+    <update id="updateLeafStatusByPrimaryKey" >
+        update kg_category
+        set IsLeaf=#{isLeaf}
+        where CategoryNodeId = #{categoryNodeId,jdbcType=INTEGER}
+    </update>
+    <!--根据nodeCode和parentCode更新parentId-->
+    <update id="updateNodeRelation" >
+        update kg_category s1 , kg_category s2
+        set s1.ParentId=s2.CategoryNodeId
+        where s1.CategoryId=#{categoryId,jdbcType=INTEGER}
+        and s2.CategoryId=#{categoryId,jdbcType=INTEGER}  and s1.ParentCode=s2.CategoryNodeCode and s1.FileUuid=#{fileUuid} and  s1.CategoryNodeId>=#{categoryNodeId} and s2.CategoryNodeId>=#{categoryNodeId}
+    </update>
+    <!--初始化systemCode，默认和categoryNodeId一致-->
+    <update id="initSystemCode" >
+        update kg_category
+        set SystemCode=CategoryNodeId
+        where CategoryId = #{categoryId,jdbcType=INTEGER}  and FileUuid=#{fileUuid}
+    </update>
+    <!--批量更新systemCode-->
+    <update id="updateSystemCodeFullPath">
+        update kg_category w ,(
+            with recursive r as
+             (
+                     select systemCode,CategoryNodeName,ParentId,CategoryNodeId from kg_category where ParentId=0  and  CategoryId=#{categoryId,jdbcType=INTEGER}
+                     union all
+                     select CONCAT(r.systemCode, '/',c.CategoryNodeId) ,c.CategoryNodeName,c.ParentId ,c.CategoryNodeId from kg_category c,r where r.CategoryNodeId=c.ParentId and c.FileUuid=#{fileUuid}
+             ) select systemCode,CategoryNodeName,ParentId,CategoryNodeId from r
+         )  dd
+         set w.SystemCode=dd.systemCode
+         where dd.CategoryNodeId=w.CategoryNodeId  and w.CategoryId=#{categoryId,jdbcType=INTEGER}
+    </update>
+    <update id="updateTreeLevel">
+        update kg_category set TreeLevel=LENGTH(SystemCode) - LENGTH(REPLACE(SystemCode,'/','' )) where CategoryId=#{categoryId,jdbcType=INTEGER}
+    </update>
+    <update id="deleteNodeByFileUuid" >
+        update kg_category
+        set Status=0
+        where  fileUuid= #{fileUuid}
+    </update>
+    <update id="deleteNodeBySystemLeftRegular" >
+        update kg_category
+        set Status=0
+        where  SystemCode like CONCAT(#{systemCode},'%')
+    </update>
+    <select id="selectByFileUuid" resultMap="searchCategoryMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_category
+        where  fileUuid= #{fileUuid}
+    </select>
+
+
+</mapper>

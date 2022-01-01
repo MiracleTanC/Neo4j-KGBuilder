@@ -1,0 +1,46 @@
+server:
+  port: 8080
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100000000
+      maxRequestSize: 200000000
+  thymeleaf:
+    cache : false
+    mode: HTML5
+  neo4j:
+    url: bolt://localhost:7687
+    username: neo4j
+    password: 123456
+  datasource:
+    url: jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
+mybatis:
+  typeAliasesPackage: com.warmer.kgmaker.entity
+  mapperLocations: classpath*:/mapping/*.xml
+#配置分页插件pagehelper
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+#--------七牛云配置
+qiniu:
+  access:
+    key: 2J5BOKpbxDlzkYVYZ5dwGsS3jAevVmOJwcL3fIdpwd
+  secret:
+    key: 2LXAQbFFbFR_I76bseNEmus-Sjnh4RRaSRsazX5Djw
+  bucket:
+    name: nndt
+    host:
+      name: file.miaoleyan.com
+  prefixName: /nndt
+#--------七牛云配置
+img:  #//如果是Windows情况下，格式是 D:\\blog\\image\\   linx 格式"/home/blog/image/";
+  location : D:\\blog\\image\\
+file:
+  serverurl:  http://localhost:8089
+  location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linx 格式"/home/kgmanager/csv/";
