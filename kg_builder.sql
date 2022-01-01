@@ -11,7 +11,7 @@
  Target Server Version : 80018
  File Encoding         : 65001
 
- Date: 06/12/2021 09:52:20
+ Date: 01/01/2022 20:47:53
 */
 
 SET NAMES utf8mb4;
@@ -44,7 +44,7 @@ CREATE TABLE `kg_category`  (
   INDEX `parentId`(`ParentId`) USING BTREE,
   INDEX `parentCode`(`ParentCode`) USING BTREE,
   INDEX `categoryCode`(`CategoryNodeCode`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100584 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100735 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for kg_domain
@@ -58,8 +58,61 @@ CREATE TABLE `kg_domain`  (
   `status` int(11) NOT NULL,
   `createuser` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `commend` int(11) NULL DEFAULT 0 COMMENT '推荐',
+  `type` int(11) NULL DEFAULT NULL COMMENT '0=手动创建，1=三元组导入，2=excel导入，3=er图构建',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 342 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 435 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for kg_graph_link
+-- ----------------------------
+DROP TABLE IF EXISTS `kg_graph_link`;
+CREATE TABLE `kg_graph_link`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `from` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `to` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `label` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `domainId` int(11) NULL DEFAULT NULL COMMENT '领域id',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for kg_graph_node
+-- ----------------------------
+DROP TABLE IF EXISTS `kg_graph_node`;
+CREATE TABLE `kg_graph_node`  (
+  `nodeId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `nodeKey` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点唯一标识',
+  `tableId` int(11) NULL DEFAULT NULL COMMENT '数据表id',
+  `nodeName` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点名称',
+  `type` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点类型',
+  `left` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点左位置',
+  `top` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点右位置',
+  `ico` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点图标',
+  `state` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '节点状态',
+  `viewOnly` int(11) NULL DEFAULT NULL COMMENT '是否可以拖动，1=是，0=否',
+  `sourceId` int(11) NULL DEFAULT NULL COMMENT '数据源id',
+  `domainId` int(11) NULL DEFAULT NULL COMMENT '领域id',
+  `startNode` int(11) NULL DEFAULT NULL COMMENT '是否是起点',
+  PRIMARY KEY (`nodeId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for kg_graph_node_map
+-- ----------------------------
+DROP TABLE IF EXISTS `kg_graph_node_map`;
+CREATE TABLE `kg_graph_node_map`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `columnId` int(11) NULL DEFAULT NULL COMMENT '列id',
+  `ico` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '列图标',
+  `isPrimary` int(11) NULL DEFAULT NULL COMMENT '是否主键',
+  `itemId` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '数据列key',
+  `itemCode` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '原始数据列字段',
+  `itemName` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '列别名',
+  `itemType` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字段类型',
+  `nodeId` bigint(20) NULL DEFAULT NULL COMMENT '节点id',
+  `domainId` int(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 120 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for kg_nodedetail
@@ -78,7 +131,7 @@ CREATE TABLE `kg_nodedetail`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `domainid`(`DomainId`) USING BTREE,
   INDEX `nodeid`(`NodeId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for kg_nodedetail_file
@@ -98,7 +151,7 @@ CREATE TABLE `kg_nodedetail_file`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `domainid`(`DomainId`) USING BTREE,
   INDEX `nodeid`(`NodeId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 65 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 68 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for meta_data_column
@@ -162,49 +215,4 @@ CREATE TABLE `meta_data_table`  (
   PRIMARY KEY (`DataTableId`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
-DROP TABLE IF EXISTS `kg_graph_node`;
-CREATE TABLE `kg_graph_node` (
- `nodeId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
- `nodeKey` varchar(100) DEFAULT NULL COMMENT '节点唯一标识',
- `tableId` int(11) DEFAULT NULL COMMENT '数据表id',
- `nodeName` varchar(100) DEFAULT NULL COMMENT '节点名称',
- `type` varchar(100) DEFAULT NULL COMMENT '节点类型',
- `left` decimal(10,0) DEFAULT NULL COMMENT '节点左位置',
- `top` decimal(10,0) DEFAULT NULL COMMENT '节点右位置',
- `ico` varchar(100) DEFAULT NULL COMMENT '节点图标',
- `state` varchar(100) DEFAULT NULL COMMENT '节点状态',
- `viewOnly` int(11) DEFAULT NULL COMMENT '是否可以拖动，0=是，1=否',
- `sourceId` int(11) DEFAULT NULL COMMENT '数据源id',
- PRIMARY KEY (`nodeId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `kg_graph_node_map`;
-CREATE TABLE `kg_graph_node_map` (
- `id` bigint(20) NOT NULL AUTO_INCREMENT,
- `columnId` int(11) DEFAULT NULL COMMENT '列id',
- `ico` varchar(100) DEFAULT NULL COMMENT '列图标',
- `isPrimary` int(11) DEFAULT NULL COMMENT '是否主键',
- `itemId` varchar(100) DEFAULT NULL COMMENT '数据列key',
- `itemCode` varchar(100) NOT NULL COMMENT '原始数据列字段',
- `itemName` varchar(100) DEFAULT NULL COMMENT '列别名',
- `itemType` varchar(100) DEFAULT NULL COMMENT '字段类型',
- `nodeId` bigint(20) DEFAULT NULL COMMENT '节点id',
- PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `kg_graph_link`;
-CREATE TABLE `kg_graph_link` (
- `id` bigint(20) NOT NULL AUTO_INCREMENT,
- `from` varchar(100) DEFAULT NULL,
- `to` varchar(100) DEFAULT NULL,
- `label` varchar(100) DEFAULT NULL,
- PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-ALTER TABLE kg_graph_link ADD domainId INT NULL COMMENT '领域id';
-ALTER TABLE kg_graph_node ADD domainId INT NULL COMMENT '领域id';
-ALTER TABLE kg_graph_node ADD startNode INT NULL COMMENT '是否是起点';
-ALTER TABLE kg_graph_node_map ADD domainId INT NULL COMMENT '领域id';
-
-ALTER TABLE `kg_domain`
-    ADD COLUMN `type` int(11) NULL COMMENT '0=手动创建，1=三元组导入，2=excel导入，3=er图构建' AFTER `commend`;
+SET FOREIGN_KEY_CHECKS = 1;
