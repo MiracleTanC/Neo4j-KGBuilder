@@ -12,6 +12,7 @@
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
     "element-ui": "^2.13.2",
+    "html2canvas": "^1.4.0",
     "jquery": "^3.5.1",
     "js-cookie": "^3.0.1",
     "jsplumb": "^2.15.6",

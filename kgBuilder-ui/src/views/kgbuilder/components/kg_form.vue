@@ -6,10 +6,9 @@
     :visible.sync="drawerShow"
     :direction="direction"
     :append-to-body="true"
-    class="pd-20"
   >
     <!--导入-->
-    <div v-show="operate == 'import'"class="pd-20">
+    <div v-show="operate == 'import'" class="pd-20">
       <el-form>
         <el-form-item label="tips" label-width="120px">
           <div>
@@ -407,7 +406,6 @@ export default {
         nodeId: this.graphData.uuid,
         content: this.editorContent
       };
-      debugger
       kgBuilderApi.saveNodeContent(JSON.stringify(data)).then(result => {
         if (result.code == 200) {
           this.init(false,"");
@@ -496,7 +494,10 @@ export default {
     },
     submitUpload() {
       this.$refs.uploadExcel.submit();
-      this.dialogFormVisible = false;
+      //关闭窗口
+       this.init(false,"");
+       //刷新领域标签
+       this.$emit("getDomain",1);
     },
     csvSuccess() {
       this.$refs.upload.clearFiles();

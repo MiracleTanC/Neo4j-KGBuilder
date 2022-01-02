@@ -3,10 +3,10 @@
  * @Author: tanc
  * @Date: 2021-12-26 16:50:07
  * @LastEditors: your name
- * @LastEditTime: 2022-01-01 18:01:43
+ * @LastEditTime: 2022-01-02 23:56:07
 -->
 <template>
-  <div class="mind-box" @mousedown="boxMousedown">
+  <div class="mind-box">
     <!-- 左侧 -->
     <el-scrollbar class="mind-l">
       <div class="ml-m">
@@ -90,57 +90,29 @@
           </span>
         </div>
         <div class="fr">
-          <a href="javascript:void(0)" @click="cypherJson" class="svg-a-sm">
-            <i class="el-icon-tickets">显示json</i>
+          <a href="javascript:void(0)" @click="showJsonData" class="svg-a-sm">
+            <i class="el-icon-tickets">查看数据</i>
           </a>
-          <a href="javascript:void(0)" @click="showCypher" class="svg-a-sm">
-            <i class="el-icon-caret-right">执行Cypher</i>
+
+          <a href="javascript:void(0)" @click="saveImage" class="svg-a-sm">
+            <i class="el-icon-camera-solid">截图</i>
           </a>
-          <a href="javascript:void(0)" @click="updateGraph" class="svg-a-sm">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-shuaxin"></use></svg
-            >刷新
+          <a href="javascript:void(0)" @click="importGraph" class="svg-a-sm">
+            <i class="el-icon-upload">导入</i>
           </a>
-          <a
-            href="javascript:void(0)"
-            @click="requestFullScreen"
-            class="svg-a-sm"
-          >
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-quanp"></use></svg
-            >全屏
+          <a href="javascript:void(0)" @click="exportGraph" class="svg-a-sm">
+            <i class="el-icon-download">导出</i>
           </a>
-          <el-dropdown @command="operateCommand">
-            <el-button type="primary">
-              操作<i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="image">导出图片</el-dropdown-item>
-              <el-dropdown-item command="import">导入</el-dropdown-item>
-              <el-dropdown-item command="export">导出</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </div>
-      </div>
-      <div class="cypher_toolbar clearfix" v-show="cypherTextShow">
-        <div style="width: 80%;float: left">
-          <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="请输入Cypher"
-            v-model="cypherText"
-          >
-          </el-input>
-        </div>
-        <div style="padding: 7px;">
-          <el-button
-            type="success"
-            @click="cypherRun"
-            style="margin-left: 15px;"
-            icon="el-icon-caret-right"
-            plain
-            >执行</el-button
-          >
+          <a href="javascript:void(0)" @click="requestFullScreen" class="svg-a-sm">
+            <i class="el-icon-monitor">全屏</i>
+          </a>
+          <a href="javascript:void(0)" @click="wanted" class="svg-a-sm">
+            <i class="el-icon-question">需求调研</i>
+          </a>
+          <a href="javascript:void(0)" @click="help" class="svg-a-sm">
+            <i class="el-icon-info">帮助</i>
+          </a>
+
         </div>
       </div>
       <!-- 头部over -->
@@ -193,6 +165,7 @@
         @createNode="createNode"
          @initNodeImage="initNodeImage"
          @initNodeContent="initNodeContent"
+         @getDomain="getDomain"
       >
       </kg-form>
     </div>
@@ -200,18 +173,26 @@
     <div>
       <node-richer ref="node_richer"></node-richer>
     </div>
+    <div>
+    <kg-json  ref="kg_json" :data="graph"></kg-json>
+    </div>
+      <div>
+        <kg-help  ref="kg_help"></kg-help>
+    </div>
   </div>
 </template>
 <script>
 import _ from "lodash";
 import * as d3 from "d3";
-import $ from "jquery";
 import { kgBuilderApi } from "@/api";
 import MenuBlank from "@/views/kgbuilder/components/menu_blank";
 import MenuLink from "@/views/kgbuilder/components/menu_link";
 import KgForm from "@/views/kgbuilder/components/kg_form";
 import NodeRicher from "@/views/kgbuilder/components/node_richer";
 import KgFocus from "@/components/KGFocus";
+import KgJson from "@/views/kgbuilder/components/kg_json";
+import KgHelp from "@/views/kgbuilder/components/kg_help";
+import html2canvas from 'html2canvas'
 export default {
   name: "kgBuilder",
   components: {
@@ -219,7 +200,9 @@ export default {
     MenuLink,
     KgForm,
     NodeRicher,
-    KgFocus
+    KgFocus,
+    KgJson,
+    KgHelp
   },
   data() {
     return {
@@ -237,10 +220,10 @@ export default {
       mouserPos: { left: "-1000px", top: "-1000px" },
       nodeDetail: null,
       pageSizeList: [
-        { size: 100, isActive: true },
-        { size: 500, isActive: false },
+        { size: 500, isActive: true },
         { size: 1000, isActive: false },
-        { size: 2000, isActive: false }
+        { size: 2000, isActive: false },
+        { size: 5000, isActive: false }
       ],
       isAddLink: false,
       isDeleteLink: false,
@@ -255,9 +238,7 @@ export default {
       domain: "",
       domainId: 0,
       nodeName: "",
-      cypherText: "",
-      cypherTextShow: false,
-      jsonShow: false,
+      pageSize:500,
       activeNode: null,
       nodeImageList: [],
       showImageList: [],
@@ -272,7 +253,9 @@ export default {
       graph: {
         nodes: [],
         links: []
-      }
+      },
+      jsonShow:false,
+      helpShow:false
     };
   },
   filters: {
@@ -1209,41 +1192,6 @@ export default {
           });
         });
     },
-
-    showCypher() {
-      this.cypherTextShow = !this.cypherTextShow;
-    },
-    cypherJson() {
-      if (this.graph.nodes.length == 0 && this.graph.links.length == 0) {
-        this.$message.error("请先选择领域或者执行cypher");
-        return;
-      }
-      this.jsonShow = !this.jsonShow;
-      let json = this.graph;
-      let options = {
-        collapsed: false, //收缩所有节点
-        withQuotes: false //为key添加双引号
-      };
-      $("#json-renderer").JSONView(json, options);
-    },
-    cypherRun() {
-      if (this.cypherText == "") {
-        this.$message.error("请输入cypher语句");
-        return;
-      }
-      let data = { cypher: this.cypherText };
-      kgBuilderApi.getCypherResult(data).then(response => {
-        if (response.code == 200) {
-          if (response.data) {
-            this.graph.nodes = response.data.node;
-            this.graph.links = response.data.relationship;
-            this.updateGraph();
-          } else {
-            this.$message.error("暂时没有更多数据");
-          }
-        }
-      });
-    },
     //初始化节点富文本内容
     initNodeContent() {
       let data = { domainId: this.domainId, nodeId: this.selectNode.nodeId };
@@ -1421,8 +1369,8 @@ export default {
         }
       });
     },
-    getDomain() {
-      this.pageModel.pageIndex = this.pageModel.pageIndex;
+    getDomain(pageIndex) {
+      this.pageModel.pageIndex = pageIndex?pageIndex:this.pageModel.pageIndex;
       let data = {
         pageIndex: this.pageModel.pageIndex,
         pageSize: this.pageModel.pageSize,
@@ -1435,21 +1383,36 @@ export default {
       this.domainId = domain.id;
       this.getDomainGraph();
     },
-    //工具栏操作按钮下拉按钮
-    operateCommand(command) {
-      if (command === "image") {
-        html2canvas(document.querySelector(".graphContainer")).then(function(
-          canvas
-        ) {
+    //保存图片
+    saveImage() {
+       html2canvas(document.querySelector(".graphContainer"),{
+            width: document.querySelector(".graphContainer").offsetWidth,  // canvas画板的宽度 一般都是要保存的那个dom的宽度
+            height: document.querySelector(".graphContainer").offsetHeight,  // canvas画板的高度  同上
+            scale: 1
+         }
+       ).then(function(canvas) {
           let a = document.createElement("a");
           a.href = canvas.toDataURL("image/png"); //将画布内的信息导出为png图片数据
           let timeStamp = Date.parse(new Date());
           a.download = timeStamp; //设定下载名称
           a.click(); //点击触发下载
         });
-      } else {
-        this.$refs.kg_form.init(true, command);
-      }
+    },
+    showJsonData(){
+      this.$refs.kg_json.init();
+    },
+    wanted() {
+      this.$message.warning("有点迫不及待了吧");
+    },
+    //导入图谱
+    importGraph() {
+      this.$refs.kg_form.init(true, 'import');
+    },
+    exportGraph() {
+      this.$refs.kg_form.init(true, 'import');
+    },
+    help() {
+      this.$refs.kg_help.init();
     },
     //设置画布内最大的点个数
     setMatchSize(m) {
@@ -1577,8 +1540,7 @@ export default {
         _this.createSingleNode(event.offsetX, event.offsetY);
       }
       event.preventDefault();
-    },
-    boxMousedown(event) {}
+    }
   }
 };
 </script>
@@ -1733,6 +1695,7 @@ a {
 }
 .fr {
   float: right;
+  margin: 7px;
 }
 .tl {
   text-align: left;

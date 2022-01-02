@@ -289,10 +289,10 @@ public class KGGraphServiceImpl implements KgGraphService {
                 }
                 //创建节点
                 NodeItem nodeItem=new NodeItem(id,nodeName,cellColor);
-                kgRepository.createNode(label,nodeItem);
+                kgRepository.createNodeWithUUid(label,nodeItem);
                 //创建关系
                 if(parentId>0){
-                    kgRepository.createLink(label,parentId,id,relationName);
+                    kgRepository.createLinkByUuid(label,parentId,id,relationName);
                 }
                 TreeExcelRecordData data = new TreeExcelRecordData();
                 data.setRecordId(String.valueOf(id));
