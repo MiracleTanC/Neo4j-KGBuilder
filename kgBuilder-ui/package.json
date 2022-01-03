@@ -20,6 +20,7 @@
     "less-loader": "^5.0.0",
     "lodash": "^4.17.21",
     "qs": "^6.10.2",
+    "script-ext-html-webpack-plugin": "^2.1.5",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
     "vue-codemirror": "^4.0.6",

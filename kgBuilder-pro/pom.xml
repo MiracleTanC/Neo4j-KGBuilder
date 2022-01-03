@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.warmer</groupId>
     <artifactId>kgBuilder-pro</artifactId>
-    <version>0.0.1</version>
+    <version>release</version>
     <name>kgBuilder-pro</name>
     <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
@@ -34,14 +34,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>nz.net.ultraq.thymeleaf</groupId>
-            <artifactId>thymeleaf-layout-dialect</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
         <dependency>
@@ -61,5 +53,13 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
     </dependencies>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.5.6</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>
