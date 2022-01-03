@@ -10,12 +10,35 @@
     <!--导入-->
     <div v-show="operate == 'import'" class="pd-20">
       <el-form>
-        <el-form-item label="tips" label-width="120px">
-          <div>
-            <img style="width: 300px;" :src="uploadTips.img" />
-            <span style="margin: auto;">{{ uploadTips.tips }}</span>
-          </div>
-        </el-form-item>
+        <el-popover
+            placement="right"
+            width="400"
+            trigger="hover">
+            <div v-if="uploadParam.type==0">
+              <el-table
+                :data="tableData"
+                style="width: 100%">
+                <el-table-column
+                  prop="nodeStart"
+                  label="起始节点"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="nodeEnd"
+                  label="结束节点"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="ship"
+                  label="关系">
+                </el-table-column>
+              </el-table>
+            </div>
+            <div v-else>
+              <img style="width: 300px;" :src="uploadTips.img" />
+            </div>
+            <el-alert slot="reference" :title="uploadTips.tips" type="success"></el-alert>
+        </el-popover>
         <el-form-item label="类型" label-width="120px">
           <el-radio-group v-model="uploadParam.type">
             <el-radio
@@ -28,12 +51,12 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="图谱领域" label-width="120px">
-          <el-autocomplete
+          <el-input
             style="width:100%"
             v-model="uploadParam.domain"
             placeholder="请输入内容"
           >
-          </el-autocomplete>
+          </el-input>
         </el-form-item>
         <el-form-item label="选择文件" label-width="120px">
           <el-upload
@@ -49,11 +72,8 @@
             <el-button
               slot="trigger"
               class="btn-bo"
-              style="padding: 12px 24px;margin-bottom: 0px;"
             >
-              <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-daoru"></use>
-              </svg>
+              <i class="el-icon-upload"></i>
               选择文件
             </el-button>
           </el-upload>
@@ -316,24 +336,48 @@ export default {
       nodeImageList: [],
       netImageUrl: "",
       uploadParam: { domain: "", type: 0 },
-    uploadTips: {
-      tips: "csv导入，注意字符集为utf-8无bom格式，三元组结构:节点-节点-关系",
-      img: ""
-    },
-    uploadTipsArr: [
+      uploadTips: {
+        tips: "csv导入，注意字符集为utf-8无bom格式，三元组结构:节点-节点-关系(鼠标滑动到此处看模板)",
+        img: ""
+      },
+      uploadTipsArr: [
       {
-        tips: "csv导入，注意字符集为utf-8无bom格式，三元组结构:节点-节点-关系",
+        tips: "csv导入，注意字符集为utf-8无bom格式，三元组结构:节点-节点-关系(鼠标滑动到此处看模板)",
         name: "三元组",
         img: "",
         type: 0
       },
       {
         tips:
-          "支持合并单元格，设置颜色，设置关系需在节点后以###拼接，只识别一组关系",
+          "支持合并单元格，设置颜色，设置关系需在节点后以###拼接，只识别一组关系(鼠标滑动到此处看模板)",
         name: "单元格树",
         img: "http://file.miaoleyan.com/image-20211114183140256.png",
         type: 1
       }
+    ],
+    tableData:[
+      {
+            nodeStart: '周杰伦',
+            nodeEnd: '1979年1月18日',
+            ship: '生日'
+          }, {
+            nodeStart: '周杰伦',
+            nodeEnd: '台湾省新北市',
+            ship: '籍贯'
+          }, {
+            nodeStart: '周杰伦',
+            nodeEnd: '昆凌',
+            ship: '妻子'
+          }, {
+            nodeStart: '昆凌',
+            nodeEnd: 'Romeo',
+            ship: '儿子'
+          },
+          , {
+            nodeStart: '周杰伦',
+            nodeEnd: 'Romeo',
+            ship: '儿子'
+          }
     ]
     };
   },

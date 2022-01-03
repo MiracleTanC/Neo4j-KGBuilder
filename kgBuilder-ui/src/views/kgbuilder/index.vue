@@ -3,7 +3,7 @@
  * @Author: tanc
  * @Date: 2021-12-26 16:50:07
  * @LastEditors: your name
- * @LastEditTime: 2022-01-02 23:56:07
+ * @LastEditTime: 2022-01-03 18:47:15
 -->
 <template>
   <div class="mind-box">
@@ -103,16 +103,19 @@
           <a href="javascript:void(0)" @click="exportGraph" class="svg-a-sm">
             <i class="el-icon-download">导出</i>
           </a>
-          <a href="javascript:void(0)" @click="requestFullScreen" class="svg-a-sm">
+          <a
+            href="javascript:void(0)"
+            @click="requestFullScreen"
+            class="svg-a-sm"
+          >
             <i class="el-icon-monitor">全屏</i>
-          </a>
-          <a href="javascript:void(0)" @click="wanted" class="svg-a-sm">
-            <i class="el-icon-question">需求调研</i>
           </a>
           <a href="javascript:void(0)" @click="help" class="svg-a-sm">
             <i class="el-icon-info">帮助</i>
           </a>
-
+          <a href="javascript:void(0)" @click="wanted" class="svg-a-sm">
+            <i class="el-icon-question">反馈</i>
+          </a>
         </div>
       </div>
       <!-- 头部over -->
@@ -163,9 +166,9 @@
         @batchCreateChildNode="batchCreateChildNode"
         @batchCreateSameNode="batchCreateSameNode"
         @createNode="createNode"
-         @initNodeImage="initNodeImage"
-         @initNodeContent="initNodeContent"
-         @getDomain="getDomain"
+        @initNodeImage="initNodeImage"
+        @initNodeContent="initNodeContent"
+        @getDomain="getDomain"
       >
       </kg-form>
     </div>
@@ -174,10 +177,13 @@
       <node-richer ref="node_richer"></node-richer>
     </div>
     <div>
-    <kg-json  ref="kg_json" :data="graph"></kg-json>
+      <kg-json ref="kg_json" :data="graph"></kg-json>
     </div>
-      <div>
-        <kg-help  ref="kg_help"></kg-help>
+    <div>
+      <kg-help ref="kg_help"></kg-help>
+    </div>
+    <div>
+      <kg-wanted ref="kg_wanted"></kg-wanted>
     </div>
   </div>
 </template>
@@ -190,9 +196,10 @@ import MenuLink from "@/views/kgbuilder/components/menu_link";
 import KgForm from "@/views/kgbuilder/components/kg_form";
 import NodeRicher from "@/views/kgbuilder/components/node_richer";
 import KgFocus from "@/components/KGFocus";
+import KgWanted from "@/components/KGWanted";
 import KgJson from "@/views/kgbuilder/components/kg_json";
 import KgHelp from "@/views/kgbuilder/components/kg_help";
-import html2canvas from 'html2canvas'
+import html2canvas from "html2canvas";
 export default {
   name: "kgBuilder",
   components: {
@@ -202,7 +209,8 @@ export default {
     NodeRicher,
     KgFocus,
     KgJson,
-    KgHelp
+    KgHelp,
+    KgWanted
   },
   data() {
     return {
@@ -238,7 +246,7 @@ export default {
       domain: "",
       domainId: 0,
       nodeName: "",
-      pageSize:500,
+      pageSize: 500,
       activeNode: null,
       nodeImageList: [],
       showImageList: [],
@@ -254,8 +262,8 @@ export default {
         nodes: [],
         links: []
       },
-      jsonShow:false,
-      helpShow:false
+      jsonShow: false,
+      helpShow: false
     };
   },
   filters: {
@@ -571,7 +579,12 @@ export default {
                 r: d.r,
                 color: d.color
               };
-              _this.$refs.kg_form.initNode(true, "nodeEdit", formNode,_this.domainId);
+              _this.$refs.kg_form.initNode(
+                true,
+                "nodeEdit",
+                formNode,
+                _this.domainId
+              );
               break;
             case "MORE":
               _this.getMoreNode();
@@ -779,7 +792,7 @@ export default {
         _this.timer = setTimeout(function() {
           _this.editorContent = "";
           _this.showImageList = [];
-          _this.getNodeDetail(d.uuid,d.x,d.y);
+          _this.getNodeDetail(d.uuid, d.x, d.y);
         }, 2000);
       });
       nodeEnter.on("mouseout", function(d, i) {
@@ -799,7 +812,7 @@ export default {
         d3.select(this).style("stroke-width", "2");
       });
       nodeEnter.on("click", function(d, i) {
-        d3.select('#nodeDetail').style('display', 'block');
+        d3.select("#nodeDetail").style("display", "block");
         let out_buttongroup_id = ".out_buttongroup_" + d.uuid + "_" + i;
         _this.svg.selectAll(".buttongroup").classed("circle_none", true);
         _this.svg.selectAll(out_buttongroup_id).classed("circle_none", false);
@@ -965,7 +978,7 @@ export default {
           .attr("stroke", "#ff9e9e")
           .attr("marker-end", "");
         _this.nodeDetail = d.lk;
-        d3.select('#nodeDetail').style('display', 'block');
+        d3.select("#nodeDetail").style("display", "block");
       });
       //连线鼠标离开
       linkEnter.on("mouseleave", function(d) {
@@ -1226,7 +1239,7 @@ export default {
       });
     },
     //一次性获取富文本和图片
-    getNodeDetail(nodeId,left,top) {
+    getNodeDetail(nodeId, left, top) {
       let data = { domainId: this.domainId, nodeId: nodeId };
       kgBuilderApi.getNodeDetail(data).then(result => {
         if (result.code == 200) {
@@ -1234,7 +1247,8 @@ export default {
             this.$refs.node_richer.init(
               result.data.content,
               result.data.imageList,
-              left,top
+              left,
+              top
             );
           } else {
             this.$message.warning("暂时没有更多数据");
@@ -1370,7 +1384,9 @@ export default {
       });
     },
     getDomain(pageIndex) {
-      this.pageModel.pageIndex = pageIndex?pageIndex:this.pageModel.pageIndex;
+      this.pageModel.pageIndex = pageIndex
+        ? pageIndex
+        : this.pageModel.pageIndex;
       let data = {
         pageIndex: this.pageModel.pageIndex,
         pageSize: this.pageModel.pageSize,
@@ -1385,31 +1401,39 @@ export default {
     },
     //保存图片
     saveImage() {
-       html2canvas(document.querySelector(".graphContainer"),{
-            width: document.querySelector(".graphContainer").offsetWidth,  // canvas画板的宽度 一般都是要保存的那个dom的宽度
-            height: document.querySelector(".graphContainer").offsetHeight,  // canvas画板的高度  同上
-            scale: 1
-         }
-       ).then(function(canvas) {
-          let a = document.createElement("a");
-          a.href = canvas.toDataURL("image/png"); //将画布内的信息导出为png图片数据
-          let timeStamp = Date.parse(new Date());
-          a.download = timeStamp; //设定下载名称
-          a.click(); //点击触发下载
-        });
+      html2canvas(document.querySelector(".graphContainer"), {
+        width: document.querySelector(".graphContainer").offsetWidth, // canvas画板的宽度 一般都是要保存的那个dom的宽度
+        height: document.querySelector(".graphContainer").offsetHeight, // canvas画板的高度  同上
+        scale: 1
+      }).then(function(canvas) {
+        let a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png"); //将画布内的信息导出为png图片数据
+        let timeStamp = Date.parse(new Date());
+        a.download = timeStamp; //设定下载名称
+        a.click(); //点击触发下载
+      });
     },
-    showJsonData(){
+    showJsonData() {
       this.$refs.kg_json.init();
     },
     wanted() {
-      this.$message.warning("有点迫不及待了吧");
+      this.$refs.kg_wanted.init();
     },
     //导入图谱
     importGraph() {
-      this.$refs.kg_form.init(true, 'import');
+      this.$refs.kg_form.init(true, "import");
     },
     exportGraph() {
-      this.$refs.kg_form.init(true, 'import');
+      if(!this.domain||this.domain==''){
+        this.$message.warning("请选择一个领域");
+        return;
+      }
+     let data = { domain: this.domain};
+          kgBuilderApi.exportGraph(data).then(result => {
+            if (result.code == 200) {
+              window.location.href =result.fileName
+            }
+          });
     },
     help() {
       this.$refs.kg_help.init();
@@ -1530,9 +1554,9 @@ export default {
       };
       _this.$refs.menu_blank.init({ show: false });
       _this.$refs.menu_link.init({ show: false });
-      _this.$refs.node_richer.close()
-      if (event.target.tagName!="circle"&&event.target.tagName!="link") {
-        	d3.select('#nodeDetail').style('display', 'none');
+      _this.$refs.node_richer.close();
+      if (event.target.tagName != "circle" && event.target.tagName != "link") {
+        d3.select("#nodeDetail").style("display", "none");
       }
       let cursor = document.getElementById("graphContainer").style.cursor;
       if (cursor == "crosshair") {

@@ -103,6 +103,33 @@ public class Neo4jUtil {
 	}
 
 	/**
+	 * 获取一个标准的表格，一般用于语句里使用as
+	 * @param cypherSql
+	 * @return
+	 */
+	public static List<HashMap<String, Object>> getGraphTable(String cypherSql) {
+		List<HashMap<String, Object>> resultData = new ArrayList<HashMap<String, Object>>();
+		try {
+			StatementResult result = executeCypherSql(cypherSql);
+			if (result.hasNext()) {
+				List<Record> records = result.list();
+				for (Record recordItem : records) {
+					List<Pair<String, Value>> f = recordItem.fields();
+					HashMap<String, Object> rss = new HashMap<String, Object>();
+					for (Pair<String, Value> pair : f) {
+						String key = pair.key();
+						Value value = pair.value();
+						rss.put(key,value);
+					}
+					resultData.add(rss);
+				}
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+		return resultData;
+	}
+	/**
 	 * 返回关系，不保留节点内容
 	 *
 	 * @param cypherSql

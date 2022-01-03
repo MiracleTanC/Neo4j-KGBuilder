@@ -5,6 +5,9 @@ class kgBuilderApi extends BaseAPI{
   getKgData() {
     return this.get("/static/kgData.json");
   }
+  feedBack(data) {
+    return this.post("/feedBack",data);
+  }
   saveData(data) {
     return this.post("/er/saveData",data,{
         headers: {
@@ -135,6 +138,9 @@ class kgBuilderApi extends BaseAPI{
   }
   exportGraph(data) {
     return this.post("/exportGraph",data);
+  }
+  download(data) {
+    return this.get("/download/"+data,);
   }
   updateCoordinateOfNode(data) {
     return this.post("/updateCoordinateOfNode",data,{

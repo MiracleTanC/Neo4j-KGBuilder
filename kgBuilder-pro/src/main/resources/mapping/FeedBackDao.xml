@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.warmer.web.dao.FeedBackDao">
+    <resultMap id="feedBackMap" type="com.warmer.web.entity.KgFeedBack">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="desc" column="desc" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="email" column="email" jdbcType="INTEGER"/>
+        <result property="createTime" column="createTime"  jdbcType="VARCHAR"/>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+                id,
+                `name`,
+                `desc`,
+                `type`,
+                email,
+                createUser
+        </sql>
+    <select id="queryForList"  resultMap="feedBackMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_feedback
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="feedBackMap">
+        select
+        <include refid="Base_Column_List" />
+        from kg_feedback
+        where id = #{id}
+    </select>
+    
+    <insert id="insert" parameterType="com.warmer.web.entity.KgFeedBack" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into kg_feedback (`name`,`desc`,`type`,email,createTime)
+        values (#{name},#{desc},#{type},#{email},now())
+    </insert>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from  kg_feedback
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

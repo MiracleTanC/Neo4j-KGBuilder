@@ -8,10 +8,12 @@ import com.warmer.web.config.WebAppConfig;
 import com.warmer.base.enums.ReturnStatus;
 import com.warmer.base.util.*;
 import com.warmer.web.entity.KgDomain;
+import com.warmer.web.entity.KgFeedBack;
 import com.warmer.web.entity.KgNodeDetail;
 import com.warmer.web.entity.KgNodeDetailFile;
 import com.warmer.web.model.NodeItem;
 import com.warmer.web.request.*;
+import com.warmer.web.service.FeedBackService;
 import com.warmer.web.service.KgGraphService;
 import com.warmer.web.service.KnowledgeGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,8 @@ public class KGManagerController extends BaseController {
     private KgGraphService kgGraphService;
     @Autowired
     private KnowledgeGraphService kgService;
+    @Autowired
+    FeedBackService feedBackService;
 
     @GetMapping("/")
     public String home() {
@@ -332,18 +336,17 @@ public class KGManagerController extends BaseController {
         String label = request.getParameter("domain");
         String filePath = config.getLocation();
         String fileName = UUID.randomUUID() + ".csv";
-        String fileUrl = filePath + File.separator + fileName;
+        String fileUrl = filePath + fileName;
         String cypher = String.format(
-                "MATCH (n:%s) -[r]->(m:%s) return n.name as source,m.name as target,r.name as relation", label, label);
-        List<HashMap<String, Object>> list = Neo4jUtil.getGraphNode(cypher);
-        File file = new File(fileUrl);
+                "MATCH (n:`%s`) -[r]-(m:`%s`) return n.name as source,m.name as target,r.name as relation", label, label);
+        List<HashMap<String, Object>> list = Neo4jUtil.getGraphTable(cypher);
+        if(list.size()==0){
+            res.put("code", -1);
+            res.put("message", "该领域没有任何有关系的实体!");
+            return res;
+        }
         try {
-            if (!file.exists()) {
-                file.createNewFile();
-                res.put("code", -1);
-                res.put("message", "文件不存在，新建成功！");
-                return res;
-            }
+            FileUtil.createFile(fileUrl);
             CsvWriter csvWriter = new CsvWriter(fileUrl, ',', StandardCharsets.UTF_8);
             String[] header = {"source", "target", "relation"};
             csvWriter.writeRecord(header);
@@ -361,10 +364,10 @@ public class KGManagerController extends BaseController {
             }
             csvWriter.close();
             String serverUrl = request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-            String csvUrl = serverUrl + "/kg/download/" + fileName;
+            String csvUrl = "http://"+serverUrl + "/download/" + fileName;
 
             res.put("code", 200);
-            res.put("csvUrl", csvUrl);
+            res.put("fileName", csvUrl);
             res.put("message", "success!");
             return res;
         } catch (Exception e) {
@@ -384,7 +387,7 @@ public class KGManagerController extends BaseController {
         File file = new File(fileUrl);
         if (file.exists()) {
             //response.setContentType("application/force-download");// 设置强制下载不打开
-            response.addHeader("Content-Disposition", "attachment;fileName=" + filename + ".csv");// 设置文件名
+            response.addHeader("Content-Disposition", "attachment;fileName=" + filename);// 设置文件名
             byte[] buffer = new byte[1024];
             FileInputStream fis = null;
             BufferedInputStream bis = null;
@@ -469,7 +472,17 @@ public class KGManagerController extends BaseController {
             return R.error(e.getMessage());
         }
     }
-
+    @ResponseBody
+    @RequestMapping(value = "/feedBack")
+    public R<Map<String, Object>> feedBack(KgFeedBack submitItem) {
+        try {
+            feedBackService.insert(submitItem);
+            return R.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.error(e.getMessage());
+        }
+    }
     @ResponseBody
     @RequestMapping(value = "/saveNodeImage")
     public R<String> saveNodeImage(@RequestBody Map<String, Object> params) {
