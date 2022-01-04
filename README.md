@@ -3,8 +3,9 @@
 ## 技术栈
 小工具是前台是基于vue + d3.js ,后台是springboot配合Neo4j.
 ## 演示
-demo地址：[http://www.miaoleyan.com/kg/](http://www.miaoleyan.com/kg/)
-
+demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
+## dev分支
+dev分支是前后端分离版本，代码都进行了一些优化，可以去http://kg.miaoleyan.com 查看右上角帮助
 实现的基本功能:
 1. 新增节点,添加连线,快速添加节点和关系
 2. 节点的颜色和大小可修改
