@@ -53,8 +53,6 @@ demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
 
 ### 图谱三元组导入
 支持,.xlsx,.xls,.csv，编码格式一定要是utf-8 无bom格式的，格式：节点-节点-关系，在本地测试时上传下载的文件要和neo4j在同一台电脑，当然如果能传到七牛或者hdfs上也是一样的，必须确认neo4j能访问到，否则load不成功
-### 本项目不再维护
-可以进群和其他小伙伴交流
 ### 推荐前端组件
 G6 [https://g6.antv.vision/zh/examples/gallery](https://g6.antv.vision/zh/examples/gallery)
 ### 推荐图数据库
