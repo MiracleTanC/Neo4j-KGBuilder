@@ -16,9 +16,9 @@ demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
 8. 节点之间多个关系
 
 ## 后续优化:
-1.接入数据源
-2.构建er图
-3.根据er图生成图谱
+1. 接入数据源
+2. 构建er图
+3. 根据er图生成图谱
 
 ## 运行与启动
 ### 安装jdk
@@ -31,7 +31,22 @@ demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
 ### 找到目录 src/main/resources  
 修改application.yml,neo4配置url，password,改成自己的，同理修改mysql（mysql脚本在根目录下，knowledgegraph.sql）
 ### 打包发布  
-在idea 右侧 有 maven project 工具栏，点击展开lifecycle-clean,然后install,等待完成后在控制台可以看见打包的目录，例如：[INFO] Installing F:\git\Neo4j\kgmaker\target\kgmaker-0.0.1-SNAPSHOT.jar 复制jar包，去windows  或者linux下 切换到jar包目录执行  jar包   java -jar xxx.jar  即可启动，想部署到tomcat自行百度，springboot配置外部tomcat
+在idea 右侧 有 maven project 工具栏，点击展开lifecycle-clean,然后install,等待完成后在控制台可以看见打包的目录，
+例如：[INFO] Installing F:\git\Neo4j\kgmaker\target\kgmaker-0.0.1-SNAPSHOT.jar 复制jar包，
+去windows  或者linux下 
+切换到jar包目录执行jar包   
+```
+  java -jar xxx.jar   //即可启动
+```
+想部署到tomcat自行百度，springboot配置外部tomcat
+启动前端
+```
+1.npm install // 安装依赖
+2.npm run serve //启动
+3.npm run build //发布
+启动后访问http://localhost
+```
+
 ### 访问路径
 启动后访问[http://localhost](http://localhost) 
 
