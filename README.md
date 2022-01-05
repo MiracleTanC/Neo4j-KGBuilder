@@ -39,6 +39,7 @@ demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
   java -jar xxx.jar   //即可启动
 ```
 想部署到tomcat自行百度，springboot配置外部tomcat
+
 启动前端
 ```
 1.npm install // 安装依赖
