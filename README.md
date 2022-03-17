@@ -58,4 +58,5 @@ G6 [https://g6.antv.vision/zh/examples/gallery](https://g6.antv.vision/zh/exampl
 ### 推荐图数据库
 Nebula [https://docs.nebula-graph.com.cn/2.5.1/](https://docs.nebula-graph.com.cn/2.5.1/)
 ## 交流
-![](https://img-blog.csdnimg.cn/20201003145558813.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BveGlhb21lbmcxODc=,size_16,color_FFFFFF,t_70#pic_center)
+![](./kgbuilder.jpg)
+![](./kgbuilder.jpg)
