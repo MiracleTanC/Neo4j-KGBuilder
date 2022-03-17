@@ -59,4 +59,4 @@ G6 [https://g6.antv.vision/zh/examples/gallery](https://g6.antv.vision/zh/exampl
 Nebula [https://docs.nebula-graph.com.cn/2.5.1/](https://docs.nebula-graph.com.cn/2.5.1/)
 ## 交流
 ![](./kgbuilder.jpg)
-![](./kgbuilder.jpg)
+![](./kgbuilder2.jpg)
