@@ -31,10 +31,11 @@ class kgBuilderApi extends BaseAPI{
   );
   }
   createDomain(data) {
-    return request({
-      url: "/createDomain?domain=" + data.name + "&type=" + data.type,
-      method: "get"
-    });
+    return this.get("/createDomain",data);
+    // return request({
+    //   url: "/createDomain?domain=" + data.domain + "&type=" + data.type,
+    //   method: "get"
+    // });
   }
   getCypherResult(data) {
     return this.get("/getCypherResult",data);

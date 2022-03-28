@@ -3,7 +3,7 @@
  * @Author: tanc
  * @Date: 2021-12-26 16:50:07
  * @LastEditors: your name
- * @LastEditTime: 2022-01-03 18:47:15
+ * @LastEditTime: 2022-03-21 11:39:25
 -->
 <template>
   <div class="mind-box">
@@ -737,7 +737,7 @@ export default {
       if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
-      d.fixed = true;
+      //d.fixed = true;
     },
     //拖拽中
     dragged(d) {
@@ -747,8 +747,8 @@ export default {
     //拖拽结束
     dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0);
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
+      //d.fx = d3.event.x;
+      //d.fy = d3.event.y;
       let domain = this.domain;
       let uuid = d.uuid;
       let fx = d.fx;
@@ -1351,6 +1351,7 @@ export default {
     },
     //创建新领域
     createDomain(value) {
+      let _this=this;
       this.$prompt("请输入领域名称", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
@@ -1360,14 +1361,14 @@ export default {
           let data = { domain: value, type: 0 };
           kgBuilderApi.createDomain(data).then(result => {
             if (result.code == 200) {
-              this.getDomain();
-              this.domain = value;
-              this.getDomainGraph();
+              _this.getDomain();
+              _this.domain = value;
+              _this.getDomainGraph();
             }
           });
         })
         .catch(function() {
-          this.$message({
+          _this.$message({
             type: "info",
             message: "取消输入"
           });
