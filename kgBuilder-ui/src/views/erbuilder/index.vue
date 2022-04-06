@@ -68,6 +68,13 @@
               >保存</el-button
             >
             <el-button
+              type="primary"
+              icon="el-icon-document"
+              @click="executeERdata"
+              size="mini"
+              >生成图谱</el-button
+            >
+            <el-button
               type="info"
               plain
               round
@@ -272,7 +279,7 @@ export default {
       let inputValue = this.inputValue;
       if (inputValue) {
         let data = {
-          name: inputValue,
+          domain: inputValue,
           type: 3
         };
         kgBuilderApi.createDomain(data).then(response => {
@@ -289,6 +296,17 @@ export default {
     saveERdata() {
       let data = JSON.stringify(this.data);
       kgBuilderApi.saveData(data).then(response => {
+        if (response.code == 200) {
+          if (response.data) {
+            this.$message.success("保存成功");
+          } else {
+            this.$message.error("暂时没有更多数据");
+          }
+        }
+      });
+    },
+     executeERdata() {
+      kgBuilderApi.execute(this.data.domainId).then(response => {
         if (response.code == 200) {
           if (response.data) {
             this.$message.success("保存成功");

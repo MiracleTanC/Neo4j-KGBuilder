@@ -27,6 +27,10 @@ public class KgGraphNodeMap implements Serializable {
      * 是否主键
      */
     private Integer isPrimary;
+    /**
+     * 主实体
+     */
+    private Integer isMainEntity;
 
     /**
      * 数据列key

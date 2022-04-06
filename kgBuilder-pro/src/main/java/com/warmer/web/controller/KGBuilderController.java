@@ -5,6 +5,7 @@ import com.warmer.web.entity.KgDomain;
 import com.warmer.web.request.GraphItem;
 import com.warmer.web.service.KgGraphNodeService;
 import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.impl.WorkFlowDirectorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,8 @@ public class KGBuilderController extends BaseController {
 
     @Autowired
     private KgGraphNodeService kgGraphNodeService;
-
+    @Autowired
+    WorkFlowDirectorServiceImpl workFlowDirectorService;
     @ResponseBody
     @PostMapping(value = "/saveData")
     public R<Map<String, Object>> saveDataSource(@RequestBody GraphItem submitItem) throws IOException {
@@ -43,5 +45,16 @@ public class KGBuilderController extends BaseController {
         }
         GraphItem domainNode = kgGraphNodeService.getDomainNode(domainId);
         return R.success(domainNode, "操作成功");
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/execute")
+    public R<GraphItem> execute(Integer domainId){
+        KgDomain domainItem = kgService.selectById(domainId);
+        if (domainItem == null) {
+            return R.error("领域不存在");
+        }
+         workFlowDirectorService.direct(domainId);
+        return R.success();
     }
 }

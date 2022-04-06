@@ -1,5 +1,7 @@
 import request from "@/utils/request";
-class datasourceApi {
+import BaseAPI from '@/utils/BaseAPI'
+
+class datasourceApi extends BaseAPI{
   // 获取数据源
   getDatasource() {
     return request({
@@ -30,35 +32,51 @@ class datasourceApi {
   }
   //获取预览数据
   getPreviewData(data) {
-    return request({
-      url: "/datasource/getTableRecords",
-      method: "post",
-      data: data
-    });
+    return this.post("/datasource/getTableRecords",data,{
+      headers: {
+        'Content-Type': 'application/json'
+      }});
+    // return request({
+    //   url: "/datasource/getTableRecords",
+    //   method: "post",
+    //   data: data
+    // });
   }
   //保存数据源
   saveDatasource(data) {
-    return request({
-      url: "/datasource/saveDataSource",
-      method: "post",
-      data: data
-    });
+    return this.post("/datasource/saveDataSource",data,{
+      headers: {
+        'Content-Type': 'application/json'
+      }});
+    // return request({
+    //   url: "/datasource/saveDataSource",
+    //   method: "post",
+    //   data: data
+    // });
   }
    //保存数据表
    saveDataTable(data) {
-    return request({
-      url: "/datasource/saveDataTable",
-      method: "post",
-      data: data
-    });
+     return this.post("/datasource/saveDataTable",data,{
+      headers: {
+        'Content-Type': 'application/json'
+      }});
+    // return request({
+    //   url: "/datasource/saveDataTable",
+    //   method: "post",
+    //   data: data
+    // });
   }
     //获取数据表记录
     getDataRecord(data) {
-      return request({
-        url: "/datasource/getTableRecords",
-        method: "post",
-        data: data
-      });
+      return this.post("/datasource/getTableRecords",data,{
+        headers: {
+          'Content-Type': 'application/json'
+        }});
+      // return request({
+      //   url: "/datasource/getTableRecords",
+      //   method: "post",
+      //   data: data
+      // });
     }
 }
 export default new datasourceApi();

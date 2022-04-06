@@ -6,6 +6,7 @@
         <result column="columnId" jdbcType="INTEGER" property="columnId"/>
         <result column="ico" jdbcType="VARCHAR" property="ico"/>
         <result column="isPrimary" jdbcType="INTEGER" property="isPrimary"/>
+        <result column="isMainEntity" jdbcType="INTEGER" property="isMainEntity"/>
         <result column="itemId" jdbcType="VARCHAR" property="itemId"/>
         <result column="itemCode" jdbcType="VARCHAR" property="itemCode"/>
         <result column="itemName" jdbcType="VARCHAR" property="itemName"/>
@@ -14,7 +15,7 @@
         <result column="domainId" jdbcType="INTEGER" property="domainId"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, columnId, ico, isPrimary, itemId, itemCode, itemName, itemType, nodeId,domainId
+        id, columnId, ico, isPrimary,isMainEntity, itemId, itemCode, itemName, itemType, nodeId,domainId
     </sql>
     <select id="selectByDomainId" resultMap="BaseResultMap">
         select
@@ -30,21 +31,21 @@
     </select>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.warmer.web.entity.KgGraphNodeMap"
             useGeneratedKeys="true">
-        insert into kg_graph_node_map (columnId, ico, isPrimary,
+        insert into kg_graph_node_map (columnId, ico, isPrimary,isMainEntity,
                                        itemId, itemCode, itemName,
                                        itemType, nodeId,domainId)
-        values (#{columnId,jdbcType=INTEGER}, #{ico,jdbcType=VARCHAR}, #{isPrimary,jdbcType=INTEGER},
+        values (#{columnId,jdbcType=INTEGER}, #{ico,jdbcType=VARCHAR}, #{isPrimary,jdbcType=INTEGER},#{isMainEntity,jdbcType=INTEGER},
                 #{itemId,jdbcType=VARCHAR}, #{itemCode,jdbcType=VARCHAR}, #{itemName,jdbcType=VARCHAR},
                 #{itemType,jdbcType=VARCHAR}, #{nodeId,jdbcType=BIGINT},#{domainId,jdbcType=INTEGER})
     </insert>
     <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="com.warmer.web.entity.KgGraphNodeMap"
             useGeneratedKeys="true">
-        insert into kg_graph_node_map (columnId, ico, isPrimary,
+        insert into kg_graph_node_map (columnId, ico, isPrimary,isMainEntity,
         itemId, itemCode, itemName,
         itemType, nodeId,domainId)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.columnId,jdbcType=INTEGER}, #{item.ico,jdbcType=VARCHAR}, #{item.isPrimary,jdbcType=INTEGER},
+            (#{item.columnId,jdbcType=INTEGER}, #{item.ico,jdbcType=VARCHAR}, #{item.isPrimary,jdbcType=INTEGER},#{isMainEntity,jdbcType=INTEGER},
             #{item.itemId,jdbcType=VARCHAR}, #{item.itemCode,jdbcType=VARCHAR}, #{item.itemName,jdbcType=VARCHAR},
             #{item.itemType,jdbcType=VARCHAR}, #{item.nodeId,jdbcType=BIGINT},#{item.domainId,jdbcType=INTEGER})
         </foreach>

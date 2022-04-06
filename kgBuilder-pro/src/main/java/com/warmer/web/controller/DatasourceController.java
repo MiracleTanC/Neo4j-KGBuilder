@@ -88,7 +88,7 @@ public class DatasourceController extends BaseController {
      */
     @ResponseBody
     @PostMapping(value = "/saveDataSource")
-    public R<Map<String,Object>> saveDataSource(DatasourceSubmitItem submitItem) {
+    public R<Map<String,Object>> saveDataSource(@RequestBody DatasourceSubmitItem submitItem) {
         Map<String,Object> result=new HashMap<>();
         if (submitItem.getDataSourceId() == 0) {
             // 插入指标来源

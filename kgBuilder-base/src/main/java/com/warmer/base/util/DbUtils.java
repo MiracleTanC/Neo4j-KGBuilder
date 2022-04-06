@@ -296,7 +296,7 @@ public class DbUtils {
     /**
      * 分页获取表中的数据
      */
-    public static PageRecord<Map<String, Object>> getTableInfoByPage(int pageCode, int pageSize, String dbType, String dbName, String jdbcUrl, String tableName, String username, String password, String driverClassName,
+    public static PageRecord<Map<String, Object>> getTableInfoByPage(int pageIndex, int pageSize, String dbType, String dbName, String jdbcUrl, String tableName, String username, String password, String driverClassName,
                                                                      int MaximumPoolSize, int selectType, String selectMessage) {
         // 分类创建jdbcUrl及sql
         // 创建pageBean对象
@@ -304,7 +304,7 @@ public class DbUtils {
         dbType = dbType.toLowerCase();
         try {
             JdbcTemplate jdbcTemplate = getJDBCTemplate(username, password, driverClassName, jdbcUrl, MaximumPoolSize);
-            String sql = getQuerySQL(selectType, selectMessage, dbType, tableName, dbName, pageCode, pageSize, jdbcTemplate);
+            String sql = getQuerySQL(selectType, selectMessage, dbType, tableName, dbName, pageIndex, pageSize, jdbcTemplate);
             if (StringUtil.isNotBlank(sql)) {
                 // 赋值当前页
                 List<Map<String, Object>> arrayList = new ArrayList<>();
@@ -325,7 +325,7 @@ public class DbUtils {
                     arrayList = jdbcTemplate.queryForList(sql);
                 }
 
-                pageRecord.setPageIndex(pageCode);
+                pageRecord.setPageIndex(pageIndex);
                 // 赋值一页的项目数
                 pageRecord.setPageSize(pageSize);
                 // 赋值总记录数
@@ -341,15 +341,20 @@ public class DbUtils {
         }
         return pageRecord;
     }
-    public static PageRecord<Map<String, Object>> getTableInfoByPage(int pageCode, int pageSize, String dbType, String dbName, String jdbcUrl, String tableName, String username, String password, String driverClassName,
-                                                                     int MaximumPoolSize, List<FieldQueryItem> filterItems) {
+    public static PageRecord<Map<String, Object>> getTableInfoByPage(int pageIndex, int pageSize, String dbType, String dbName, String jdbcUrl, String tableName, String username, String password, String driverClassName,
+                                                                     int maximumPoolSize, List<FieldQueryItem> filterItems) {
+                return  getTableInfoByPage(pageIndex,pageSize,dbType,dbName,jdbcUrl,tableName,username,password,driverClassName,maximumPoolSize,filterItems,null);
+    }
+
+    public static PageRecord<Map<String, Object>> getTableInfoByPage(int pageIndex, int pageSize, String dbType, String dbName, String jdbcUrl, String tableName, String username, String password, String driverClassName,
+                                                                     int MaximumPoolSize, List<FieldQueryItem> filterItems,List<String> columns) {
         // 分类创建jdbcUrl及sql
         // 创建pageBean对象
         PageRecord<Map<String, Object>> pageRecord = new PageRecord<Map<String, Object>>();
         dbType = dbType.toLowerCase();
         try {
             JdbcTemplate jdbcTemplate = getJDBCTemplate(username, password, driverClassName, jdbcUrl, MaximumPoolSize);
-            String sql = getQuerySQL(filterItems, dbType, tableName, dbName, pageCode, pageSize, jdbcTemplate);
+            String sql = getQuerySQL(filterItems, dbType, tableName, dbName, pageIndex, pageSize, jdbcTemplate,columns);
             if (StringUtil.isNotBlank(sql)) {
                 // 赋值当前页
                 List<Map<String, Object>> arrayList = new ArrayList<>();
@@ -373,7 +378,7 @@ public class DbUtils {
                     List<String> headFields = new ArrayList<>(arrayList.get(0).keySet());
                     pageRecord.setHeads(headFields);
                 }
-                pageRecord.setPageIndex(pageCode);
+                pageRecord.setPageIndex(pageIndex);
                 // 赋值一页的项目数
                 pageRecord.setPageSize(pageSize);
                 // 赋值总记录数
@@ -389,6 +394,7 @@ public class DbUtils {
         }
         return pageRecord;
     }
+
     public static int getTableDataNum(String dbType, String dbName, String jdbcUrl, String tableName, String username, String password, String driverClassName,
                                       int MaximumPoolSize) {
         JdbcTemplate jdbcTemplate = null;
@@ -439,27 +445,27 @@ public class DbUtils {
         }
         return countsql;
     }
-    private static String getQuerySQL(int selectType, String selectMessage, String dbType, String tableName, String dbName, int pageCode, int pageSize, JdbcTemplate jdbcTemplate) {
+    private static String getQuerySQL(int selectType, String selectMessage, String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate) {
         String sql = "";
         if (selectType == 0) {
             switch (dbType) {
                 case "mysql":
                 case "mariadb":
                 case "hive":
-                    sql = "select * from " + tableName + " limit " + ((pageCode - 1) * pageSize) + " ," + pageSize;
+                    sql = "select * from " + tableName + " limit " + ((pageIndex - 1) * pageSize) + " ," + pageSize;
                     break;
                 case "postgresql":
-                    sql = "select * from " + dbName + "." + tableName + " limit " + pageSize + " offset " + ((pageCode - 1) * pageSize);
+                    sql = "select * from " + dbName + "." + tableName + " limit " + pageSize + " offset " + ((pageIndex - 1) * pageSize);
                     break;
                 case "oracle":
                     sql = "select t.* from (select e.*,rownum rn from " + tableName + " e) t where t.rn between "
-                            + ((pageCode - 1) * pageSize + 1) + " and " + pageSize * pageCode;
+                            + ((pageIndex - 1) * pageSize + 1) + " and " + pageSize * pageIndex;
                     break;
                 case "sqlserver":
                     // 获取表中第一个字段名
                     String columnName = jdbcTemplate.queryForRowSet("select top 1 * from " + tableName).getMetaData().getColumnName(1);
                     sql = "select * from " + tableName + " order by " + columnName + " offset "
-                            + ((pageCode - 1) * pageSize) + " row fetch next " + pageSize + " row only";
+                            + ((pageIndex - 1) * pageSize) + " row fetch next " + pageSize + " row only";
                     break;
                 default:
             }
@@ -469,22 +475,22 @@ public class DbUtils {
                 case "mysql":
                 case "mariadb":
                 case "hive":
-                    sql = "select * from " + tableName + whereSQL + " limit " + ((pageCode - 1) * pageSize) + " ," + pageSize;
+                    sql = "select * from " + tableName + whereSQL + " limit " + ((pageIndex - 1) * pageSize) + " ," + pageSize;
                     break;
                 case "postgresql":
-                    sql = "select * from " + dbName + "." + tableName + whereSQL + " limit " + pageSize + " offset " + ((pageCode - 1) * pageSize);
+                    sql = "select * from " + dbName + "." + tableName + whereSQL + " limit " + pageSize + " offset " + ((pageIndex - 1) * pageSize);
                     sql = sql.replaceAll("`", "");
                     break;
                 case "oracle":
                     sql = "select t.* from (select e.*,rownum rn from " + tableName + " e " + whereSQL + ") t where t.rn between "
-                            + ((pageCode - 1) * pageSize + 1) + " and " + pageSize * pageCode;
+                            + ((pageIndex - 1) * pageSize + 1) + " and " + pageSize * pageIndex;
                     break;
                 case "sqlserver":
                     whereSQL = whereSQL.replaceAll("`", "");
                     // 获取表中第一个字段名
                     String columnName = jdbcTemplate.queryForRowSet("select top 1 * from " + tableName).getMetaData().getColumnName(1);
                     sql = "select * from " + tableName + whereSQL + " order by " + columnName + " offset "
-                            + ((pageCode - 1) * pageSize) + " row fetch next " + pageSize + " row only";
+                            + ((pageIndex - 1) * pageSize) + " row fetch next " + pageSize + " row only";
                     break;
                 default:
             }
@@ -494,32 +500,43 @@ public class DbUtils {
         return sql;
     }
 
-    private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageCode, int pageSize, JdbcTemplate jdbcTemplate) {
+    private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate) {
+        return getQuerySQL(filterItems,dbType,tableName,dbName,pageIndex,pageSize,jdbcTemplate,null);
+    }
+
+    private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate,List<String> columns) {
         String sql = "";
         String whereSQL = buildWhereSql(dbType,filterItems);
         if(StringUtil.isNotBlank(whereSQL)){
             whereSQL=String.format(" where %s ",whereSQL);
         }
+        String columnsStr="*";
+        if(columns!=null&&columns.size()>0){
+            columnsStr=String.join(",",columns);
+        }
         switch (dbType) {
             case "mysql":
             case "mariadb":
             case "hive":
-                sql = "select * from " + tableName + whereSQL + " limit " + ((pageCode - 1) * pageSize) + " ," + pageSize;
+                sql = "select "+columnsStr+" from " + tableName + whereSQL + " limit " + ((pageIndex - 1) * pageSize) + " ," + pageSize;
                 break;
             case "postgresql":
-                sql = "select * from " + dbName + "." + tableName + whereSQL + " limit " + pageSize + " offset " + ((pageCode - 1) * pageSize);
+                sql = "select  "+columnsStr+" from " + dbName + "." + tableName + whereSQL + " limit " + pageSize + " offset " + ((pageIndex - 1) * pageSize);
                 sql = sql.replaceAll("`", "");
                 break;
             case "oracle":
-                sql = "select t.* from (select e.*,rownum rn from " + tableName + " e " + whereSQL + ") t where t.rn between "
-                        + ((pageCode - 1) * pageSize + 1) + " and " + pageSize * pageCode;
+                if(columns!=null&&columns.size()>0){
+                    columnsStr=columns.stream().map(n->String.format("t.%s",n)).collect(Collectors.joining(","));
+                }
+                sql = "select "+columnsStr+" from (select e.*,rownum rn from " + tableName + " e " + whereSQL + ") t where t.rn between "
+                        + ((pageIndex - 1) * pageSize + 1) + " and " + pageSize * pageIndex;
                 break;
             case "sqlserver":
                 whereSQL = whereSQL.replaceAll("`", "");
                 // 获取表中第一个字段名
                 String columnName = jdbcTemplate.queryForRowSet("select top 1 * from " + tableName).getMetaData().getColumnName(1);
-                sql = "select * from " + tableName + whereSQL + " order by " + columnName + " offset "
-                        + ((pageCode - 1) * pageSize) + " row fetch next " + pageSize + " row only";
+                sql = "select "+columnsStr+" from " + tableName + whereSQL + " order by " + columnName + " offset "
+                        + ((pageIndex - 1) * pageSize) + " row fetch next " + pageSize + " row only";
                 break;
             default:
         }

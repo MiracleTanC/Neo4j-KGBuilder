@@ -101,7 +101,13 @@ public class Neo4jUtil {
 		}
 		return ents;
 	}
-
+	public static HashMap<String, Object> getSingleGraphNode(String cypherSql) {
+		List<HashMap<String, Object>> ents= getGraphNode(cypherSql);
+		if(ents!=null&&ents.size()>0){
+			return ents.get(0);
+		}
+		return null;
+	}
 	/**
 	 * 获取一个标准的表格，一般用于语句里使用as
 	 * @param cypherSql
@@ -590,4 +596,6 @@ public class Neo4jUtil {
 		}
 		return list;
 	}
+
+
 }

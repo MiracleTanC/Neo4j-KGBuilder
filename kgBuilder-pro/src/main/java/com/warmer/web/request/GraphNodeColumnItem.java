@@ -6,9 +6,10 @@ import java.io.Serializable;
 
 @Data
 public class GraphNodeColumnItem implements Serializable {
-    private String columnId;
+    private Integer columnId;
     private String ico;
-    private String isPrimary;
+    private Integer isPrimary;
+    private Integer isMainEntity;
     private String itemId;
     private String itemCode;
     private String itemName;

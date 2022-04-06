@@ -22,6 +22,12 @@ class kgBuilderApi extends BaseAPI{
     })
 
   }
+  execute(domainId) {
+    return this.get('/er/execute', {
+      domainId
+    })
+
+  }
   getDomains(data) {
     return this.post("/getGraph",data,{
       headers: {
