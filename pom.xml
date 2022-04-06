@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <neo4j.version>1.7.5</neo4j.version>
+        <neo4j.version>4.4.5</neo4j.version>
         <mysql.version>8.0.16</mysql.version>
         <mybatis.version>2.1.3</mybatis.version>
         <pagehelper.version>1.3.0</pagehelper.version>
