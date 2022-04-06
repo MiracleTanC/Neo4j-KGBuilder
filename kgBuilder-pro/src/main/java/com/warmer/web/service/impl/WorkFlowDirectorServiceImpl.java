@@ -230,13 +230,13 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
                 if(node.get(key)==null||StringUtil.isEmpty(node.get(key).toString())) continue;
                 String name=node.get(key).toString();
                 String propertiesString = String.format("merge (n:`%s` {name:'%s'}) return n",domain,name);
-                HashMap<String, Object> graphNode = neo4jUtil.getSingleGraphNode(propertiesString);
+                HashMap<String, Object> graphNode = Neo4jUtil.getSingleGraphNode(propertiesString);
                 String uuid = graphNode.get("uuid").toString();
                 GraphNodeColumnItem item = columns.stream().filter(m -> m.getItemCode().equalsIgnoreCase(key)).collect(Collectors.toList()).get(0);
                 String alia= StringUtil.isNotEmpty(item.getItemName())?item.getItemName():item.getItemCode();
                 String linkCy=String.format("match(n:`%s`),(m:`%s`) where id(n)=%s and id(m)=%s " +
                         "merge (n)-[r:`%s`]->(m)",domain,domain,mainNodeUuid,uuid,alia);
-                neo4jUtil.executeCypherSql(linkCy);
+                Neo4jUtil.runCypherSql(linkCy);
             }
         }
     }
@@ -250,7 +250,7 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
             String targetDataId=node.get(sourceFieldCode).toString();
             String linkCy=String.format("match(n:`%s`),(m:`%s`) where n.sourceId=%s and n.tableId=%s and n.dataId='%s' and m.sourceId=%s and m.tableId=%s and m.dataId='%s'" +
                     "merge (n)-[r:'%s']->(m)",domain,domain,sourceDataSourceId,sourceTableId,dataId,targetDataSourceId,targetTableId,targetDataId,label);
-            neo4jUtil.executeCypherSql(linkCy);
+            Neo4jUtil.runCypherSql(linkCy);
         }
 
     }
