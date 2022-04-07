@@ -3,7 +3,7 @@
 ## 技术栈
 小工具是前台是基于vue + d3.js ,后台是springboot配合Neo4j.
 ## 演示
-demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
+demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)Cancel changes
 
 ## 实现的基本功能:
 1. 新增节点,添加连线,快速添加节点和关系
@@ -39,7 +39,8 @@ demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
   java -jar xxx.jar   //即可启动
 ```
 想部署到tomcat自行百度，springboot配置外部tomcat
-
+### 安装nodejs
+可参考[https://blog.csdn.net/qq_46351233/article/details/120314928](https://blog.csdn.net/qq_46351233/article/details/120314928)
 启动前端
 ```
 1.npm install // 安装依赖
