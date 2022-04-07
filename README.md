@@ -3,7 +3,7 @@
 ## 技术栈
 小工具是前台是基于vue + d3.js ,后台是springboot配合Neo4j.
 ## 演示
-demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)Cancel changes
+demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)
 
 ## 实现的基本功能:
 1. 新增节点,添加连线,快速添加节点和关系
@@ -51,7 +51,8 @@ demo地址：[http://kg.miaoleyan.com](http://kg.miaoleyan.com)Cancel changes
 
 ### 访问路径
 启动后访问[http://localhost](http://localhost) 
-
+### 启动视频教程
+[https://www.bilibili.com/video/BV1Ki4y1D7Nj?share_source=copy_web](https://www.bilibili.com/video/BV1Ki4y1D7Nj?share_source=copy_web)
 ### 图谱三元组导入
 支持,.xlsx,.xls,.csv，编码格式一定要是utf-8 无bom格式的，格式：节点-节点-关系，在本地测试时上传下载的文件要和neo4j在同一台电脑，当然如果能传到七牛或者hdfs上也是一样的，必须确认neo4j能访问到，否则load不成功
 ### 推荐前端组件
