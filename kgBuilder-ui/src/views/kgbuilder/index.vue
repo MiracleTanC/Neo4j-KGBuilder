@@ -453,23 +453,10 @@ export default {
       let linkEnter = this.drawLink(link);
       link = linkEnter.merge(link);
       // 更新连线文字
-      this.linkTextGroup
-        .selectAll("text")
-        .data(links, function (d) {
-          return d.uuid;
-        })
-        .exit()
-        .remove(); //移除多余的text dom
-      let linktext = this.linkTextGroup
-        .selectAll("text >textPath")
-        .data(links, function (d) {
-          return d.uuid;
-        });
+    d3.selectAll(".lineText >g").remove();
+      const linktext = this.linkTextGroup.selectAll("g").data(links);
       linktext.exit().remove();
-      let linkTextEnter = this.drawLinkText(linktext);
-      linktext = linkTextEnter.merge(linktext).text(function (d) {
-        return d.lk.name;
-      });
+      this.drawLinkText(linktext);
       // 更新节点按钮组
       d3.selectAll(".nodeButton >g").remove();
       let nodeButton = this.nodeButtonGroup
@@ -555,7 +542,8 @@ export default {
           d.target.y;
         return dd;
       }
-
+  const linkTextList = this.linkTextGroup.selectAll("g");
+      const linkText = this.linkTextGroup.selectAll("g >text");
       function ticked () {
         link.attr("d", linkArc);
         // 更新节点坐标
@@ -591,6 +579,17 @@ export default {
           return (
             "translate(" + (d.x + 8) + "," + (d.y - 30) + ") scale(0.015,0.015)"
           );
+        });
+           linkText.attr("dy", 5);
+        linkTextList.attr("transform", function(d) {
+          if (d.target.x < d.source.x) {
+            const bbox = this.getBBox();
+            const rx = bbox.x + bbox.width / 2;
+            const ry = bbox.y + bbox.height / 2;
+            return "rotate(180 " + rx + " " + ry + ")";
+          } else {
+            return "rotate(360)";
+          }
         });
       }
       // 鼠标滚轮缩放
@@ -923,7 +922,7 @@ export default {
         if (_this.isAddLink) {
           _this.selectTargetNodeId = d.uuid;
           if (
-            _this.selectSourceNodeId == this.selectTargetNodeId ||
+            _this.selectSourceNodeId == _this.selectTargetNodeId ||
             _this.selectSourceNodeId == 0 ||
             _this.selectTargetNodeId == 0
           )
@@ -1033,27 +1032,34 @@ export default {
     },
     //构建连线上的文字，并绑定事件
     drawLinkText (link) {
-      let _this = this;
-      let linkTextEnter = link
+       const _this = this;
+      const linkTextEnter = links
         .enter()
+        .append("g")
+        .attr("class", function(d) {
+          return "TextLink_" + d.lk.id;
+        });
+      linkTextEnter
         .append("text")
-        .style("fill", "#e3af85")
         .append("textPath")
+        .attr("filter", "url(#Linktext)")
         .attr("startOffset", "50%")
         .attr("text-anchor", "middle")
-        .attr("xlink:href", function (d) {
+        .attr("xlink:href", function(d) {
           return (
             "#invis_" + d.lk.sourceId + "-" + d.lk.name + "-" + d.lk.targetId
           );
         })
-        .style("font-size", 14)
-        .text(function (d) {
+        .style("font-family", "SimSun")
+        .style("fill", "#434343")
+        .style("stroke", "#434343")
+        .style("font-size", 13)
+        .text(function(d) {
           if (d.lk.name != "") {
             return d.lk.name;
           }
         });
-
-      linkTextEnter.on("mouseover", function (d) {
+      linkTextEnter.on("mouseover", function(d) {
         _this.selectNode.nodeId = d.lk.uuid;
         _this.selectlinkname = d.lk.name;
         var e = window.event;
@@ -1064,7 +1070,21 @@ export default {
         };
         _this.$refs.menu_link.init(link);
       });
-      return linkTextEnter;
+
+      const linkTextSS = linkTextEnter.insert("filter", "text");
+      const linkTextSQ = linkTextSS
+        .attr("id", "Linktext")
+        .attr("height", "110%")
+        .attr("width", "110%");
+      linkTextSQ
+        .append("feFlood")
+        .attr("flood-color", "#ffffff")
+        .attr("flood-opacity", 1);
+      linkTextSQ
+        .append("feComposite")
+        .attr("in", "SourceGraphic")
+        .attr("in2", "floodFill");
+      return linkTextSQ;
     },
     //删除节点
     deleteNode (out_buttongroup_id) {
