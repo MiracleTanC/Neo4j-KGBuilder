@@ -8,7 +8,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import { EventBus } from '@/utils/event-bus.js'
-import menuLink from './menu_link.vue'
+import menuLink from '@/components/KGBuilderMenuLink'
 export default {
   inject: ['clickNode', '_thisKey', 'Dset'],
   components: {
@@ -93,9 +93,9 @@ export default {
     newdata(newvalue, oldvalue) {
       this.fullscreenLoading = true
       const data = JSON.parse(JSON.stringify(newvalue))
-      this.scale = null
-      this.graph.nodes = data.nodes
-      this.graph.links = data.edges
+      this.scale = 1
+      this.graph.nodes = data.node
+      this.graph.links = data.relationship
       this.updateGraph()
       this.fullscreenLoading = false
     }
@@ -140,7 +140,7 @@ export default {
               // return Math.floor(Math.random() * (700 - 200)) ;
             })
             .id(function(d) {
-              return d.id
+              return d.uuid
             })
         )
         .force('charge', d3.forceManyBody().strength(-400))
@@ -174,21 +174,21 @@ export default {
       //   this.graph.links
       // ).superLevel; //按等级划分成数组
       // 由后端传过来的节点坐标，固定节点，由于是字符串，需要转换
-      nodes.forEach(function(n, i) {
-        n.fx = n.x
-        n.fy = n.y
-      })
+      // nodes.forEach(function(n, i) {
+      //   n.fx = n.x
+      //   n.fy = n.y
+      // })
       // 为link添加父子属性
       lks.forEach(function(m) {
         const sourceNode = nodes.filter(function(n) {
-          return n.id === m.source
+          return n.uuid === m.sourceId
         })[0]
         if (typeof sourceNode === 'undefined') return
         const targetNode = nodes.filter(function(n) {
-          return n.id === m.target
+          return n.uuid === m.targetId
         })[0]
         if (typeof targetNode === 'undefined') return
-        links.push({ source: sourceNode.id, target: targetNode.id, lk: m })
+        links.push({ source: sourceNode.uuid, target: targetNode.uuid, lk: m })
       })
       // 为每一个节点定制按钮组
       this.addNodeButton()
@@ -263,7 +263,7 @@ export default {
       let nodeText = this.nodeTextGroup
         .selectAll('text')
         .data(nodes, function(d) {
-          return d.id
+          return d.uuid
         })
       nodeText.exit().remove()
       const nodeTextEnter = this.drawNodeText(nodeText)
@@ -271,13 +271,13 @@ export default {
       nodeText
         .append('title') // 为每个节点设置title
         .text(function(d) {
-          return d.cname
+          return d.name
         })
       // 更新节点标识
       let nodeSymbol = this.nodeSymbolGroup
         .selectAll('path')
         .data(nodes, function(d) {
-          return d.id
+          return d.uuid
         })
       nodeSymbol.exit().remove()
       const nodeSymbolEnter = this.drawNodeSymbol(nodeSymbol)
@@ -382,7 +382,7 @@ export default {
       // 计算出最小和最大的X，Y
       // 去除拖拽跳动问题
       if (this.scale == null) {
-        this.graph.nodes.filter((res) => res.id)
+        this.graph.nodes.filter((res) => res.uuid)
         const xExtent = d3.extent(d3.values(this.graph.nodes), function(n) {
           return n.x
         })
@@ -593,20 +593,20 @@ export default {
           item.x < MaX &&
           MinY < item.y &&
           item.y < MaY &&
-          item.id !== d.id
+          item.id !== d.uuid
         ) {
           this.clone = item
-          const out_buttongroup_id = '.out_buttongroup_' + d.id
+          const out_buttongroup_id = '.out_buttongroup_' + d.uuid
           this.svg.selectAll('.buttongroup').classed('circle_none', true)
           this.svg.selectAll(out_buttongroup_id).classed('circle_none', false)
           this.ringFunction.filter((res) => {
             if (res.name == 'addNodeButtonsOld') {
               for (let i = res.label.length - 1; i >= 0; i--) {
-                d3.selectAll('.' + res.id + i).style('display', 'block')
+                d3.selectAll('.' + res.uuid + i).style('display', 'block')
               }
             } else {
               for (let i = res.label.length; i >= 0; i--) {
-                d3.selectAll('.' + res.id + i).style('display', 'none')
+                d3.selectAll('.' + res.uuid + i).style('display', 'none')
               }
             }
           })
@@ -621,7 +621,7 @@ export default {
         .append('svg:defs')
         .append('svg:linearGradient')
         .attr('id', (d) => {
-          return 'circle_A' + d.id
+          return 'circle_A' + d.uuid
         })
         .attr('x1', '0%')
         .attr('y1', '0%')
@@ -666,7 +666,7 @@ export default {
             const defs = gradient.append('defs').attr('id', 'imgdef')
             const catpattern = defs
               .append('pattern')
-              .attr('id', 'catpattern' + d.id)
+              .attr('id', 'catpattern' + d.uuid)
               .attr('height', 1)
               .attr('width', 1)
             catpattern
@@ -674,18 +674,18 @@ export default {
               .attr('width', 25 * 2)
               .attr('height', 25 * 2)
               .attr('xlink:href', d.image)
-            return 'url(#catpattern' + d.id + ')'
+            return 'url(#catpattern' + d.uuid + ')'
           } else {
             let color = '#21bb9e'
             _this.nodeColor.filter((item) => {
               if (item.name == d.nodetype) {
                 if (item.state == 'color') {
-                  color = 'url(#' + 'circle_A' + d.id + ')'
+                  color = 'url(#' + 'circle_A' + d.uuid + ')'
                 } else {
                   const defs = _this.svg.append('defs').attr('id', 'imgdefs')
                   const catpattern = defs
                     .append('pattern')
-                    .attr('id', 'catpattern' + d.id)
+                    .attr('id', 'catpattern' + d.uuid)
                     .attr('height', 1)
                     .attr('width', 1)
                   catpattern
@@ -693,7 +693,7 @@ export default {
                     .attr('width', 25 * 2)
                     .attr('height', 25 * 2)
                     .attr('xlink:href', item.color)
-                  return 'url(#catpattern' + d.id + ')'
+                  return 'url(#catpattern' + d.uuid + ')'
                 }
               }
             })
@@ -701,23 +701,23 @@ export default {
           }
         })
         .attr('class', (d) => {
-          return 'circle_' + d.id
+          return 'circle_' + d.uuid
         })
       // .attr("filter", function (d) {
-      //   return "url(#filterNode" + d.id+")";
+      //   return "url(#filterNode" + d.uuid+")";
       // })
       // nodeEnter.style("opacity", 1);
       nodeEnter.style('stroke-opacity', 0.6)
       nodeEnter
         .append('title') // 为每个节点设置title
         .text(function(d) {
-          if (d.cname !== null && d.cname !== '' && d.cname !== undefined) {
-            return d.cname
+          if (d.name !== null && d.name !== '' && d.name !== undefined) {
+            return d.name
           }
         })
       // let NodeSS = nodeEnter.insert("filter", "circle");
       // let NodeSSSQ = NodeSS.attr("id", function (d) {
-      //   return "filterNode"+d.id
+      //   return "filterNode"+d.uuid
       // })
       //   .attr("height", "100%")
       //   .attr("width", "100%");
@@ -760,12 +760,12 @@ export default {
         d3.select(this).style('stroke-width', '0')
       })
       nodeEnter.on('click', function(d, i) {
-        _this.selectNode.id = d.id
-        _this.selectNode.cname = d.cname
+        _this.selectNode.id = d.uuid
+        _this.selectNode.cname = d.name
         if (_this.clickedOnce) {
           _this.clickedOnce = false
           clearTimeout(_this.timers)
-          const out_buttongroup_id = '.out_buttongroup_' + d.id
+          const out_buttongroup_id = '.out_buttongroup_' + d.uuid
           _this.svg.selectAll('.buttongroup').classed('circle_none', true)
           _this.svg.selectAll(out_buttongroup_id).classed('circle_none', false)
           _this.methodsProperties.filter((item) => {
@@ -773,11 +773,11 @@ export default {
               _this.ringFunction.filter((res) => {
                 if (res.name == 'addNodeButtonsOne') {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.id + i).style('display', 'block')
+                    d3.selectAll('.' + res.uuid + i).style('display', 'block')
                   }
                 } else {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.id + i).style('display', 'none')
+                    d3.selectAll('.' + res.uuid + i).style('display', 'none')
                   }
                 }
               })
@@ -786,7 +786,7 @@ export default {
         } else {
           _this.timers = setTimeout(() => {
             _this.clickedOnce = false
-            const out_buttongroup_id = '.out_buttongroup_' + d.id
+            const out_buttongroup_id = '.out_buttongroup_' + d.uuid
             _this.svg.selectAll('.buttongroup').classed('circle_none', true)
             _this.svg
               .selectAll(out_buttongroup_id)
@@ -796,11 +796,11 @@ export default {
                 _this.ringFunction.filter((res) => {
                   if (res.name == 'addNodeButtonsNEW') {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.id + i).style('display', 'block')
+                      d3.selectAll('.' + res.uuid + i).style('display', 'block')
                     }
                   } else {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.id + i).style('display', 'none')
+                      d3.selectAll('.' + res.uuid + i).style('display', 'none')
                     }
                   }
                 })
@@ -840,25 +840,25 @@ export default {
           if (d.image) {
             return ''
           } else {
-            if (d.cname == null || d.cname == '' || d.cname == undefined) {
+            if (d.name == null || d.name == '' || d.name == undefined) {
               return ''
             }
-            if (typeof d.cname === 'undefined') return ''
-            if (d.cname.length > 4) {
-              const s = d.cname.slice(0, 4) + '...'
+            if (typeof d.name === 'undefined') return ''
+            if (d.name.length > 4) {
+              const s = d.name.slice(0, 4) + '...'
               return s
             }
-            return d.cname
+            return d.name
           }
         })
       nodeTextEnter.on('click', function(d, i) {
-        _this.selectNode.id = d.id
-        _this.selectNode.cname = d.cname
-        _this.selectNode.id = d.id
+        _this.selectNode.id = d.uuid
+        _this.selectNode.cname = d.name
+        _this.selectNode.id = d.uuid
         if (_this.clickedOnce) {
           _this.clickedOnce = false
           clearTimeout(_this.timers)
-          const out_buttongroup_id = '.out_buttongroup_' + d.id
+          const out_buttongroup_id = '.out_buttongroup_' + d.uuid
           _this.svg.selectAll('.buttongroup').classed('circle_none', true)
           _this.svg.selectAll(out_buttongroup_id).classed('circle_none', false)
           _this.methodsProperties.filter((item) => {
@@ -866,11 +866,11 @@ export default {
               _this.ringFunction.filter((res) => {
                 if (res.name == 'addNodeButtonsOne') {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.id + i).style('display', 'block')
+                    d3.selectAll('.' + res.uuid + i).style('display', 'block')
                   }
                 } else {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.id + i).style('display', 'none')
+                    d3.selectAll('.' + res.uuid + i).style('display', 'none')
                   }
                 }
               })
@@ -879,7 +879,7 @@ export default {
         } else {
           _this.timers = setTimeout(() => {
             _this.clickedOnce = false
-            const out_buttongroup_id = '.out_buttongroup_' + d.id
+            const out_buttongroup_id = '.out_buttongroup_' + d.uuid
             _this.svg.selectAll('.buttongroup').classed('circle_none', true)
             _this.svg
               .selectAll(out_buttongroup_id)
@@ -889,11 +889,11 @@ export default {
                 _this.ringFunction.filter((res) => {
                   if (res.name == 'addNodeButtonsNEW') {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.id + i).style('display', 'block')
+                      d3.selectAll('.' + res.uuid + i).style('display', 'block')
                     }
                   } else {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.id + i).style('display', 'none')
+                      d3.selectAll('.' + res.uuid + i).style('display', 'none')
                     }
                   }
                 })
@@ -940,10 +940,10 @@ export default {
           return d.r
         })
         .attr('xlink:href', function(d) {
-          return '#out_circle' + d.id
+          return '#out_circle' + d.uuid
         }) //  指定 use 引用的内容
         .attr('class', function(d, i) {
-          return 'buttongroup out_buttongroup_' + d.id
+          return 'buttongroup out_buttongroup_' + d.uuid
         })
         .classed('circle_none', true)
 
@@ -1238,7 +1238,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import url(./D3.scss);
+@import url('../assets/css/kgbuilder2.scss');
 .knowledge-BOX {
   width: 100%;
   height: 100%;

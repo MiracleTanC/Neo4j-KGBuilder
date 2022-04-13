@@ -1,6 +1,6 @@
 <template>
   <div class="BOX">
-    <D3
+    <kgbuilder2
       :styles="style"
       :newdata="NEWdata"
       :methods-properties="MethodsProperties"
@@ -11,11 +11,13 @@
   </div>
 </template>
 <script>
-import D3 from '../index'
+import axios from 'axios'
+import kgbuilder2 from '@/components/KGBuilder2'
 import { EventBus } from '@/utils/event-bus.js'
 export default {
+  name: "kgBuilderca",
   components: {
-    D3
+    kgbuilder2
   },
   provide() {
     return {
@@ -36,11 +38,11 @@ export default {
       NEWdata: null,
       // 启用D3画图配置方法
       MethodsProperties: [
-        { name: 'SingleClick', state: false }, // 单击
-        { name: 'DoubleClick', state: false }, // 双击
-        { name: 'NodeDrag', state: false }, // 节点拖动
-        { name: 'LineDrag', state: false }, // 连线拖动
-        { name: 'FollowDrag', state: false } // 节点子随父拖动而动
+        { name: 'SingleClick', state: true }, // 单击
+        { name: 'DoubleClick', state: true }, // 双击
+        { name: 'NodeDrag', state: true }, // 节点拖动
+        { name: 'LineDrag', state: true }, // 连线拖动
+        { name: 'FollowDrag', state: true } // 节点子随父拖动而动
       ],
       // 连线颜色
       LinkColor: [
@@ -90,7 +92,7 @@ export default {
             {
               name: 'add',
               default: (d, _this, d3) => {
-                const out_buttongroup_id = '.out_buttongroup_' + d.id
+                const out_buttongroup_id = '.out_buttongroup_' + d.uuid
                 _this.svg
                   .selectAll('.buttongroup')
                   .classed('circle_none', true)
@@ -100,7 +102,7 @@ export default {
                 _this.ringFunction.filter((res) => {
                   if (res.name == 'addNodeButtonsTWO') {
                     for (let i = res.label.length - 1; i >= 0; i--) {
-                      d3.selectAll('.' + res.id + i).style('display', 'block')
+                      d3.selectAll('.' + res.uuid + i).style('display', 'block')
                     }
                   }
                 })
@@ -113,10 +115,10 @@ export default {
                 if (d.label === 'NodeRoot') {
                   this.$message.warning('创世节点无法删除')
                 } else {
-                  delNode({ Neo4jNodeId: d.id }).then((res) => {
+                  delNode({ Neo4jNodeId: d.uuid }).then((res) => {
                     if (res.result === 'ok') {
                       _this.graph.nodes.filter((item, i) => {
-                        if (item.id === d.id) {
+                        if (item.uuid === d.uuid) {
                           _this.graph.nodes.splice(i, 1)
                           _this.updateGraph()
                         }
@@ -134,7 +136,7 @@ export default {
               // 克隆
               name: 'MORE',
               default: (d, _this, d3) => {
-                cloneNewNode({ startNeo4jNodeId: d.id }).then((item) => {
+                cloneNewNode({ startNeo4jNodeId: d.uuid }).then((item) => {
                   if (item.result === 'ok') {
                     // eslint-disable-next-line no-eval
                     item.data = eval('(' + item.data + ')')
@@ -158,7 +160,7 @@ export default {
               default: (d, _this, d3) => {
                 this.Visible = true
                 this.$nextTick(() => {
-                  this.$refs.advanRetrieval.editInit(d.id)
+                  this.$refs.advanRetrieval.editInit(d.uuid)
                 })
               }
             }
@@ -180,7 +182,7 @@ export default {
             {
               name: 'spot',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '知识点', startNeo4jNodeId: d.id }).then(
+                newNode({ nodeType: '知识点', startNeo4jNodeId: d.uuid }).then(
                   (res) => {
                     // eslint-disable-next-line no-eval
                     res = eval('(' + res.data + ')')
@@ -197,7 +199,7 @@ export default {
             {
               name: 'block',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '知识块', startNeo4jNodeId: d.id }).then(
+                newNode({ nodeType: '知识块', startNeo4jNodeId: d.uuid }).then(
                   (res) => {
                     // eslint-disable-next-line no-eval
                     res = eval('(' + res.data + ')')
@@ -214,7 +216,7 @@ export default {
             {
               name: 'collection',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '知识集', startNeo4jNodeId: d.id }).then(
+                newNode({ nodeType: '知识集', startNeo4jNodeId: d.uuid }).then(
                   (res) => {
                     // eslint-disable-next-line no-eval
                     res = eval('(' + res.data + ')')
@@ -231,7 +233,7 @@ export default {
             {
               name: 'genus',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '属性节点', startNeo4jNodeId: d.id }).then(
+                newNode({ nodeType: '属性节点', startNeo4jNodeId: d.uuid }).then(
                   (res) => {
                     // eslint-disable-next-line no-eval
                     res = eval('(' + res.data + ')')
@@ -266,7 +268,7 @@ export default {
                 const arr = []
                 let name = ''
                 _this.graph.links.filter((lin) => {
-                  if (lin.source == d.id || lin.target == d.id) {
+                  if (lin.source == d.uuid || lin.target == d.uuid) {
                     if (
                       lin.source == _this.clone.id ||
                       lin.target == _this.clone.id
@@ -291,7 +293,7 @@ export default {
                   .then(({ value }) => {
                     newNodeRalte({
                       relateLabel: name,
-                      startNeo4jNodeId: d.id,
+                      startNeo4jNodeId: d.uuid,
                       endNeo4jNodeId: _this.clone.id
                     }).then((res) => {
                       if (res.result == 'ok') {
@@ -314,10 +316,10 @@ export default {
                     })
                   })
                 // _this.graph.nodes.filter((item) => {
-                //   if (item.id == d.id) {
+                //   if (item.uuid == d.uuid) {
                 //     console.log(item, _this.clone);
                 //     newNodeRalte({
-                //       startNeo4jNodeId: item.id,
+                //       startNeo4jNodeId: item.uuid,
                 //       endNeo4jNodeId: _this.clone.id,
                 //     }).then((res) => {
                 //       if (res.result == "ok") {
@@ -335,10 +337,10 @@ export default {
               name: 'clone',
               default: (d, _this, d3) => {
                 _this.graph.nodes.filter((item) => {
-                  if (item.id == d.id) {
+                  if (item.uuid == d.uuid) {
                     cloneNodePropertys({
                       startNeo4jNodeId: _this.clone.id,
-                      endNeo4jNodeId: item.id
+                      endNeo4jNodeId: item.uuid
                     }).then((res) => {
                       if (res.result == 'ok') {
                         item.nodetype = _this.clone.nodetype
@@ -379,12 +381,12 @@ export default {
                   const a = []
                   let id = ''
                   const ArrY = link.filter((item) => {
-                    if (item.source === d.id || item.target === d.id) {
-                      d3.selectAll('.Links_' + item.id).style(
+                    if (item.source === d.uuid || item.target === d.uuid) {
+                      d3.selectAll('.Links_' + item.uuid).style(
                         'display',
                         'block'
                       )
-                      d3.selectAll('.TextLink_' + item.id).style(
+                      d3.selectAll('.TextLink_' + item.uuid).style(
                         'display',
                         'block'
                       )
@@ -393,14 +395,14 @@ export default {
                   })
                   ArrY.filter((item) => {
                     arr.filter((res) => {
-                      if (item.source === res.id || item.target === res.id) {
+                      if (item.source === res.uuid || item.target === res.uuid) {
                         const name = d3
-                          .selectAll('.circle_' + res.id)
+                          .selectAll('.circle_' + res.uuid)
                           .style('display')
                         if (name === 'inline' || name === 'block') {
                           a.push(true)
                         } else {
-                          d3.selectAll('.circle_' + res.id).style(
+                          d3.selectAll('.circle_' + res.uuid).style(
                             'display',
                             'block'
                           )
@@ -433,17 +435,17 @@ export default {
               name: 'SeeName',
               default: (d, _this, d3) => {
                 _this.graph.links.filter((item, i) => {
-                  if (item.source === d.id || item.target === d.id) {
-                    d3.selectAll('.Links_' + item.id).style('display', 'none')
-                    d3.selectAll('.TextLink_' + item.id).style(
+                  if (item.source === d.uuid || item.target === d.uuid) {
+                    d3.selectAll('.Links_' + item.uuid).style('display', 'none')
+                    d3.selectAll('.TextLink_' + item.uuid).style(
                       'display',
                       'none'
                     )
                   }
                 })
                 _this.graph.nodes.filter((res, i) => {
-                  if (res.id === d.id) {
-                    d3.selectAll('.circle_' + res.id).style('display', 'none')
+                  if (res.uuid === d.uuid) {
+                    d3.selectAll('.circle_' + res.uuid).style('display', 'none')
                   }
                 })
               }
@@ -451,7 +453,7 @@ export default {
           ],
           label: [
             {
-              name: 'http://192.168.3.9:8080/file/front/knowledgeServer/imgs/socode.png',
+              name: '',
               state: 'url'
             },
             {
@@ -461,7 +463,7 @@ export default {
               state: 'Dtext'
             },
             {
-              name: 'http://192.168.3.9:8080/file/front/knowledgeServer/imgs/pordvr.png',
+              name: '',
               state: 'url'
             }
           ],
@@ -476,35 +478,46 @@ export default {
     }
   },
   watch: {
-    '$store.getters.reviewList': {
-      handler(d, v) {
-        if (d.list) {
-            //这是我写的布局算法，~你这里就换成默认的。
-          const data = clone(d.list)
-          data.edges = deWeightThree(data.edges)
-          data.nodelist = deWeightThree(data.nodelist)
-          data.nodelist = NienodeRealition(data.nodelist, data.edges).Nodes
-          data.nodelist = orderSort(data.nodelist)
-          data.nodelist = levelSort(data.nodelist)
-          this.NEWdata = deMandLayout(data.nodelist, data.edges, [this.width, this.height])
-        }
-      }, deep: true
-    }
+    // '$store.getters.reviewList': {
+    //   handler(d, v) {
+    //     if (d.list) {
+    //         //这是我写的布局算法，~你这里就换成默认的。
+    //       const data = clone(d.list)
+    //       data.edges = deWeightThree(data.edges)
+    //       data.nodelist = deWeightThree(data.nodelist)
+    //       data.nodelist = NienodeRealition(data.nodelist, data.edges).Nodes
+    //       data.nodelist = orderSort(data.nodelist)
+    //       data.nodelist = levelSort(data.nodelist)
+    //       this.NEWdata = deMandLayout(data.nodelist, data.edges, [this.width, this.height])
+    //     }
+    //   }, deep: true
+    // }
   },
   created() {
     this.$nextTick(() => {
-      this.width = document.getElementsByClassName('D3')[0].offsetWidth
-      this.height = document.getElementsByClassName('D3')[0].offsetHeight
+      this.initGraphData();
+      this.width = document.getElementsByClassName('BOX')[0].offsetWidth
+      this.height = document.getElementsByClassName('BOX')[0].offsetHeight
       this.style = {
         width: this.width + 'px',
         height: this.height + 'px'
       }
-      console.log(this.width, this.height)
+      //console.log(this.width, this.height)
       EventBus.$emit('DIV', this.width, this.height)
     })
   },
-  mounted() {},
+  mounted() {
+
+  },
   methods: {
+    initGraphData() {
+      var _this = this
+      axios.get('/static/kgData.json', {}).then(function (response) {
+        var data = response.data
+        //console.log(data)
+        _this.NEWdata=data;
+      })
+    },
     _thisKey(item) {
       this._thisView = item
     },
@@ -519,6 +532,6 @@ export default {
 <style scoped lang="scss">
 .BOX {
   width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 </style>
