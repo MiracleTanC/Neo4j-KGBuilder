@@ -102,7 +102,7 @@ export default {
                 _this.ringFunction.filter((res) => {
                   if (res.name == 'addNodeButtonsTWO') {
                     for (let i = res.label.length - 1; i >= 0; i--) {
-                      d3.selectAll('.' + res.uuid + i).style('display', 'block')
+                      d3.selectAll('.' + res.id + i).style('display', 'block')
                     }
                   }
                 })
@@ -453,17 +453,17 @@ export default {
           ],
           label: [
             {
-              name: '',
+              name: 'https://bkimg.cdn.bcebos.com/pic/f31fbe096b63f624da9384678944ebf81b4ca38c?x-bce-process=image/resize,m_lfit,w_268,limit_1/format,f_jpg',
               state: 'url'
             },
             {
               name: (d) => {
-                return d.label
+                return d.name
               },
               state: 'Dtext'
             },
             {
-              name: '',
+              name: 'https://bkimg.cdn.bcebos.com/pic/f31fbe096b63f624da9384678944ebf81b4ca38c?x-bce-process=image/resize,m_lfit,w_268,limit_1/format,f_jpg',
               state: 'url'
             }
           ],
@@ -478,20 +478,6 @@ export default {
     }
   },
   watch: {
-    // '$store.getters.reviewList': {
-    //   handler(d, v) {
-    //     if (d.list) {
-    //         //这是我写的布局算法，~你这里就换成默认的。
-    //       const data = clone(d.list)
-    //       data.edges = deWeightThree(data.edges)
-    //       data.nodelist = deWeightThree(data.nodelist)
-    //       data.nodelist = NienodeRealition(data.nodelist, data.edges).Nodes
-    //       data.nodelist = orderSort(data.nodelist)
-    //       data.nodelist = levelSort(data.nodelist)
-    //       this.NEWdata = deMandLayout(data.nodelist, data.edges, [this.width, this.height])
-    //     }
-    //   }, deep: true
-    // }
   },
   created() {
     this.$nextTick(() => {
@@ -514,7 +500,7 @@ export default {
       var _this = this
       axios.get('/static/kgData.json', {}).then(function (response) {
         var data = response.data
-        //console.log(data)
+        console.log(data)
         _this.NEWdata=data;
       })
     },
@@ -523,7 +509,9 @@ export default {
     },
     Dset(item) {
       this.d3 = item
-      this.d3.selectAll('.lineText').style('display', 'none')
+    },
+    clickNode(d){
+      console.log(d);
     }
   }
 }

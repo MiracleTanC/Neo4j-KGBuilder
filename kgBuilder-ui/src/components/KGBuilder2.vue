@@ -64,7 +64,7 @@ export default {
       clone: null,
       scale: null,
       selectNode: {
-        id: '',
+        uuid: '',
         cname: '',
         fx: '',
         fy: ''
@@ -169,16 +169,6 @@ export default {
       const lks = this.graph.links
       const nodes = this.graph.nodes
       const links = []
-      // let newset = NienodeRealition(
-      //   this.graph.nodes,
-      //   this.graph.links
-      // ).superLevel; //按等级划分成数组
-      // 由后端传过来的节点坐标，固定节点，由于是字符串，需要转换
-      // nodes.forEach(function(n, i) {
-      //   n.fx = n.x
-      //   n.fy = n.y
-      // })
-      // 为link添加父子属性
       lks.forEach(function(m) {
         const sourceNode = nodes.filter(function(n) {
           return n.uuid === m.sourceId
@@ -238,7 +228,6 @@ export default {
       link = linkEnter.merge(link)
       // // 更新连线文字
       d3.selectAll('.lineText >g').remove()
-      // let linkTextEnter = this.drawLinkText(links);
       // 更新连线文字
       const linktext = this.linkTextGroup.selectAll('g').data(links)
       linktext.exit().remove()
@@ -457,7 +446,7 @@ export default {
       const nodes = this.graph.nodes
       const nodeButton = this.svg.append('defs')
       nodes.forEach(function(m) {
-        const nBtng = nodeButton.append('g').attr('id', 'out_circle' + m.id)
+        const nBtng = nodeButton.append('g').attr('id', 'out_circle' + m.uuid)
         _this.ringFunction.forEach((item) => {
           const a = []
           for (let index = 0; index < item.data; index++) {
@@ -516,6 +505,7 @@ export default {
                 if (d.circle.label[i].state == 'url') {
                   d3.select(this).remove()
                 } else if (d.circle.label[i].state == 'Dtext') {
+                  console.log(d.circle.label[i].name(m));
                   let name = d.circle.label[i].name(m)
                   if (name != undefined) {
                     name = name.split(',')
@@ -539,6 +529,7 @@ export default {
               d3.selectAll('.' + item.id + i).style('display', 'none')
               if (d.circle.label[i]) {
                 if (d.circle.label[i].state == 'url') {
+                  console.log(d);
                   const defs = _this.svg.append('defs').attr('id', 'imgdefsq')
                   const catpattern = defs
                     .append('pattern')
@@ -715,37 +706,6 @@ export default {
             return d.name
           }
         })
-      // let NodeSS = nodeEnter.insert("filter", "circle");
-      // let NodeSSSQ = NodeSS.attr("id", function (d) {
-      //   return "filterNode"+d.uuid
-      // })
-      //   .attr("height", "100%")
-      //   .attr("width", "100%");
-      // NodeSSSQ.append("feFlood")
-      //   .attr("flood-color", function (d) {
-      //     let color = "#21bb9e";
-      //     _this.nodeColor.filter((item) => {
-      //       if (item.name == d.nodetype) {
-      //         if (item.state == "color") {
-      //           color = item.color1;
-      //         }
-      //       }
-      //     });
-      //     return color;
-      //   })
-      // .attr("flood-opacity", 1);
-      // NodeSSSQ.append("feGaussianBlur")
-      //   .attr("in", "SourceAlpha")
-      //   .attr("stdDeviation", 5)
-      //   .attr("result", "blur");
-      //   NodeSSSQ.append("feOffset")
-      //    .attr("in", "blur")
-      //   .attr("result", "offsetBlur");
-      // NodeSSSQ.append("feMerge")
-      // .append("feMergeNode")
-      // .attr("in","offsetBlur")
-      //  .append("feMergeNode")
-      //  .attr("in","SourceGraphic")
       nodeEnter.on('mouseenter', function(d) {
         const aa = d3.select(this)._groups[0][0]
         if (aa.classList.contains('selected')) return
@@ -773,11 +733,11 @@ export default {
               _this.ringFunction.filter((res) => {
                 if (res.name == 'addNodeButtonsOne') {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.uuid + i).style('display', 'block')
+                    d3.selectAll('.' + res.id + i).style('display', 'block')
                   }
                 } else {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.uuid + i).style('display', 'none')
+                    d3.selectAll('.' + res.id + i).style('display', 'none')
                   }
                 }
               })
@@ -796,11 +756,11 @@ export default {
                 _this.ringFunction.filter((res) => {
                   if (res.name == 'addNodeButtonsNEW') {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.uuid + i).style('display', 'block')
+                      d3.selectAll('.' + res.id + i).style('display', 'block')
                     }
                   } else {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.uuid + i).style('display', 'none')
+                      d3.selectAll('.' + res.id + i).style('display', 'none')
                     }
                   }
                 })
@@ -866,11 +826,11 @@ export default {
               _this.ringFunction.filter((res) => {
                 if (res.name == 'addNodeButtonsOne') {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.uuid + i).style('display', 'block')
+                    d3.selectAll('.' + res.id + i).style('display', 'block')
                   }
                 } else {
                   for (let i = res.label.length; i >= 0; i--) {
-                    d3.selectAll('.' + res.uuid + i).style('display', 'none')
+                    d3.selectAll('.' + res.id + i).style('display', 'none')
                   }
                 }
               })
@@ -889,11 +849,11 @@ export default {
                 _this.ringFunction.filter((res) => {
                   if (res.name == 'addNodeButtonsNEW') {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.uuid + i).style('display', 'block')
+                      d3.selectAll('.' + res.id + i).style('display', 'block')
                     }
                   } else {
                     for (let i = res.label.length; i >= 0; i--) {
-                      d3.selectAll('.' + res.uuid + i).style('display', 'none')
+                      d3.selectAll('.' + res.id + i).style('display', 'none')
                     }
                   }
                 })
@@ -986,10 +946,10 @@ export default {
           return color
         })
         .attr('id', function(d) {
-          return 'invis_' + d.lk.id
+          return 'invis_' + d.lk.uuid
         })
         .attr('class', (d) => {
-          return 'Links_' + d.lk.id
+          return 'Links_' + d.lk.uuid
         })
         .attr('fill', 'none')
         // 箭头
@@ -1013,7 +973,7 @@ export default {
       })
       // 连线双击
       // linkEnter.on("dblclick", function (d) {
-      //   _this.selectNode.id = d.lk.id;
+      //   _this.selectNode.id = d.lk.uuid;
       //   // _this.deleteLink();
       // });
       // 连线右键菜单
@@ -1022,7 +982,7 @@ export default {
       linkEnter.on('mouseenter', function(d) {
         _this.editLinkState = true
         _this.editLink = d
-        d3.select('.Links_' + d.lk.id)
+        d3.select('.Links_' + d.lk.uuid)
           .style('stroke-width', '10')
           .attr('stroke', '#e4e2e2')
           .attr('marker-end', '')
@@ -1030,7 +990,7 @@ export default {
       // 连线鼠标离开
       linkEnter.on('mouseleave', function(d) {
         _this.editLinkState = false
-        d3.select('.Links_' + d.lk.id)
+        d3.select('.Links_' + d.lk.uuid)
           .style('stroke-width', 1.5)
           .attr('stroke', (d) => {
             let color = '#FBB613'
@@ -1062,7 +1022,7 @@ export default {
     LinkDragStarted(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3).restart()
       const newNode = {
-        id: d.lk.target + 100000,
+        id: d.lk.targetId + 100000,
         nodetype: '知识点',
         x: d3.event.x + 8,
         y: d3.event.y + 8,
@@ -1071,12 +1031,12 @@ export default {
       }
       this.graph.nodes.splice(0, 0, newNode)
       this.updateGraph()
-      d3.select('.circle_' + d.lk.target + 100000).attr('r', 5)
+      d3.select('.circle_' + d.lk.targetId + 100000).attr('r', 5)
     },
     LinkDragged(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3)
       this.graph.nodes.filter((n) => {
-        if (n.id == d.lk.target + 100000) {
+        if (n.id == d.lk.targetId + 100000) {
           n.x = d3.event.x + 8
           n.y = d3.event.y + 8
           n.fx = d3.event.x + 8
@@ -1089,7 +1049,7 @@ export default {
       this.methodsProperties.filter((n) => {
         if (n.name == 'LineDrag' && n.state) {
           if (this.editLinkState) {
-            if (this.editLink.lk.id !== d.lk.id) {
+            if (this.editLink.lk.uuid !== d.lk.uuid) {
               this.updateLink = d
               this.$emit('LinkDrag', this)
             }
@@ -1106,7 +1066,7 @@ export default {
         .enter()
         .append('g')
         .attr('class', function(d) {
-          return 'TextLink_' + d.lk.id
+          return 'TextLink_' + d.lk.uuid
         })
       linkTextEnter
         .append('text')
@@ -1115,16 +1075,14 @@ export default {
         .attr('startOffset', '50%')
         .attr('text-anchor', 'middle')
         .attr('xlink:href', function(d) {
-          return '#invis_' + d.lk.id
+          return '#invis_' + d.lk.uuid
         })
         .style('font-family', 'SimSun')
         .style('fill', '#434343')
         .style('stroke', '#434343')
         .style('font-size', 13)
         .text(function(d) {
-          if (d.lk.label != '') {
-            return d.lk.label
-          }
+            return d.lk.name
         })
       linkTextEnter.on('click', function(d) {
         _this.$emit('ClickLink', d, _this)
@@ -1146,7 +1104,7 @@ export default {
     },
     LinkTextDragStarted(d) {
       const newNode = {
-        id: d.lk.target + 100000,
+        id: d.lk.targetId + 100000,
         name: '',
         cname: '',
         describe: '',
@@ -1158,14 +1116,14 @@ export default {
       }
       this.graph.nodes.splice(0, 0, newNode)
       this.updateGraph()
-      d3.select('.circle_' + d.lk.target + 100000)
+      d3.select('.circle_' + d.lk.targetId + 100000)
         .style('stroke-width', '10')
         .attr('r', 8)
         .attr('fill', '#3b80a1')
     },
     LinkTextDragged(d) {
       this.graph.nodes.filter((n) => {
-        if (n.id == d.lk.target + 100000) {
+        if (n.uuid == d.lk.targetId + 100000) {
           n.x = d3.event.x + 8
           n.y = d3.event.y + 8
           n.fx = d3.event.x + 8
@@ -1175,7 +1133,7 @@ export default {
     },
     LinkTextDragEnded(d) {
       this.graph.nodes.filter((n) => {
-        if (n.id == d.lk.target + 100000) {
+        if (n.uuid == d.lk.targetId + 100000) {
           n.x = d3.event.x + 8
           n.y = d3.event.y + 8
           n.fx = d3.event.x + 8
@@ -1207,13 +1165,13 @@ export default {
         // 找到对应的节点索引
         let j = -1
         for (let i = 0; i < _this.graph.nodes.length; i++) {
-          if (_this.graph.nodes[i].id == _this.selectNode.id) {
+          if (_this.graph.nodes[i].uuid == _this.selectNode.uuid) {
             j = i
             break
           }
         }
         if (j >= 0) {
-          _this.selectNode.id = 0
+          _this.selectNode.uuid = 0
           _this.graph.nodes.splice(j, 1) // 根据索引删除该节点
           console.log(11111, _this.graph.nodes)
           _this.updateGraph()
