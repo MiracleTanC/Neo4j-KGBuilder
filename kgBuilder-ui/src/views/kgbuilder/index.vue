@@ -1033,7 +1033,7 @@ export default {
     //构建连线上的文字，并绑定事件
     drawLinkText (link) {
        const _this = this;
-      const linkTextEnter = links
+      const linkTextEnter = link
         .enter()
         .append("g")
         .attr("class", function(d) {
