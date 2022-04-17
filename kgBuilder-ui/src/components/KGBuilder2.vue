@@ -19,7 +19,7 @@ export default {
       type: Object,
       default: () => {}
     },
-    newdata: {
+    initData: {
       type: Object,
       default: {}
     },
@@ -38,11 +38,19 @@ export default {
     ringFunction: {
       type: Array,
       default: []
+    },
+    domainId:{
+      type: Object,
+      default: 0
+    },
+    domainId:{
+      type: Number ,
+      default: ""
     }
   },
   data() {
     return {
-      fullscreenLoading: true,
+      fullscreenLoading: false,
       style: {},
       // 缩放配置
       zoom: d3
@@ -90,12 +98,13 @@ export default {
     }
   },
   watch: {
-    newdata(newvalue, oldvalue) {
+    initData(newvalue, oldvalue) {
       this.fullscreenLoading = true
+      //console.log(newvalue)
       const data = JSON.parse(JSON.stringify(newvalue))
       this.scale = 1
-      this.graph.nodes = data.node
-      this.graph.links = data.relationship
+      this.graph.nodes = data.nodes
+      this.graph.links = data.links
       this.updateGraph()
       this.fullscreenLoading = false
     }
@@ -505,7 +514,7 @@ export default {
                 if (d.circle.label[i].state == 'url') {
                   d3.select(this).remove()
                 } else if (d.circle.label[i].state == 'Dtext') {
-                  console.log(d.circle.label[i].name(m));
+                  //console.log(d.circle.label[i].name(m));
                   let name = d.circle.label[i].name(m)
                   if (name != undefined) {
                     name = name.split(',')
@@ -529,7 +538,7 @@ export default {
               d3.selectAll('.' + item.id + i).style('display', 'none')
               if (d.circle.label[i]) {
                 if (d.circle.label[i].state == 'url') {
-                  console.log(d);
+                  //console.log(d);
                   const defs = _this.svg.append('defs').attr('id', 'imgdefsq')
                   const catpattern = defs
                     .append('pattern')
@@ -913,7 +922,7 @@ export default {
     addMaker() {
       const arrow_path = 'M0,-5L10,0L0,5' // 定义箭头形状
       const _this = this
-      console.log(this.linkColor)
+      //console.log(this.linkColor)
       this.linkColor.forEach((item, i) => {
         _this.svg
           .append('marker')
@@ -1173,7 +1182,7 @@ export default {
         if (j >= 0) {
           _this.selectNode.uuid = 0
           _this.graph.nodes.splice(j, 1) // 根据索引删除该节点
-          console.log(11111, _this.graph.nodes)
+          //console.log(11111, _this.graph.nodes)
           _this.updateGraph()
           message.success('操作成功')
         }
