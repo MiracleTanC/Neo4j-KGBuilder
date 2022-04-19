@@ -173,7 +173,7 @@
           @click="initContainerLeftClick"
           @contextmenu.prevent="initContainerRightClick"
         >
-          <kgbuilder2
+          <kgbuilder2 ref="kg_builder"
             :styles="style"
             :initData="graphData"
             :domain="domain"
@@ -335,7 +335,8 @@ export default {
           state: 'color'
         }
       ],
-      RingFunction: [  {
+      RingFunction: [
+        {
           name: 'addNodeButtonsOne',
           data: 5, // 渲染4个
           datadefo: [
@@ -440,74 +441,34 @@ export default {
         },
         {
           name: 'addNodeButtonsTWO',
-          data: 16, // 此处需要优化，时间暂短，暂时这样处理
+          data: 20, // 4*5 一层菜单是5个，2层菜单每个4个
           datadefo: [
             {
               name: 'spot',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '知识点', startNeo4jNodeId: d.uuid }).then(
-                  (res) => {
-                    // eslint-disable-next-line no-eval
-                    res = eval('(' + res.data + ')')
-                    res.newNode[0].x = d.x + 50
-                    res.newNode[0].y = d.y + 50
-                    res.newNode[0].nodetype = '知识点'
-                    _this.graphData.nodes.push(res.newNode[0])
-                    _this.graphData.links.push(res.edges[0])
-                    _this.updateGraph()
-                  }
-                )
+                  console.log("点击了点")
+                  //_this.updateGraph() //刷新图谱
               }
             },
             {
               name: 'block',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '知识块', startNeo4jNodeId: d.uuid }).then(
-                  (res) => {
-                    // eslint-disable-next-line no-eval
-                    res = eval('(' + res.data + ')')
-                    res.newNode[0].x = d.x + 50
-                    res.newNode[0].y = d.y + 50
-                    res.newNode[0].nodetype = '知识块'
-                    _this.graphData.nodes.push(res.newNode[0])
-                    _this.graphData.links.push(res.edges[0])
-                    _this.updateGraph()
-                  }
-                )
+                 console.log("点击了块")
+                  //_this.updateGraph() //刷新图谱
               }
             },
             {
               name: 'collection',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '知识集', startNeo4jNodeId: d.uuid }).then(
-                  (res) => {
-                    // eslint-disable-next-line no-eval
-                    res = eval('(' + res.data + ')')
-                    res.newNode[0].x = d.x + 50
-                    res.newNode[0].y = d.y + 50
-                    res.newNode[0].nodetype = '知识集'
-                    _this.graphData.nodes.push(res.newNode[0])
-                    _this.graphData.links.push(res.edges[0])
-                    _this.updateGraph()
-                  }
-                )
+                console.log("点击了集")
+                  //_this.updateGraph() //刷新图谱
               }
             },
             {
               name: 'genus',
               default: (d, _this, d3) => {
-                newNode({ nodeType: '属性节点', startNeo4jNodeId: d.uuid }).then(
-                  (res) => {
-                    // eslint-disable-next-line no-eval
-                    res = eval('(' + res.data + ')')
-                    res.newNode[0].x = d.x + 50
-                    res.newNode[0].y = d.y + 50
-                    res.newNode[0].nodetype = '属性节点'
-                    _this.graphData.nodes.push(res.newNode[0])
-                    _this.graphData.links.push(res.edges[0])
-                    _this.updateGraph()
-                  }
-                )
+                 console.log("点击了属")
+                  //_this.updateGraph() //刷新图谱
               }
             }
           ],
@@ -518,7 +479,7 @@ export default {
             { name: '属', state: 'text' }
           ],
           id: 'actionA_',
-          r: 55,
+          r: 75,
           default: function() {}
         },
         {
@@ -832,6 +793,8 @@ export default {
             }
           }
           _this.graphData.nodes.push(newNode);
+
+          //_this.$refs.kg_builder.updateGraph();
         }
       });
     },

@@ -10,6 +10,7 @@ import _ from 'lodash'
 import { EventBus } from '@/utils/event-bus.js'
 import menuLink from '@/components/KGBuilderMenuLink'
 export default {
+  name:'KGBuilder2',
   inject: ['clickNode', '_thisKey', 'Dset'],
   components: {
     menuLink
@@ -98,16 +99,33 @@ export default {
     }
   },
   watch: {
-    initData(newvalue, oldvalue) {
-      this.fullscreenLoading = true
-      //console.log(newvalue)
-      const data = JSON.parse(JSON.stringify(newvalue))
-      this.scale = 1
-      this.graph.nodes = data.nodes
-      this.graph.links = data.links
-      this.updateGraph()
-      this.fullscreenLoading = false
+    'initData':{
+      handler(newvalue){
+        this.fullscreenLoading = true
+        //console.log(newvalue)
+        const data = JSON.parse(JSON.stringify(newvalue))
+        this.scale = 1
+        this.graph.nodes = data.nodes
+        this.graph.links = data.links
+        if(this.svg){
+          this.updateGraph()
+        }
+        this.fullscreenLoading = false
+      },
+      deep: true,
+      immediate:true
     }
+    // initData(newvalue, oldvalue) {
+    //   debugger
+    //   this.fullscreenLoading = true
+    //   //console.log(newvalue)
+    //   const data = JSON.parse(JSON.stringify(newvalue))
+    //   this.scale = 1
+    //   this.graph.nodes = data.nodes
+    //   this.graph.links = data.links
+    //   this.updateGraph()
+    //   this.fullscreenLoading = false
+    // }
   },
   mounted() {
     const _this = this
@@ -169,7 +187,6 @@ export default {
         },
         'false'
       )
-      // this.updateGraph();
       this.simulation.alphaTarget(0.1).restart()
     },
     // 跟新画布数据
@@ -448,15 +465,17 @@ export default {
       })
     },
     // 绘制节点按钮
-    addNodeButton(r) {
+    addNodeButton() {
       // 先删除所有为节点自定义的按钮组
       const _this = this
       d3.selectAll('svg >defs').remove()
       const nodes = this.graph.nodes
+      if(!this.svg) return
       const nodeButton = this.svg.append('defs')
       nodes.forEach(function(m) {
         const nBtng = nodeButton.append('g').attr('id', 'out_circle' + m.uuid)
         _this.ringFunction.forEach((item) => {
+          //debugger
           const a = []
           for (let index = 0; index < item.data; index++) {
             a.push(1)
@@ -474,10 +493,19 @@ export default {
               const id = item.id + i
               return id
             })
+            let innerR=0
+            let ountR=0
+            if(item.name=='addNodeButtonsTWO'){
+              innerR=parseInt(m.r)+30
+              ountR=parseInt(m.r)+60
+            }else{
+              innerR=parseInt(m.r)
+              ountR=parseInt(m.r)+30
+            }
           const arc = d3
             .arc()
-            .innerRadius(item.r)
-            .outerRadius(item.r + 30)
+            .innerRadius(innerR)
+            .outerRadius(ountR)
           buttonEnter
             .append('path')
             .attr('d', function(d) {
@@ -494,7 +522,7 @@ export default {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('transform', function(d, i) {
-              if (item.name == 'addNodeButtonsOld') {
+              if (item.name == 'addNodeButtonsOld') {//两个节点重合触发事件
                 buttonEnter.attr('transform', 'rotate(90)')
                 if (i == 0) {
                   const a = arc.centroid(d)
@@ -658,7 +686,7 @@ export default {
         })
       const nodeEnter = gradient.append('circle')
       nodeEnter.attr('r', function(d) {
-        return 25
+        return d.r?parseInt(d.r):25
       })
       nodeEnter
         .attr('fill', function(d, i) {
@@ -728,6 +756,12 @@ export default {
         if (aa.classList.contains('selected')) return
         d3.select(this).style('stroke-width', '0')
       })
+      //dblclick 会触发两次单击，所以在click里设置定时timer来控制双击
+      // nodeEnter.on("dblclick", function (d) {
+      //   console.log("双击")
+      //   d3.event.stopPropagation();
+      //     d3.event.preventDefault();
+      // });
       nodeEnter.on('click', function(d, i) {
         _this.selectNode.id = d.uuid
         _this.selectNode.cname = d.name
@@ -753,6 +787,7 @@ export default {
             }
           })
         } else {
+          //双击
           _this.timers = setTimeout(() => {
             _this.clickedOnce = false
             const out_buttongroup_id = '.out_buttongroup_' + d.uuid
@@ -906,7 +941,7 @@ export default {
         .append('g')
         .append('use') //  为每个节点组添加一个 use 子元素
         .attr('r', function(d) {
-          return d.r
+          return parseInt(d.r)
         })
         .attr('xlink:href', function(d) {
           return '#out_circle' + d.uuid
