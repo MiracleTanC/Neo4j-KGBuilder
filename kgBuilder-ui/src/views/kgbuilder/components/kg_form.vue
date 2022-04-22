@@ -121,7 +121,7 @@
               </el-color-picker>
             </el-form-item>
             <el-form-item label="节点半径" label-width="120px">
-              <el-slider v-model="graphData.r" style="width:324px"></el-slider>
+              <el-slider :min="25" v-model="graphData.r" style="width:324px"></el-slider>
             </el-form-item>
           </el-form>
         </el-tab-pane>

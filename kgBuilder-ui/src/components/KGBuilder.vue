@@ -622,7 +622,7 @@ export default {
       function ticked() {
         // 更新连线坐标
         graphLink
-          .attr('x1', function (d) {
+          .attr('x1', function (d) {addNodeButton
             return d.source.x
           })
           .attr('y1', function (d) {

@@ -170,17 +170,12 @@
         <div
           id="graphContainer"
           class="graphContainer"
-          @click="initContainerLeftClick"
-          @contextmenu.prevent="initContainerRightClick"
         >
-          <kgbuilder2 ref="kg_builder"
+          <kgbuilder ref="kg_builder"
             :styles="style"
             :initData="graphData"
             :domain="domain"
             :domainId="domainId"
-            :methods-properties="MethodsProperties"
-            :link-color="LinkColor"
-            :node-color="NodeColor"
             :ring-function="RingFunction"
             @editForm="editForm"
           />
@@ -193,22 +188,6 @@
       <!-- 底部over -->
     </div>
     <!-- 右侧over -->
-    <!-- 空白处右键 -->
-    <div>
-      <menu-blank
-        ref="menu_blank"
-        @btnAddSingle="btnAddSingle"
-        @btnQuickAddNode="btnQuickAddNode"
-      ></menu-blank>
-    </div>
-    <!-- 连线按钮组 -->
-    <div>
-      <menu-link
-        ref="menu_link"
-        @updateLinkName="updateLinkName"
-        @deleteLink="deleteLink"
-      ></menu-link>
-    </div>
     <!--编辑窗口-->
     <div>
       <kg-form
@@ -245,8 +224,6 @@
 import _ from "lodash";
 import * as d3 from "d3";
 import { kgBuilderApi } from "@/api";
-import MenuBlank from "@/views/kgbuilder/components/menu_blank";
-import MenuLink from "@/views/kgbuilder/components/menu_link";
 import KgForm from "@/views/kgbuilder/components/kg_form";
 import NodeRicher from "@/views/kgbuilder/components/node_richer";
 import KgFocus from "@/components/KGFocus";
@@ -254,21 +231,19 @@ import KgWanted from "@/components/KGWanted";
 import KgJson from "@/views/kgbuilder/components/kg_json";
 import KgHelp from "@/views/kgbuilder/components/kg_help";
 import html2canvas from "html2canvas";
-import kgbuilder2 from '@/components/KGBuilder2'
+import kgbuilder from '@/components/KGBuilder_v1'
 import { EventBus } from '@/utils/event-bus.js'
 import axios from 'axios'
 export default {
   name: "kgBuilderv1",
   components: {
-    MenuBlank,
-    MenuLink,
     KgForm,
     NodeRicher,
     KgFocus,
     KgJson,
     KgHelp,
     KgWanted,
-    kgbuilder2
+    kgbuilder
   },
   provide() {
     return {
@@ -276,9 +251,10 @@ export default {
       Dset: this.Dset,
       clickNode: this.clickNode,
       updateLinkName: this.updateLinkName,
-      typeLinkName: this.typeLinkName,
       editLinkName: this.editLinkName,
-      deleteLinkName: this.deleteLinkName
+      deleteLinkName: this.deleteLinkName,
+      quickAddNodes: this.btnQuickAddNode,
+      createSingleNode: this.createSingleNode,
     }
   },
   data () {
@@ -286,117 +262,21 @@ export default {
       style: null,
       width: null,
       height: null,
-      // 启用D3画图配置方法
-      MethodsProperties: [
-        { name: 'SingleClick', state: true }, // 单击
-        { name: 'DoubleClick', state: true }, // 双击
-        { name: 'NodeDrag', state: true }, // 节点拖动
-        { name: 'LineDrag', state: true }, // 连线拖动
-        { name: 'FollowDrag', state: true } // 节点子随父拖动而动
-      ],
-      // 连线颜色
-      LinkColor: [
-        { name: '具有', color: '#4A5150', id: 'arrow' },
-        { name: '其它', color: '#16ACFF', id: 'arrowA' },
-        { name: '学习', color: '#FC4040', id: 'arrowB' },
-        { name: '包含', color: '#FBB613', id: 'arrowC' },
-        { name: 'a11', color: '#202928', id: 'arrowD' }
-      ],
-      // 节点颜色
-      NodeColor: [
-        {
-          name: '知识集',
-          color1: '#FFA16E',
-          color2: '#F48244',
-          state: 'color'
-        },
-        {
-          name: '知识块',
-          color1: '#FB6E6F',
-          color2: '#D13F3F',
-          state: 'color'
-        },
-        {
-          name: '知识点',
-          color1: '#32E3C1',
-          color2: '#21B598',
-          state: 'color'
-        },
-        {
-          name: '属性节点',
-          color1: '#7E7E7E',
-          color2: '#666666',
-          state: 'color'
-        },
-        {
-          name: '资源节点',
-          color1: '#F48244',
-          color2: '#F48244',
-          state: 'color'
-        }
-      ],
       RingFunction: [
         {
-          name: 'addNodeButtonsOne',
-          data: 5, // 渲染4个
+          name: 'innerButtonGroup',//内层按钮组
+          data: 6, // 渲染5个
           datadefo: [
             // 新建
             {
-              name: 'add',
+              name: 'outerBtnGroup',
               default: (d, _this, d3) => {
-                const out_buttongroup_id = '.out_buttongroup_' + d.uuid
-                _this.svg
-                  .selectAll('.buttongroup')
-                  .classed('circle_none', true)
-                _this.svg
-                  .selectAll(out_buttongroup_id)
-                  .classed('circle_none', false)
-                _this.ringFunction.filter((res) => {
-                  if (res.name == 'addNodeButtonsTWO') {
-                    for (let i = res.label.length - 1; i >= 0; i--) {
-                      d3.selectAll('.' + res.id + i).style('display', 'block')
-                    }
-                  }
-                })
-              }
-            },
-            // 删除
-            {
-              name: 'delete',
-              default: (d, _this, d3) => {
-                let data = { domain: _this.domain, nodeId: d.uuid };
-                  kgBuilderApi.deleteNode(data).then(result => {
-                    if (result.code == 200) {
-                      let rShips = result.data;
-                      // 删除节点对应的关系
-                      for (let m = 0; m < rShips.length; m++) {
-                        for (let i = 0; i < _this.graphData.links.length; i++) {
-                          if (_this.graphData.links[i].uuid == rShips[m].uuid) {
-                            _this.graphData.links.splice(i, 1);
-                            i = i - 1;
-                          }
-                        }
-                      }
-                      // 找到对应的节点索引
-                      let j = -1;
-                      for (let i = 0; i < _this.graphData.nodes.length; i++) {
-                        if (_this.graphData.nodes[i].uuid == d.uuid) {
-                          j = i;
-                          break;
-                        }
-                      }
-                      if (j >= 0) {
-                        _this.graphData.nodes.splice(j, 1); // 根据索引删除该节点
-                        _this.updateGraph();
-                        _this.$message.success("操作成功!");
-                      }
-                    }
-                  });
+                console.log('level2Group')
               }
             },
             // 展开
             {
-              name: 'MORE',
+              name: 'more',
               default: (d, _this, d3) => {
                 let data = { domain: _this.domain, nodeId: d.uuid };
                 kgBuilderApi.getMoreRelationNode(data).then(result => {
@@ -409,6 +289,40 @@ export default {
                     _this.$message.error('展开失败 :' + item.executionTime)
                   }
                 });
+              }
+            },
+             // 删除
+            {
+              name: 'delete',
+              default: (d, _this, d3) => {
+                let data = { domain: _this.domain, nodeId: d.uuid };
+                  kgBuilderApi.deleteNode(data).then(result => {
+                    if (result.code == 200) {
+                      let rShips = result.data;
+                      // 删除节点对应的关系
+                      for (let m = 0; m < rShips.length; m++) {
+                        for (let i = 0; i < _this.graph.links.length; i++) {
+                          if (_this.graph.links[i].uuid == rShips[m].uuid) {
+                            _this.graph.links.splice(i, 1);
+                            i = i - 1;
+                          }
+                        }
+                      }
+                      // 找到对应的节点索引
+                      let j = -1;
+                      for (let i = 0; i < _this.graph.nodes.length; i++) {
+                        if (_this.graph.nodes[i].uuid == d.uuid) {
+                          j = i;
+                          break;
+                        }
+                      }
+                      if (j >= 0) {
+                        _this.graph.nodes.splice(j, 1); // 根据索引删除该节点
+                        _this.updateGraph();
+                        _this.$message.success("操作成功!");
+                      }
+                    }
+                  });
               }
             },
             // 编辑
@@ -425,23 +339,40 @@ export default {
                  _this.$emit('editForm',true,"nodeEdit",formNode,_this.domainId);
                 })
               }
+            },
+             // 连线
+            {
+              name: 'link',
+              default: (d, _this, d3) => {
+                console.log('连线')
+                _this.isAddLink=true;
+                _this.selectNode=d;
+              }
+            },
+             // 隐藏相关节点和连线
+            {
+              name: 'showMe',
+              default: (d, _this, d3) => {
+                console.log("showMe")
+              }
             }
           ],
+          //label和datadefo的事件按顺序对应，顺时针
           label: [
             { name: '新建', state: 'text' },
-            { name: '删除', state: 'text' },
             { name: '展开', state: 'text' },
+            { name: '删除', state: 'text' },
             { name: '编辑', state: 'text' },
-            { name: '连线', state: 'text' }
-
+            { name: '连线', state: 'text' },
+            { name: 'http://img.51miz.com/Element/00/34/01/92/9c0a6df0_E340192_95075075.png', state: 'url' },
           ],
           id: 'action_',
           r: 25,
           default: function() {}
         },
         {
-          name: 'addNodeButtonsTWO',
-          data: 20, // 4*5 一层菜单是5个，2层菜单每个4个
+          name: 'outerButtonGroup',//
+          data: 24, // 4*6 一层菜单是6个，2层菜单每个4个
           datadefo: [
             {
               name: 'spot',
@@ -473,230 +404,16 @@ export default {
             }
           ],
           label: [
-            { name: '点', state: 'text' },
-            { name: '块', state: 'text' },
+            { name: '下级', state: 'text' },
+            { name: '克隆', state: 'text' },
             { name: '集', state: 'text' },
-            { name: '属', state: 'text' }
+            { name: 'https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB12cTXD.img', state: 'url' },
           ],
           id: 'actionA_',
           r: 75,
           default: function() {}
-        },
-        {
-          name: 'addNodeButtonsOld',
-          data: 2,
-          datadefo: [
-            {
-              name: 'addLink',
-              default: (d, _this, d3) => {
-                const arr = []
-                let name = ''
-                _this.graphData.links.filter((lin) => {
-                  if (lin.source == d.uuid || lin.target == d.uuid) {
-                    if (
-                      lin.source == _this.clone.id ||
-                      lin.target == _this.clone.id
-                    ) {
-                      arr.push(lin.label)
-                    }
-                  }
-                })
-                this.$prompt('请输入连线名字', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  inputValidator: (res) => {
-                    if (arr.includes(res)) {
-                      return '连线不能重名'
-                    } else if (arr.includes('包含') && res == null) {
-                      return '不能重复新建默认连线名'
-                    } else {
-                      name = res
-                    }
-                  }
-                })
-                  .then(({ value }) => {
-                    newNodeRalte({
-                      relateLabel: name,
-                      startNeo4jNodeId: d.uuid,
-                      endNeo4jNodeId: _this.clone.id
-                    }).then((res) => {
-                      if (res.result == 'ok') {
-                        // eslint-disable-next-line no-eval
-                        res.data = eval('(' + res.data + ')')
-                        const a = res.data.edges[0]
-                        _this.graphData.links.push(a)
-                        _this.updateGraph()
-                        this.$message({
-                          type: 'success',
-                          message: '新建连线成功'
-                        })
-                      }
-                    })
-                  })
-                  .catch(() => {
-                    this.$message({
-                      type: 'info',
-                      message: '取消输入'
-                    })
-                  })
-                // _this.graphData.nodes.filter((item) => {
-                //   if (item.uuid == d.uuid) {
-                //     console.log(item, _this.clone);
-                //     newNodeRalte({
-                //       startNeo4jNodeId: item.uuid,
-                //       endNeo4jNodeId: _this.clone.id,
-                //     }).then((res) => {
-                //       if (res.result == "ok") {
-                //         res.data = eval("(" + res.data + ")");
-                //         let a = res.data.edges[0]
-                //         _this.graphData.links.push(a)
-                //         _this.updateGraph()
-                //       }
-                //     });
-                //   }
-                // });
-              }
-            },
-            {
-              name: 'clone',
-              default: (d, _this, d3) => {
-                _this.graphData.nodes.filter((item) => {
-                  if (item.uuid == d.uuid) {
-                    cloneNodePropertys({
-                      startNeo4jNodeId: _this.clone.id,
-                      endNeo4jNodeId: item.uuid
-                    }).then((res) => {
-                      if (res.result == 'ok') {
-                        item.nodetype = _this.clone.nodetype
-                        _this.updateGraph()
-                      } else {
-                        this.$message.error('克隆失败', res.message)
-                      }
-                    })
-                  }
-                })
-              }
-            }
-          ],
-          label: [
-            {
-              name: '新建关系',
-              state: 'text'
-            },
-            {
-              name: '克隆属性',
-              state: 'text'
-            }
-          ],
-          id: 'actionB_',
-          r: 25,
-          default: function() {}
-        },
-        {
-          name: 'addNodeButtonsNEW',
-          data: 3, // 渲染环形菜单数量
-          datadefo: [
-            {
-              // 显示相关节点和连线
-              name: 'SeeList',
-              default: (d, _this, d3) => {
-                sortView(_this.graphData.nodes, _this.graphData.links, d)
-                function sortView(arr, link, d) {
-                  const a = []
-                  let id = ''
-                  const ArrY = link.filter((item) => {
-                    if (item.source === d.uuid || item.target === d.uuid) {
-                      d3.selectAll('.Links_' + item.uuid).style(
-                        'display',
-                        'block'
-                      )
-                      d3.selectAll('.TextLink_' + item.uuid).style(
-                        'display',
-                        'block'
-                      )
-                      return item
-                    }
-                  })
-                  ArrY.filter((item) => {
-                    arr.filter((res) => {
-                      if (item.source === res.uuid || item.target === res.uuid) {
-                        const name = d3
-                          .selectAll('.circle_' + res.uuid)
-                          .style('display')
-                        if (name === 'inline' || name === 'block') {
-                          a.push(true)
-                        } else {
-                          d3.selectAll('.circle_' + res.uuid).style(
-                            'display',
-                            'block'
-                          )
-                          a.push(false)
-                          id = res
-                        }
-                      }
-                    })
-                  })
-                  a.some((i) => {
-                    if (i == false) {
-                      sortView(arr, link, id)
-                    }
-                  })
-                }
-              }
-            }, // //标签文字
-            {
-              name: 'Share',
-              default: (d, _this, d3) => {
-                this.Nodellabelist = d
-                this.Visiblelabel = true
-                this.$nextTick(() => {
-                  this.$refs.nodeTagSearchlabel.getNodeDefault(d)
-                })
-              }
-            },
-            // 隐藏相关节点和连线
-            {
-              name: 'SeeName',
-              default: (d, _this, d3) => {
-                _this.graphData.links.filter((item, i) => {
-                  if (item.source === d.uuid || item.target === d.uuid) {
-                    d3.selectAll('.Links_' + item.uuid).style('display', 'none')
-                    d3.selectAll('.TextLink_' + item.uuid).style(
-                      'display',
-                      'none'
-                    )
-                  }
-                })
-                _this.graphData.nodes.filter((res, i) => {
-                  if (res.uuid === d.uuid) {
-                    d3.selectAll('.circle_' + res.uuid).style('display', 'none')
-                  }
-                })
-              }
-            }
-          ],
-          label: [
-            {
-              name: 'https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB12cBeO.img',
-              state: 'url'
-            },
-            {
-              name: (d) => {
-                return d.name
-              },
-              state: 'Dtext'
-            },
-            {
-              name: 'https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB12cTXD.img',
-              state: 'url'
-            }
-          ],
-          id: 'actionC_',
-          r: 25,
-          default: function() {}
         }
       ],
-      // eslint-disable-next-line vue/no-reserved-keys
       _thisView: null,
       timer: null,
       tooltip: null,
@@ -800,6 +517,7 @@ export default {
     },
     //画布直接添加节点
     createSingleNode (left, top) {
+      debugger
       let data = { name: "", r: 30 };
       data.domain = this.domain;
       kgBuilderApi.createNode(data).then(result => {
@@ -813,7 +531,6 @@ export default {
             r: parseInt(newNode.r)
           });
           this.graphData.nodes.push(newNode);
-          this.updateGraph();
         }
       });
     },
@@ -873,7 +590,7 @@ export default {
         });
     },
     //删除连线
-    deleteLink () {
+    deleteLinkName (sdata) {
       let _this = this;
       _this
         .$confirm("此操作将删除该关系(不可恢复), 是否继续?", "三思而后行", {
@@ -882,21 +599,18 @@ export default {
           type: "warning"
         })
         .then(function () {
-          let data = { domain: _this.domain, shipId: _this.selectNode.nodeId };
+          let data = { domain: _this.domain, shipId: sdata.uuid };
           kgBuilderApi.deleteLink(data).then(result => {
             if (result.code == 200) {
               let j = -1;
               for (let i = 0; i < _this.graphData.links.length; i++) {
-                if (_this.graphData.links[i].uuid == _this.selectNode.nodeId) {
+                if (_this.graphData.links[i].uuid == sdata.uuid) {
                   j = i;
                   break;
                 }
               }
               if (j >= 0) {
-                _this.selectNode.nodeId = 0;
                 _this.graphData.links.splice(j, 1);
-                _this.updateGraph();
-                _this.isDeleteLink = false;
               }
             }
           });
@@ -926,18 +640,19 @@ export default {
       });
     },
     //更新连线名称
-    updateLinkName () {
+    updateLinkName (sdata) {
       let _this = this;
       this.$prompt("请输入关系名称", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        inputValue: this.selectlinkname
+        inputValue: sdata.cname
       })
         .then(function (res) {
+          debugger
           let value = res.value;
           let data = {
             domain: _this.domain,
-            shipId: _this.selectNode.nodeId,
+            shipId: sdata.uuid,
             shipName: value
           };
           kgBuilderApi.updateLink(data).then(result => {
@@ -948,19 +663,10 @@ export default {
                   m.name = newShip.name;
                 }
               });
-              _this.selectNode.nodeId = 0;
-              _this.updateGraph();
-              _this.isAddLink = false;
-              _this.selectlinkname = "";
             }
           });
         })
-        .catch(function () {
-          _this.$message({
-            type: "info",
-            message: "取消输入"
-          });
-        });
+        .catch(function () {});
     },
     //更新节点名称
     updateNodeName (d) {
@@ -1092,7 +798,7 @@ export default {
       kgBuilderApi.getDomainGraph(data).then(result => {
         if (result.code == 200) {
           if (result.data != null){
-              _this.graphData={nodes: [],links: []};
+            _this.graphData={nodes: [],links: []};
              _this.graphData.nodes = result.data.node;
              _this.graphData.links = result.data.relationship;
           }
@@ -1159,16 +865,7 @@ export default {
             }
           });
         })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "取消输入"
-          });
-        });
-    },
-    //添加单个节点，改变鼠标样式为+
-    btnAddSingle () {
-      d3.select(".graphContainer").style("cursor", "crosshair"); //进入新增模式，鼠标变成＋
+        .catch(() => {});
     },
     //获取领域标签
     getLabels (data) {
@@ -1327,41 +1024,7 @@ export default {
         }
       });
     },
-    //画布右击
-    initContainerRightClick (event) {
-      let _this = this;
-      _this.mouserPos = {
-        left: event.clientX,
-        top: event.clientY
-      };
-      let menuBar = {
-        left: event.clientX,
-        top: event.clientY,
-        show: true
-      };
-      _this.$refs.menu_blank.init(menuBar);
-      event.preventDefault();
-    },
-    //画布点击
-    initContainerLeftClick (event) {
-      let _this = this;
-      _this.mouserPos = {
-        left: event.clientX,
-        top: event.clientY
-      };
-      _this.$refs.menu_blank.init({ show: false });
-      _this.$refs.menu_link.init({ show: false });
-      _this.$refs.node_richer.close();
-      if (event.target.tagName != "circle" && event.target.tagName != "link") {
-        d3.select("#nodeDetail").style("display", "none");
-      }
-      let cursor = document.getElementById("graphContainer").style.cursor;
-      if (cursor == "crosshair") {
-        d3.select(".graphContainer").style("cursor", "");
-        _this.createSingleNode(event.offsetX, event.offsetY);
-      }
-      event.preventDefault();
-    }
+
   }
 };
 </script>
