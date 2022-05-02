@@ -158,7 +158,7 @@ public class KGGraphServiceImpl implements KgGraphService {
     }
 
     @Override
-    public void importBySyz(MultipartFile file,HttpServletRequest request,String label) throws Exception {
+    public void importBySyz(MultipartFile file,HttpServletRequest request,String label,Integer isCreateIndex) throws Exception {
         List<Map<String, Object>> dataList = getFormatData(file);
         List<List<String>> list = new ArrayList<>();
         for (Map<String, Object> item : dataList) {
@@ -172,9 +172,9 @@ public class KGGraphServiceImpl implements KgGraphService {
         String filename = "tc" + System.currentTimeMillis() + ".csv";
         CSVUtil.createCsvFile(list, savePath,filename);
         String serverUrl=request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-        String csvUrl = "http://"+serverUrl+ "/download/" + filename;
+        String csvUrl = "http://"+serverUrl+ "/file/download/" + filename;
         //String csvUrl = "https://neo4j.com/docs/cypher-manual/3.5/csv/artists.csv";
-        batchInsertByCSV(label, csvUrl, 0);
+        batchInsertByCSV(label, csvUrl, isCreateIndex);
     }
     private List<Map<String, Object>> getFormatData(MultipartFile file) throws Exception {
         List<Map<String, Object>> mapList = new ArrayList<>();

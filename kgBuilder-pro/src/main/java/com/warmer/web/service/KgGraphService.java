@@ -214,6 +214,6 @@ public interface KgGraphService {
 	void updateNodeFileStatus(String domain,long nodeId, int status);
 	void updateCoordinateOfNode(String domain, String uuid, Double fx, Double fy);
 
-	void importBySyz(MultipartFile file, HttpServletRequest request,String label)throws Exception ;
+	void importBySyz(MultipartFile file, HttpServletRequest request,String label,Integer isCreateIndex)throws Exception ;
 	void importByCategory(MultipartFile file, HttpServletRequest request,String label)throws Exception ;
 }

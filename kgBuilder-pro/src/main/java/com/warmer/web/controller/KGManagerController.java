@@ -4,9 +4,9 @@ import com.csvreader.CsvWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.warmer.web.config.WebAppConfig;
 import com.warmer.base.enums.ReturnStatus;
 import com.warmer.base.util.*;
+import com.warmer.web.config.WebAppConfig;
 import com.warmer.web.entity.KgDomain;
 import com.warmer.web.entity.KgFeedBack;
 import com.warmer.web.entity.KgNodeDetail;
@@ -23,10 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -307,18 +306,28 @@ public class KGManagerController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/importGraph")
     public R<String> importGraph(@RequestParam(value = "file", required = true)
-                                 @Validated @NotNull(message = "请上传有效的excel的文件") @Pattern(regexp = "^(?:\\w+\\.xlsx|\\w+\\.xls)$", message = "请上传有效的excel的文件")
-                                         MultipartFile file,
-                                 HttpServletRequest request) throws Exception {
+                                 @Validated @NotNull(message = "请上传有效的excel的文件") @Pattern(regexp = "^(?:\\w+\\.xlsx|\\w+\\.xls)$",
+                                    message = "请上传有效的excel的文件")
+                                             MultipartFile file,
+                                 HttpServletRequest request){
         try {
             String label = request.getParameter("domain");
-            label = StringUtil.isBlank(label) ? UuidUtil.getUUID() : label;
-            String type = request.getParameter("type");
-            if (type.equals("0")) {//三元组导入
-                kgService.quickCreateDomain(label,2);// 三元组
-                kgGraphService.importBySyz(file, request, label);
+            Integer type = Integer.parseInt(request.getParameter("type"));
+            List<KgDomain> domainList = kgService.getDomainByName(label);
+            int domainExist=0;
+            if(domainList!=null&&domainList.size()>0){
+                //导入已有图谱，更新图谱创建时间
+                KgDomain domainItem = domainList.get(0);
+                domainItem.setModifyTime(DateUtil.getDateNow());
+                kgService.updateDomain(domainItem);
+                domainExist=1;
+            }else{
+                label = StringUtil.isBlank(label) ? UuidUtil.getUUID() : label;
+                kgService.quickCreateDomain(label,type);// 三元组
+            }
+            if (type.equals(1)) {//三元组导入
+                kgGraphService.importBySyz(file, request, label,domainExist);
             } else {
-                kgService.quickCreateDomain(label,3);//excel分类
                 kgGraphService.importByCategory(file, request, label);
             }
             return R.success("操作成功");
@@ -376,51 +385,6 @@ public class KGManagerController extends BaseController {
 
         return res;
 
-    }
-
-    // 文件下载相关代码
-    @GetMapping(value = "/download/{filename}")
-    public String download(@PathVariable("filename") String filename, HttpServletRequest request,
-                           HttpServletResponse response) {
-        String filePath = config.getLocation();
-        String fileUrl = filePath + filename;
-        File file = new File(fileUrl);
-        if (file.exists()) {
-            //response.setContentType("application/force-download");// 设置强制下载不打开
-            response.addHeader("Content-Disposition", "attachment;fileName=" + filename);// 设置文件名
-            byte[] buffer = new byte[1024];
-            FileInputStream fis = null;
-            BufferedInputStream bis = null;
-            try {
-                fis = new FileInputStream(file);
-                bis = new BufferedInputStream(fis);
-                OutputStream os = response.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-                log.info("success");
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     @ResponseBody

@@ -10,6 +10,8 @@
 		<result column="status" jdbcType="INTEGER" property="status" />
 		<result column="createUser" jdbcType="INTEGER" property="createUser" />
 		<result column="commend" jdbcType="INTEGER" property="commend" />
+		<result column="createTime" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modifyTime" jdbcType="TIMESTAMP" property="modifyTime" />
 	</resultMap>
 	<resultMap id="BaseFileResultMap" type="com.warmer.web.entity.KgNodeDetailFile">
 		<id column="id" jdbcType="INTEGER" property="id" />
@@ -35,12 +37,12 @@
 		<result column="modifyTime" jdbcType="VARCHAR" property="modifyTime" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, `name`, nodeCount, shipCount,status,createUser,commend
+		id, `name`, nodeCount, shipCount,status,createUser,commend,createTime
 	</sql>
 	<select id="getDomains" resultMap="BaseResultMap">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM kg_domain where status=1
+		FROM kg_domain where status=1 order by createTime desc
 	</select>
 	<select id="getDomainList" resultMap="BaseResultMap" >
 		SELECT
@@ -58,7 +60,7 @@
 				 and `commend`=#{commend}
 			 </if>
 	    </where>
-	    order by id desc
+		order by createTime desc
 	</select>
 	<select id="getRecommendDomainList" resultMap="BaseResultMap" >
 		SELECT
@@ -86,7 +88,7 @@
 	</select>
 
 	<insert id="saveDomain" parameterType="map" keyColumn="id" keyProperty="id"  useGeneratedKeys="true">
-        INSERT INTO kg_domain(name, createUser,nodeCount, shipCount,status,type,commend) VALUES (#{name},#{createUser},#{nodeCount},#{shipCount},1,#{type},#{commend})
+        INSERT INTO kg_domain(name, createUser,nodeCount, shipCount,status,type,commend,createTime,modifyTime) VALUES (#{name},#{createUser},#{nodeCount},#{shipCount},1,#{type},#{commend},now(),now()})
     </insert>
 	<update id="updateDomain" parameterType="map">
         UPDATE kg_domain
@@ -95,6 +97,7 @@
         createUser=#{createUser} ,
         nodeCount=#{nodeCount},
         shipCount=#{shipCount},
+		modifyTime=now()
         WHERE id = #{id}
     </update>
     <update id="deleteDomain" parameterType="Integer">

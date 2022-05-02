@@ -2,6 +2,8 @@ package com.warmer.web.entity;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class KgDomain {
     private Integer id;
@@ -12,4 +14,6 @@ public class KgDomain {
     private String createUser;
     private Integer type;
     private Integer commend;
+    private Date createTime;
+    private Date modifyTime;
 }

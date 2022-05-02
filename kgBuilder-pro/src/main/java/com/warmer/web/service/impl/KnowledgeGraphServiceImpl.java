@@ -1,5 +1,6 @@
 package com.warmer.web.service.impl;
 
+import com.warmer.base.util.DateUtil;
 import com.warmer.web.dao.KnowledgeGraphDao;
 import com.warmer.web.entity.KgDomain;
 import com.warmer.web.entity.KgNodeDetail;
@@ -33,6 +34,8 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
 
     @Override
     public Integer saveDomain(KgDomain map) {
+        map.setCreateTime(DateUtil.getDateNow());
+        map.setModifyTime(DateUtil.getDateNow());
         knowledgeGraphDao.saveDomain(map);
         return map.getId();
     }
@@ -52,7 +55,7 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
 
     @Override
     public void updateDomain(KgDomain map) {
-        knowledgeGraphDao.saveDomain(map);
+        knowledgeGraphDao.updateDomain(map);
     }
 
     @Override

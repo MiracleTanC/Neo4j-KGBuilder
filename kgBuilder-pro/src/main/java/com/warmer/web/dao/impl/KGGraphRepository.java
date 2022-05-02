@@ -638,7 +638,7 @@ public class KGGraphRepository implements KGGraphDao {
      *
      */
     @Override
-    public void batchInsertByCsv(String domain, String csvUrl, int status) {
+    public void batchInsertByCsv(String domain, String csvUrl, int isCreateIndex) {
         String loadNodeCypher1 = null;
         String loadNodeCypher2 = null;
         String addIndexCypher = null;
@@ -653,7 +653,9 @@ public class KGGraphRepository implements KGGraphDao {
         loadRelCypher = " USING PERIODIC COMMIT 500 LOAD CSV FROM  '" + csvUrl + "' AS line " + " MATCH (m:`" + domain
                 + "`),(n:`" + domain + "`) WHERE m.name=line[0] AND n.name=line[1] " + " MERGE (m)-[r:" + type + "]->(n) "
                 + "	SET r.name=line[2];";
-        Neo4jUtil.runCypherSql(addIndexCypher);
+        if(isCreateIndex==0){//已经创建索引的不能重新创建
+            Neo4jUtil.runCypherSql(addIndexCypher);
+        }
         Neo4jUtil.runCypherSql(loadNodeCypher1);
         Neo4jUtil.runCypherSql(loadNodeCypher2);
         Neo4jUtil.runCypherSql(loadRelCypher);

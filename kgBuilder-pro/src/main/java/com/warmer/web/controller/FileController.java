@@ -20,28 +20,25 @@ import java.util.Map;
 
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/file")
 public class FileController extends BaseController {
 	@Autowired
 	private WebAppConfig appConfig;
 	@Autowired
 	private QiniuUploadService qiniuUploadService;
 
-	@PostMapping("/img/upload")
+	@PostMapping("/upload")
 	@ResponseBody
-	public FileResponse uploadImg(HttpServletRequest req) {
+	public FileResponse upload(HttpServletRequest req) {
 		FileResponse res = new FileResponse();
 		List<FileResult> fre = new ArrayList<FileResult>();
 		List<MultipartFile> files = ((MultipartHttpServletRequest) req).getFiles("file");
 		String filePath = appConfig.getLocation();
-
 		try {
 			for (MultipartFile file : files) {
 				FileResult fileResult = new FileResult();
-				String contentType = file.getContentType();
+				//String contentType = file.getContentType();
 				String rootFileName = file.getOriginalFilename();
-				log.info("上传图片:name={},type={}", rootFileName, contentType);
-				log.info("图片保存路径={}", filePath);
 				String fileName = ImageUtil.saveImg(file, filePath);
 				if (StringUtils.isNotBlank(fileName)) {
 					String success = "上传成功";
@@ -49,14 +46,13 @@ public class FileController extends BaseController {
 					fileResult.setMessage(success);
 					fileResult.setName(rootFileName);
 					fileResult.setStatus(0);
-					String src="/img/download/";
+					String src="/file/download/";
 					fileResult.setUrl(src + fileName);
 					fre.add(fileResult);
 				}
-				log.info("返回值：{}", fileResult);
 			}
 			res.setSuccess(1);
-			res.setMessage("ok");
+			res.setMessage("操作成功");
 			res.setResults(fre);
 
 		} catch (IOException e) {
@@ -65,15 +61,14 @@ public class FileController extends BaseController {
 		return res;
 	}
 	//文件下载相关代码
-	@GetMapping(value = "/img/download/{imageName}")
-	public String downloadImage(@PathVariable("imageName")String imageName,HttpServletRequest request, HttpServletResponse response) {
+	@GetMapping(value = "/download/{fileName}")
+	public String downloadImage(@PathVariable("fileName")String fileName, HttpServletResponse response) {
 		String filePath = appConfig.getLocation() ;
-		String fileUrl = filePath+ File.separator + imageName;
+		String fileUrl = filePath+ File.separator + fileName;
 		File file = new File(fileUrl);
 		if (file.exists()) {
 			//response.setContentType("application/force-download");// 设置强制下载不打开
-			response.addHeader("Content-Disposition",
-					"attachment;fileName=" + imageName);// 设置文件名
+			response.addHeader("Content-Disposition","attachment;fileName=" + fileName);// 设置文件名
 			byte[] buffer = new byte[1024];
 			FileInputStream fis = null;
 			BufferedInputStream bis = null;
@@ -81,17 +76,19 @@ public class FileController extends BaseController {
 				fis = new FileInputStream(file);
 				bis = new BufferedInputStream(fis);
 				OutputStream os = response.getOutputStream();
+				//加上UTF-8文件的标识字符,避免乱码
+				os.write(new   byte []{( byte ) 0xEF ,( byte ) 0xBB ,( byte ) 0xBF });
 				int i = bis.read(buffer);
 				while (i != -1) {
 					os.write(buffer, 0, i);
 					i = bis.read(buffer);
 				}
-				log.info("success");
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				if (bis != null) {
 					try {
+
 						bis.close();
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -109,9 +106,9 @@ public class FileController extends BaseController {
 		return null;
 	}
 
-	@PostMapping("/qiniu/upload")
+	@PostMapping("/qiniuUpload")
 	@ResponseBody
-	public FileResponse qiniuUploadImg(HttpServletRequest req,HttpServletResponse response){
+	public FileResponse qiniuUpload(HttpServletRequest req,HttpServletResponse response){
 		FileResponse res = new FileResponse();
 		List<FileResult> fre = new ArrayList<FileResult>();
 		List<MultipartFile> files = ((MultipartHttpServletRequest) req).getFiles("file");
@@ -133,22 +130,10 @@ public class FileController extends BaseController {
 			res.setSuccess(1);
 			res.setMessage("ok");
 			res.setResults(fre);
-
 		} catch (FileUploadException e) {
 			log.error(e.getMessage());
 		}
 		return res;
 	}
-	@RequestMapping("/qiniu/editormdupload")
-	@ResponseBody
-	public Map<String,Object> editormdPic (@RequestParam(value = "editormd-image-file", required = true) MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
-		String fileName = file.getOriginalFilename();
-		String url="http://"+qiniuUploadService.uploadImage(file,fileName);
-		Map<String,Object> res = new HashMap<>();
-		res.put("url", url);
-		res.put("success", 1);
-		res.put("message", "upload success!");
-		return res;
 
-	}
 }

@@ -1,24 +1,24 @@
-package com.warmer.web;
+package com.warmer.web.job;
 
 import com.warmer.base.util.Neo4jUtil;
 import com.warmer.web.entity.KgDomain;
 import com.warmer.web.service.KgGraphService;
 import com.warmer.web.service.KnowledgeGraphService;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@SpringBootTest
-class ApplicationTests {
-
+@Component
+public class DomainCleanService {
     @Autowired
     private KgGraphService kgGraphService;
     @Autowired
     private KnowledgeGraphService kgService;
-    @Test
-    void contextLoads() {
+    @Scheduled(cron = "0 0 1 * * ? ")
+    public void clearDomain(){
         List<KgDomain> domains = kgService.getDomains();
         if(domains!=null&&domains.size()>0){
             for (KgDomain domainItem : domains) {
@@ -31,5 +31,4 @@ class ApplicationTests {
             }
         }
     }
-
 }

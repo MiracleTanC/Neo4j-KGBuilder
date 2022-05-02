@@ -343,6 +343,7 @@ export default {
       this.svg = graphContainer.append("svg");
       this.svg.attr("width", width);
       this.svg.attr("height", height);
+      this.svg.attr('preserveAspectRatio', 'xMidYMidmeet')
       this.simulation = d3
         .forceSimulation()
         .force(
@@ -350,7 +351,8 @@ export default {
           d3
             .forceLink()
             .distance(function (d) {
-              return Math.floor(Math.random() * (700 - 200)) + 200;
+               return 60
+              //return Math.floor(Math.random() * (700 - 200)) + 200;
             })
             .id(function (d) {
               return d.uuid;
