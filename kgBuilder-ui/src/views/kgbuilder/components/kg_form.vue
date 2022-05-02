@@ -464,7 +464,7 @@ export default {
       kgBuilderApi.exportGraph(data).then(result => {
         if (result.code == 200) {
           this.exportFormVisible = false;
-          window.open(result.csvUrl);
+          window.open(process.env.VUE_APP_BASE_API+result.csvUrl);
         }
       });
     },

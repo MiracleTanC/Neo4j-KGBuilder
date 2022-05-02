@@ -347,7 +347,7 @@ public class KGManagerController extends BaseController {
         String fileName = UUID.randomUUID() + ".csv";
         String fileUrl = filePath + fileName;
         String cypher = String.format(
-                "MATCH (n:`%s`) -[r]-(m:`%s`) return n.name as source,m.name as target,r.name as relation", label, label);
+                "MATCH (n:`%s`) -[r]->(m:`%s`) return n.name as source,m.name as target,r.name as relation", label, label);
         List<HashMap<String, Object>> list = Neo4jUtil.getGraphTable(cypher);
         if(list.size()==0){
             res.put("code", -1);
@@ -373,7 +373,7 @@ public class KGManagerController extends BaseController {
             }
             csvWriter.close();
             String serverUrl = request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-            String csvUrl = "http://"+serverUrl + "/download/" + fileName;
+            String csvUrl = "/file/download/" + fileName;
 
             res.put("code", 200);
             res.put("fileName", csvUrl);

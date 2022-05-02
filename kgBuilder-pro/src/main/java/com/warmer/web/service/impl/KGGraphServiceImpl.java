@@ -195,6 +195,7 @@ public class KGGraphServiceImpl implements KgGraphService {
                     int rowSize = sheet.getPhysicalNumberOfRows();
                     for (int j = 0; j < rowSize; j++) {
                         Row row = sheet.getRow(j);
+                        if(row==null) continue;
                         int cellSize = row.getPhysicalNumberOfCells();
                         if (cellSize != 3) continue; //只读取3列
                         row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
