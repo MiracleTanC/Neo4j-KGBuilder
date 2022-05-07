@@ -854,9 +854,9 @@ export default {
         if (aa.classList.contains("selected")) return;
         d3.select(this).style("stroke-width", "2");
       });
-      nodeEnter.on("click", function (d, i) {
+      nodeEnter.on("click", function (d) {
         d3.select("#nodeDetail").style("display", "block");
-        let out_buttongroup_id = ".out_buttongroup_" + d.uuid + "_" + i;
+        let out_buttongroup_id = ".out_buttongroup_" + d.uuid ;
         _this.svg.selectAll(".buttongroup").classed("circle_none", true);
         _this.svg.selectAll(out_buttongroup_id).classed("circle_none", false);
         _this.selectNode.nodeId = d.uuid;
@@ -973,7 +973,7 @@ export default {
           return "#out_circle" + d.uuid;
         }) //  指定 use 引用的内容
         .attr("class", function (d, i) {
-          return "buttongroup out_buttongroup_" + d.uuid + "_" + i;
+          return "buttongroup out_buttongroup_" + d.uuid;
         })
         .classed("circle_none", true);
 
