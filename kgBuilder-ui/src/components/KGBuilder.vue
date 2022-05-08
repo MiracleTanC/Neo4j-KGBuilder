@@ -690,15 +690,21 @@ export default {
     },
     dragStarted(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.8).restart()
+       d.x = d3.event.x
+      d.y = d3.event.y
       d.fx = d.x
       d.fy = d.y
     },
     dragged(d) {
+       d.x = d3.event.x
+      d.y = d3.event.y
       d.fx = d3.event.x
       d.fy = d3.event.y
     },
     dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0)
+       d.x = d3.event.x
+      d.y = d3.event.y
       d.fx = d3.event.x
       d.fy = d3.event.y
     },

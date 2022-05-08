@@ -488,9 +488,7 @@ export default {
         });
       nodeText.exit().remove();
       let nodeTextEnter = this.drawNodeText(nodeText);
-      nodeText = nodeTextEnter.merge(nodeText).text(function (d) {
-        return d.name;
-      });
+      nodeText = nodeTextEnter.merge(nodeText)
       nodeText
         .append("title") // 为每个节点设置title
         .text(function (d) {
@@ -778,26 +776,62 @@ export default {
     //拖拽开始
     dragStarted (d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
+       d.x = d3.event.x
+      d.y = d3.event.y
+      // d.fx = d.x;
+      // d.fy = d.y;
       //d.fixed = true;
     },
     //拖拽中
     dragged (d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
+           let vx=d3.event.x-d.x;//x轴偏移量
+      let vy=d3.event.y-d.y;//y轴偏移量
+      d.x = d3.event.x
+      d.y = d3.event.y
+      d.fx = d3.event.x
+      d.fy = d3.event.y
+      let targetNodeIds=this.graph.links.filter(n=>n.sourceId==d.uuid).map(m=>m.targetId)
+      if(targetNodeIds&&targetNodeIds.length>0){
+        targetNodeIds.forEach(x=>{
+         this.graph.nodes.filter(n=>n.uuid==x).map(m=>{
+            m.fx=m.fx+vx;
+            m.fy=m.fy+vy;
+            m.x=m.x+vx;
+            m.y=m.y+vy;
+            return m;
+          })
+        })
+      }
     },
     //拖拽结束
     dragEnded (d) {
-      if (!d3.event.active) this.simulation.alphaTarget(0);
-      //d.fx = d3.event.x;
-      //d.fy = d3.event.y;
-      let domain = this.domain;
-      let uuid = d.uuid;
-      let fx = d.fx;
-      let fy = d.fy;
-      let data = { domain: domain, uuid: uuid, fx: fx, fy: fy };
-      kgBuilderApi.updateCoordinateOfNode(data).then(result => { });
+     if (!d3.event.active) this.simulation.alphaTarget(0.3)
+      //console.log(d.x,d3.event.x,d.y,d3.event.y)
+      let vx=d3.event.x-d.x;//x轴偏移量
+      let vy=d3.event.y-d.y;//y轴偏移量
+      d.x = d3.event.x
+      d.y = d3.event.y
+      d.fx = d3.event.x
+      d.fy = d3.event.y
+      let targetNodeIds=this.graph.links.filter(n=>n.sourceId==d.uuid).map(m=>m.targetId)
+      if(targetNodeIds&&targetNodeIds.length>0){
+        targetNodeIds.forEach(x=>{
+         this.graph.nodes.filter(n=>n.uuid==x).map(m=>{
+            m.fx=m.fx+vx;
+            m.fy=m.fy+vy;
+            m.x=m.x+vx;
+            m.y=m.y+vy;
+            return m;
+          })
+        })
+      }
+      // let domain = this.domain;
+      // let uuid = d.uuid;
+      // let fx = d.fx;
+      // let fy = d.fy;
+      // let data = { domain: domain, uuid: uuid, fx: fx, fy: fy };
+
+      // kgBuilderApi.updateCoordinateOfNode(data).then(result => { });
     },
     //绘制节点
     drawNode (node) {
@@ -895,22 +929,33 @@ export default {
     //绘制节点文字
     drawNodeText (nodeText) {
       let _this = this;
-      let nodeTextEnter = nodeText
+     const nodeTextEnter = nodeText
         .enter()
-        .append("text")
-        .style("fill", "#fff")
-        .attr("dy", 4)
-        .attr("font-family", "微软雅黑")
-        .attr("text-anchor", "middle")
-        .text(function (d) {
-          if (typeof d.name == "undefined") return "";
-          let length = d.name.length;
-          if (d.name.length > 4) {
-            let s = d.name.slice(0, 4) + "...";
-            return s;
-          }
-          return d.name;
-        });
+        .append('text')
+        .style('fill', '#fff')
+        // .attr('dx', function(d){
+        //   return -1*(parseInt(d.r)-10)
+        // })//设置居中不用偏移
+        .attr('dy', 4)//文字是站在水平半径这条线上的，所以向下偏移一些，具体值应该是文字高度的一半
+        .attr('font-family', '微软雅黑')
+        .attr('text-anchor', 'middle')//设置文字居中
+        nodeTextEnter.text(function (d) {
+            let text=d.name
+            debugger
+            const len = text.length;
+            if (d.image) {
+               return ''
+            }else{
+              //取圆的半径r，两边各空出5px,然后求出文字能放的最大长度(parseInt(d.r)-5)*,一个文字占16px(系统默认font-size=16px),
+              //相除得到最多能放多少汉字，font-size换算比有待考证，文字两边和圆边框的间距忽大忽小，有缘者来优化
+              let dr=(parseInt(d.r)-5)*2/16;
+                  if(dr<len){
+                    return  text.substring(0, dr) + '...';
+                  }else{
+                    return d.name
+                  }
+              }
+         })
       // nodeTextEnter.on("mouseover", function(d, i) {
 
       // });
@@ -940,7 +985,13 @@ export default {
           d3.event.stopPropagation();
         }
       });
-
+      nodeTextEnter.call(
+        d3
+          .drag()
+          .on('start', this.dragStarted)
+          .on('drag', this.dragged)
+          .on('end', this.dragEnded)
+      )
       return nodeTextEnter;
     },
     //给节点画上标识
@@ -1994,4 +2045,17 @@ ul {
   display: inline-block;
   line-height: 30px;
 }
+text {
+    cursor: pointer;
+    max-width: 30px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  circle {
+    cursor: pointer;
+  }
+
 </style>

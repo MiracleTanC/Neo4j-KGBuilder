@@ -80,7 +80,7 @@ class kgBuilderApi extends BaseAPI{
     return this.post("/getRelationNodeCount",data);
   }
   getMoreRelationNode(data) {
-    return this.post("/getMoreRelationNode",data);
+    return this.get("/getMoreRelationNode",data);
   }
   deleteDomain(data) {
     return this.post("/deleteDomain",data);

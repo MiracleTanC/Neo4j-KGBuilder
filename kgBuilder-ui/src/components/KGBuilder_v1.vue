@@ -564,21 +564,7 @@ export default {
           buttonEnter
             .append('text')
             .attr('text-anchor', 'middle')
-            .attr('transform', function(d, i) {
-              // if (item.name == 'addNodeButtonsOld') {//两个节点重合触发事件
-              //   buttonEnter.attr('transform', 'rotate(90)')
-              //   if (i == 0) {
-              //     const a = arc.centroid(d)
-              //     a[0] = 38
-              //     return 'translate(' + a + ') rotate(270)'
-              //   } else {
-              //     const a = arc.centroid(d)
-              //     a[0] = -34
-              //     return 'translate(' + a + ') rotate(270)'
-              //   }
-              // } else {
-              //   return 'translate(' + arc.centroid(d) + ') '
-              // }
+            .attr('transform', function(d) {
               return 'translate(' + arc.centroid(d) + ')'
             })
             .text(function(d, i) {
@@ -629,22 +615,33 @@ export default {
       if (!d3.event.active) this.simulation.alphaTarget(0.3).restart()
       d.x = d3.event.x
       d.y = d3.event.y
-      d.fx = d3.event.x
-      d.fy = d3.event.y
     },
     // 拖拽中
     dragged(d) {
       d.x = d3.event.x
       d.y = d3.event.y
-      d.fx = d3.event.x
-      d.fy = d3.event.y
     },
     dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3)
+      //console.log(d.x,d3.event.x,d.y,d3.event.y)
+      let vx=d3.event.x-d.x;//x轴偏移量
+      let vy=d3.event.y-d.y;//y轴偏移量
       d.x = d3.event.x
       d.y = d3.event.y
       d.fx = d3.event.x
       d.fy = d3.event.y
+      let targetNodeIds=this.graph.links.filter(n=>n.sourceId==d.uuid).map(m=>m.targetId)
+      if(targetNodeIds&&targetNodeIds.length>0){
+        targetNodeIds.forEach(x=>{
+          this.graph.nodes.filter(n=>n.uuid==x).map(m=>{
+            m.fx=m.fx+vx;
+            m.fy=m.fy+vy;
+            m.x=m.x+vx;
+            m.y=m.y+vy;
+            return m;
+          })
+        })
+      }
       // 节点重叠菜单
       const MinX = parseFloat(d.x) - 40
       const MaX = parseFloat(d.x) + 40
@@ -658,21 +655,7 @@ export default {
           item.y < MaY &&
           item.id !== d.uuid
         ) {
-          this.clone = item
-          const out_buttongroup_id = '.out_buttongroup_' + d.uuid
-          this.svg.selectAll('.buttongroup').classed('circle_none', true)
-          this.svg.selectAll(out_buttongroup_id).classed('circle_none', false)
-          this.ringFunction.filter((res) => {
-            if (res.name == 'addNodeButtonsOld') {
-              for (let i = res.label.length - 1; i >= 0; i--) {
-                d3.selectAll('.' + res.uuid + i).style('display', 'block')
-              }
-            } else {
-              for (let i = res.label.length; i >= 0; i--) {
-                d3.selectAll('.' + res.uuid + i).style('display', 'none')
-              }
-            }
-          })
+         //节点重叠处理逻辑
         }
       })
     },
