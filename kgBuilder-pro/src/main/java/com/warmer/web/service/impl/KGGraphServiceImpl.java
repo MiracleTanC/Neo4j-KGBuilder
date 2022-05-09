@@ -15,6 +15,7 @@ import com.warmer.web.model.TreeExcel;
 import com.warmer.web.model.TreeExcelRecordData;
 import com.warmer.web.request.GraphQuery;
 
+import com.warmer.web.request.NodeCoordinateItem;
 import com.warmer.web.service.CategoryNodeService;
 import com.warmer.web.service.KgGraphNodeService;
 import com.warmer.web.service.KgGraphService;
@@ -138,7 +139,7 @@ public class KGGraphServiceImpl implements KgGraphService {
     }
 
     @Override
-    public void batchcreateGraph(String domain, List<Map<String, Object>> params) {
+    public void batchCreateGraph(String domain, List<Map<String, Object>> params) {
         kgRepository.batchCreateGraph(domain, params);
     }
 
@@ -150,6 +151,11 @@ public class KGGraphServiceImpl implements KgGraphService {
     @Override
     public void updateCoordinateOfNode(String domain, String uuid, Double fx, Double fy) {
         kgRepository.updateCoordinateOfNode(domain,uuid,fx,fy);
+    }
+
+    @Override
+    public void batchUpdateGraphNodesCoordinate(String domain, List<NodeCoordinateItem> nodes) {
+        kgRepository.batchUpdateGraphNodesCoordinate(domain,nodes);
     }
 
     @Override

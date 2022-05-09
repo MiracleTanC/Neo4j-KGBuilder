@@ -3,6 +3,7 @@ package com.warmer.web.service;
 import com.warmer.base.util.GraphPageRecord;
 import com.warmer.web.model.NodeItem;
 import com.warmer.web.request.GraphQuery;
+import com.warmer.web.request.NodeCoordinateItem;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -197,7 +198,7 @@ public interface KgGraphService {
 	 * @param domain
 	 * @param params 三元组 sourceNode,relationship,targetNode
 	 */
-	void batchcreateGraph(String domain, List<Map<String,Object>> params);
+	void batchCreateGraph(String domain, List<Map<String,Object>> params);
 	/**
 	 * 导入csv
 	 * @param domain
@@ -213,6 +214,13 @@ public interface KgGraphService {
 	 */
 	void updateNodeFileStatus(String domain,long nodeId, int status);
 	void updateCoordinateOfNode(String domain, String uuid, Double fx, Double fy);
+
+	/**
+	 * 批量更新节点坐标
+	 * @param domain
+	 * @param nodes
+	 */
+	void batchUpdateGraphNodesCoordinate(String domain,List<NodeCoordinateItem> nodes);
 
 	void importBySyz(MultipartFile file, HttpServletRequest request,String label,Integer isCreateIndex)throws Exception ;
 	void importByCategory(MultipartFile file, HttpServletRequest request,String label)throws Exception ;

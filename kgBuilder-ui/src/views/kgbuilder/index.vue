@@ -806,32 +806,22 @@ export default {
     //拖拽结束
     dragEnded (d) {
      if (!d3.event.active) this.simulation.alphaTarget(0.3)
-      //console.log(d.x,d3.event.x,d.y,d3.event.y)
-      let vx=d3.event.x-d.x;//x轴偏移量
-      let vy=d3.event.y-d.y;//y轴偏移量
-      d.x = d3.event.x
-      d.y = d3.event.y
-      d.fx = d3.event.x
-      d.fy = d3.event.y
-      let targetNodeIds=this.graph.links.filter(n=>n.sourceId==d.uuid).map(m=>m.targetId)
-      if(targetNodeIds&&targetNodeIds.length>0){
-        targetNodeIds.forEach(x=>{
-         this.graph.nodes.filter(n=>n.uuid==x).map(m=>{
-            m.fx=m.fx+vx;
-            m.fy=m.fy+vy;
-            m.x=m.x+vx;
-            m.y=m.y+vy;
-            return m;
+      let moveNodes=[];
+      moveNodes.push({uuid:d.uuid,fx:d.fx,fy:d.fy})
+      let relevantNodes=this.graph.links.filter(n=>n.sourceId==d.uuid)
+      if(relevantNodes&&relevantNodes.length>0){
+        relevantNodes.forEach(x=>{
+          let targetNodes=this.graph.nodes.filter(n=>n.uuid==x.targetId).map(m=>{
+            let item={uuid:m.uuid,fx:m.fx,fy:m.fy}
+            return item;
           })
+          moveNodes=moveNodes.concat(targetNodes)
         })
       }
-      // let domain = this.domain;
-      // let uuid = d.uuid;
-      // let fx = d.fx;
-      // let fy = d.fy;
-      // let data = { domain: domain, uuid: uuid, fx: fx, fy: fy };
-
-      // kgBuilderApi.updateCoordinateOfNode(data).then(result => { });
+      console.log(moveNodes)
+      //批量更新本次移动的节点坐标
+      let data={domain:this.domain,nodes:moveNodes}
+      kgBuilderApi.updateCoordinateOfNode(data).then(result => { });
     },
     //绘制节点
     drawNode (node) {
@@ -946,7 +936,7 @@ export default {
             if (d.image) {
                return ''
             }else{
-              //取圆的半径r，两边各空出5px,然后求出文字能放的最大长度(parseInt(d.r)-5)*,一个文字占16px(系统默认font-size=16px),
+              //取圆的半径r，两边各空出5px,然后求出文字能放的最大长度(parseInt(d.r)-5)*2,一个文字占16px(系统默认font-size=16px),
               //相除得到最多能放多少汉字，font-size换算比有待考证，文字两边和圆边框的间距忽大忽小，有缘者来优化
               let dr=(parseInt(d.r)-5)*2/16;
                   if(dr<len){

@@ -167,9 +167,11 @@ public class KGManagerController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/updateCoordinateOfNode")
-    public R<String> updateCoordinateOfNode(@RequestBody NodeCoordinateItem request) {
+    public R<String> updateCoordinateOfNode(@RequestBody NodeCoordinateSubmitItem request) {
         try {
-            kgGraphService.updateCoordinateOfNode(request.getDomain(), request.getUuid(), request.getFx(), request.getFy());
+            String domain=request.getDomain();
+            List<NodeCoordinateItem> nodes = request.getNodes();
+            kgGraphService.batchUpdateGraphNodesCoordinate(domain,nodes);
             return R.success();
         } catch (Exception e) {
             e.printStackTrace();

@@ -255,6 +255,7 @@ export default {
       deleteLinkName: this.deleteLinkName,
       quickAddNodes: this.btnQuickAddNode,
       createSingleNode: this.createSingleNode,
+      updateCoordinateOfNode: this.updateCoordinateOfNode,
     }
   },
   data () {
@@ -533,6 +534,10 @@ export default {
           this.graphData.nodes.push(newNode);
         }
       });
+    },
+    updateCoordinateOfNode (nodes) {
+      let data={domain:this.domain,nodes:nodes}
+      kgBuilderApi.updateCoordinateOfNode(data).then(result => { });
     },
     //删除节点
     deleteNode (out_buttongroup_id) {

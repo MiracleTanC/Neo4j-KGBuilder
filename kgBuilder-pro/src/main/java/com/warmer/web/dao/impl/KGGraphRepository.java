@@ -8,6 +8,7 @@ import com.warmer.web.model.NodeItem;
 import com.warmer.web.request.GraphQuery;
 import com.warmer.base.util.GraphPageRecord;
 import com.warmer.base.util.StringUtil;
+import com.warmer.web.request.NodeCoordinateItem;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -632,7 +633,20 @@ public class KGGraphRepository implements KGGraphDao {
             e.printStackTrace();
         }
     }
+    @Override
+    public void batchUpdateGraphNodesCoordinate(String domain,List<NodeCoordinateItem> params) {
+        try {
+            if (params != null && params.size() > 0) {
+                String nodeStr = Neo4jUtil.getFilterPropertiesJson(JsonHelper.toJSONString(params));
+                String nodeCypher = String
+                        .format("UNWIND %s as row " + " MATCH (n:`%s`)  where id(n)=row.uuid SET n.fx=row.fx,n.fy=row.fy", nodeStr, domain);
+                Neo4jUtil.runCypherSql(nodeCypher);
+            }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * 批量导入csv
      *

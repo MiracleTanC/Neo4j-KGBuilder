@@ -4,6 +4,7 @@ package com.warmer.web.dao;
 import com.warmer.web.model.NodeItem;
 import com.warmer.web.request.GraphQuery;
 import com.warmer.base.util.GraphPageRecord;
+import com.warmer.web.request.NodeCoordinateItem;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.HashMap;
@@ -201,6 +202,13 @@ public interface KGGraphDao {
 	 * @param params 三元组 sourceNode,relationship,targetNode
 	 */
 	void batchCreateGraph(String domain, List<Map<String,Object>> params);
+
+	/**
+	 * 批量更新节点坐标
+	 * @param domain
+	 * @param params
+	 */
+	void batchUpdateGraphNodesCoordinate(String domain,List<NodeCoordinateItem> params);
 	/**
 	 * 更新节点有无附件
 	 * @param domain
