@@ -65,7 +65,10 @@ public class FileController extends BaseController {
 	public String downloadImage(@PathVariable("fileName")String fileName, HttpServletResponse response) {
 		String filePath = appConfig.getLocation() ;
 		String fileUrl = filePath+ File.separator + fileName;
+		String[] arr = fileName.split("\\.");
+		String suffix = arr[1];
 		File file = new File(fileUrl);
+
 		if (file.exists()) {
 			//response.setContentType("application/force-download");// 设置强制下载不打开
 			response.addHeader("Content-Disposition","attachment;fileName=" + fileName);// 设置文件名
@@ -76,8 +79,10 @@ public class FileController extends BaseController {
 				fis = new FileInputStream(file);
 				bis = new BufferedInputStream(fis);
 				OutputStream os = response.getOutputStream();
-				//加上UTF-8文件的标识字符,避免乱码
-				os.write(new   byte []{( byte ) 0xEF ,( byte ) 0xBB ,( byte ) 0xBF });
+				if("csv".equalsIgnoreCase(suffix)){
+					//加上UTF-8文件的标识字符,避免乱码
+					os.write(new   byte []{( byte ) 0xEF ,( byte ) 0xBB ,( byte ) 0xBF });
+				}
 				int i = bis.read(buffer);
 				while (i != -1) {
 					os.write(buffer, 0, i);
