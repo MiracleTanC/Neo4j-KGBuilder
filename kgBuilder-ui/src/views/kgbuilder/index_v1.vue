@@ -710,9 +710,9 @@ export default {
         });
     },
     //初始化节点富文本内容
-    initNodeContent () {
-      let data = { domainId: this.domainId, nodeId: this.selectNode.nodeId };
-      kgBuilderApi.getNodeContent(data).then(response => {
+    initNodeContent (data) {
+      let param = { domainId: data.domainId, nodeId: data.nodeId };
+      kgBuilderApi.getNodeContent(param).then(response => {
         if (response.code == 200) {
           if (response.data) {
             this.$refs.kg_form.initContent(response.data.content);
@@ -723,9 +723,9 @@ export default {
       });
     },
     //初始化节点添加的图片
-    initNodeImage () {
-      let data = { domainId: this.domainId, nodeId: this.selectNode.nodeId };
-      kgBuilderApi.getNodeImage(data).then(response => {
+    initNodeImage (data) {
+      let param = { domainId: data.domainId, nodeId: data.nodeId };
+      kgBuilderApi.getNodeImage(param).then(response => {
         if (response.code == 200) {
           if (response.data) {
             let nodeImageList = [];

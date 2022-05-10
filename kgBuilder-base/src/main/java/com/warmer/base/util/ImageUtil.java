@@ -23,7 +23,7 @@ public class ImageUtil {
        if (!file.exists()) {
            file.mkdirs();
        }
-       FileInputStream fileInputStream = (FileInputStream) multipartFile.getInputStream();
+       InputStream fileInputStream =  multipartFile.getInputStream();
        String fileName = UuidUtil.getUUID() + ".png";
        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path + File.separator + fileName));
        byte[] bs = new byte[1024];

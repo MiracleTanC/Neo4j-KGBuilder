@@ -293,19 +293,11 @@ export default {
       const nodeEnter = this.drawNode(node)
       node = nodeEnter.merge(node)
       // 更新节点文字
-      let nodeText = this.nodeTextGroup
-        .selectAll('text')
-        .data(nodes, function(d) {
-          return d.uuid
-        })
+      this.nodeTextGroup.selectAll('.nodeText >g').remove()
+      let nodeText = this.nodeTextGroup.selectAll('.nodeText >g').data(nodes)
       nodeText.exit().remove()
       const nodeTextEnter = this.drawNodeText(nodeText)
       nodeText = nodeTextEnter.merge(nodeText)
-      nodeText
-        .append('title') // 为每个节点设置title
-        .text(function(d) {
-          return d.name
-        })
       // 更新节点标识
       let nodeSymbol = this.nodeSymbolGroup
         .selectAll('path')
@@ -713,7 +705,7 @@ export default {
               .attr('width', d.r * 2)
               .attr('height', d.r * 2)
               //.attr('xlink:href', 'https://cn.bing.com/rp/ar_9isCNU2Q-VG1yEDDHnx8HAFQ.png')
-              .attr('xlink:href', d.image)
+              .attr('xlink:href', process.env.VUE_APP_BASE_API+d.image)
             return 'url(#catpattern' + d.uuid + ')'
           } else {
             if(d.color){
@@ -856,19 +848,30 @@ export default {
       const _this = this
       const nodeTextEnter = nodeText
         .enter()
+        .append('g')
         .append('text')
-        .style('fill', '#fff')
+        .style('fill', function(d){
+          if(d.image){
+            return '#000000';
+          }
+          return '#fff';
+        })
         // .attr('dx', function(d){
         //   return -1*(parseInt(d.r)-10)
         // })//设置居中不用偏移
-        .attr('dy', 4)//文字是站在水平半径这条线上的，所以向下偏移一些，具体值应该是文字高度的一半
+        .attr('dy', function(d){
+           if (d.image) {
+               return d.r+20;//文字放在节点外边
+            }
+            return 4;//文字是站在水平半径这条线上的，所以向下偏移一些，具体值应该是文字高度的一半
+        })
         .attr('font-family', '微软雅黑')
         .attr('text-anchor', 'middle')//设置文字居中
         nodeTextEnter.text(function (d) {
             let text=d.name
             const len = text.length;
             if (d.image) {
-               return ''
+               return d.name
             }else{
               //取圆的半径r，两边各空出5px,然后求出文字能放的最大长度(parseInt(d.r)-5)*2,一个文字占16px(系统默认font-size=16px),
               //相除得到最多能放多少汉字，font-size换算比有待考证，文字两边和圆边框的间距忽大忽小，有缘者来优化

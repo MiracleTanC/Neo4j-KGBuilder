@@ -119,11 +119,13 @@
                 :headers="uploadHeader"
                 :action="uploadFileUrl"
                 accept=".jpg,.png"
-                multiple
+                :multiple="false"
                 :show-file-list="false"
                 :data="uploadImageParam"
+                :before-upload="beforeUpload"
                 :on-success="uploadSuccess"
                 :auto-upload="true"
+                :limit="1"
               >
                 <el-button slot="trigger" size="small" type="primary"
                   >选择</el-button
@@ -360,14 +362,16 @@ export default {
 
     },
     resetSubmit() {
-
+      this.drawerShow=false;
+       this.propActiveName="propEdit"
     },
     //节点上传图片
     saveNodeImage() {
       let data = {
         domainId: this.domainId,
         nodeId: this.graphData.uuid,
-        imageList: JSON.stringify(this.nodeImageList)
+        //imageList: JSON.stringify(this.nodeImageList)
+        imagePath: this.nodeImageList[0].file
       };
       kgBuilderApi.saveNodeImage(JSON.stringify(data)).then(result => {
         if (result.code == 200) {
@@ -401,8 +405,16 @@ export default {
     //添加网络图片
     addNetImage() {
       if (this.netImageUrl != "") {
-        this.nodeImageList.push({ file: this.netImageUrl, imageType: 1 });
-        this.netImageUrl = "";
+        if(this.nodeImageList.length==0){
+          this.nodeImageList.push({ file: this.netImageUrl, imageType: 1 });
+          this.netImageUrl = "";
+        }else{
+           this.$message({
+          message: '一个节点只能使用一张图片,如果有多张图片，可以添加到富文本中',
+          type: 'warning'
+        });
+        }
+
       }
     },
     //移除图片
@@ -411,13 +423,27 @@ export default {
     },
     //图片格式化
     imageUrlFormat(item) {
-      return item.file;
+      if(item.file.indexOf("http")===0){
+        return item.file;
+      }else{
+        return process.env.VUE_APP_BASE_API+item.file;
+      }
+    },
+    beforeUpload(){
+      if(this.nodeImageList.length>0){
+         this.$message({
+          message: '一个节点只能使用一张图片,如果有多张图片，可以添加到富文本中',
+          type: 'warning'
+        });
+      }
     },
     uploadSuccess(res, file) {
       if (res.success == 1) {
         for (let i = 0; i < res.results.length; i++) {
           let fileItem = res.results[i];
-          this.nodeImageList.push({ file: process.env.VUE_APP_BASE_API+fileItem.url, imageType: 0 });
+          if(this.nodeImageList.length==0){
+            this.nodeImageList.push({ file: fileItem.url, imageType: 0 });
+          }
         }
       } else {
         this.$message.error(res.msg);
@@ -451,12 +477,12 @@ export default {
       if (tab.name == "richTextEdit") {
         this.initEditor();
         this.editorContent = "";
-        this.$emit("initNodeContent");
+        this.$emit("initNodeContent",{domainId:this.domainId,nodeId:this.graphData.uuid});
 
       }
       if (tab.name == "propImage") {
         this.nodeImageList = [];
-        this.$emit("initNodeImage");
+        this.$emit("initNodeImage",{domainId:this.domainId,nodeId:this.graphData.uuid});
       }
     },
     exportCsv() {

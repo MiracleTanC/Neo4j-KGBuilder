@@ -149,6 +149,16 @@ public class KGGraphServiceImpl implements KgGraphService {
     }
 
     @Override
+    public void updateNodeImg(String domain, long nodeId, String img) {
+        kgRepository.updateNodeImg(domain,nodeId,img);
+    }
+
+    @Override
+    public void removeNodeImg(String domain, long nodeId) {
+
+    }
+
+    @Override
     public void updateCoordinateOfNode(String domain, String uuid, Double fx, Double fy) {
         kgRepository.updateCoordinateOfNode(domain,uuid,fx,fy);
     }

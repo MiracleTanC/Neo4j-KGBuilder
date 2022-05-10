@@ -685,7 +685,26 @@ public class KGGraphRepository implements KGGraphDao {
             e.printStackTrace();
         }
     }
+    @Override
+    public void updateNodeImg(String domain, long nodeId, String img) {
+        try {
+            String nodeCypher = String.format("match (n:`%s`) where id(n)=%s set n.image='%s' ", domain, nodeId, img);
+            Neo4jUtil.runCypherSql(nodeCypher);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public void removeNodeImg(String domain, long nodeId) {
+        try {
+            String nodeCypher = String.format("match (n:`%s`) where id(n)=%s remove n.image ", domain, nodeId);
+            Neo4jUtil.runCypherSql(nodeCypher);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void updateCoordinateOfNode(String domain, String uuid, Double fx, Double fy) {
         String cypher = null;

@@ -15,8 +15,6 @@ public class WebAppConfig{
      */
     @Value("${file.location}")
     private String location;
-    @Value("${file.serverurl}")
-    private String serverurl;
 
 	public String getLocation() {
 		return location;

@@ -216,6 +216,21 @@ public interface KGGraphDao {
 	 * @param status
 	 */
 	void updateNodeFileStatus(String domain,long nodeId, int status);
+
+	/**
+	 * 更新图谱节点的图片
+	 * @param domain
+	 * @param nodeId
+	 * @param img
+	 */
+	void updateNodeImg(String domain, long nodeId, String img);
+
+	/**
+	 * 移除节点图片
+	 * @param domain
+	 * @param nodeId
+	 */
+	void removeNodeImg(String domain, long nodeId);
 	/**
 	 * 导入csv
 	 * @param domain

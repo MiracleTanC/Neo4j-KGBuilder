@@ -453,39 +453,31 @@ public class KGManagerController extends BaseController {
     @RequestMapping(value = "/saveNodeImage")
     public R<String> saveNodeImage(@RequestBody Map<String, Object> params) {
         try {
-            String username = "tc";
             int domainId = (int) params.get("domainId");
             String nodeId = params.get("nodeId").toString();
-            String imageList = params.get("imageList").toString();
+            String imagePath = params.get("imagePath").toString();
             List<KgDomain> domainList = kgService.getDomainById(domainId);
             if (domainList != null && domainList.size() > 0) {
                 String domainName = domainList.get(0).getName();
-                kgService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
-                List<Map<String, Object>> imageItems = JsonHelper.parseObject(imageList, new TypeReference<List<Map<String, Object>>>() {
-                });
-                List<Map<String, Object>> submitItemList = new ArrayList<Map<String, Object>>();
-                if (!imageItems.isEmpty()) {
-                    for (Map<String, Object> item : imageItems) {
-                        String file = item.get("file").toString();
-                        int sourceType = 0;
-                        Map<String, Object> sb = new HashMap<String, Object>();
-                        sb.put("file", file);
-                        sb.put("imageType", sourceType);
-                        sb.put("domainId", domainId);
-                        sb.put("nodeId", nodeId);
-                        sb.put("status", 1);
-                        sb.put("createUser", username);
-                        sb.put("createTime", DateUtil.getDateNow());
-                        submitItemList.add(sb);
-                    }
-                }
-                if (submitItemList.size() > 0) {
+                if (StringUtil.isNotBlank(imagePath)) {
+                    List<Map<String, Object>> submitItemList = new ArrayList<Map<String, Object>>();
+                    Map<String, Object> sb = new HashMap<String, Object>();
+                    sb.put("file", imagePath);
+                    sb.put("imageType", 0);
+                    sb.put("domainId", domainId);
+                    sb.put("nodeId", nodeId);
+                    sb.put("status", 1);
+                    sb.put("createUser", "tc");
+                    sb.put("createTime", DateUtil.getDateNow());
+                    submitItemList.add(sb);
+                    kgService.deleteNodeImage(domainId,Integer.parseInt(nodeId));
                     kgService.saveNodeImage(submitItemList);
                     // 更新到图数据库,表明该节点有附件,加个标识,0=没有,1=有
-                    kgGraphService.updateNodeFileStatus(domainName, Long.parseLong(nodeId), 1);
+                    kgGraphService.updateNodeImg(domainName, Long.parseLong(nodeId), imagePath);
                     return R.success("操作成功");
                 } else {
-                    kgGraphService.updateNodeFileStatus(domainName, Long.parseLong(nodeId), 0);
+                    kgService.deleteNodeImage(domainId,Integer.parseInt(nodeId));
+                    kgGraphService.removeNodeImg(domainName, Long.parseLong(nodeId));
                     return R.success("操作成功");
                 }
             }

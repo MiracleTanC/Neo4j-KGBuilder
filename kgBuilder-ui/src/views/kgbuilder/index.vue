@@ -931,7 +931,6 @@ export default {
         .attr('text-anchor', 'middle')//设置文字居中
         nodeTextEnter.text(function (d) {
             let text=d.name
-            debugger
             const len = text.length;
             if (d.image) {
                return ''
