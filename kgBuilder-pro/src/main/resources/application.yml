@@ -2,7 +2,7 @@ spring:
   application:
     name: kg-builder
   profiles:
-    active: dev
+    active: pro
 
 
 

@@ -22,20 +22,17 @@
           class="ml-a-box"
           style="min-height:280px"
         >
-          <a
-            @click="matchDomainGraph(m, $event)"
+          <el-tag
+            @click="matchDomainGraph(m)"
             v-for="(m, index) in pageModel.nodeList"
             :key="index"
-            href="javascript:void(0)"
+            :type="m.type"
+            effect="dark"
             :title="m.name"
+            style="margin:2px;cursor:pointer"
           >
-            <el-tag
-              v-if="m.commend == 0"
-              closable
-              style="margin:2px"
-              @close="deleteDomain(m.id, m.name)"
-            >{{ m.name }}</el-tag>
-          </a>
+          {{m.name}}
+          </el-tag>
         </div>
         <div class="fr">
           <a
@@ -62,6 +59,12 @@
     <div class="mind-con">
       <!-- 头部工具栏 -->
       <div class="mind-top clearfix">
+         <span>
+            <span class="dibmr">
+              <span>当前领域:</span>
+              <span style="color:red">{{domain}}</span>
+            </span>
+          </span>
         <div
           v-show="domain != ''"
           class="fl"
@@ -222,7 +225,6 @@
 </template>
 <script>
 import _ from "lodash";
-import * as d3 from "d3";
 import { kgBuilderApi } from "@/api";
 import KgForm from "@/views/kgbuilder/components/kg_form";
 import NodeRicher from "@/views/kgbuilder/components/node_richer";
@@ -233,7 +235,6 @@ import KgHelp from "@/views/kgbuilder/components/kg_help";
 import html2canvas from "html2canvas";
 import kgbuilder from '@/components/KGBuilder_v1'
 import { EventBus } from '@/utils/event-bus.js'
-import axios from 'axios'
 export default {
   name: "kgBuilderv1",
   components: {
@@ -879,6 +880,10 @@ export default {
           this.pageModel = result.data;
           this.pageModel.totalPage =
             parseInt((result.data.totalCount - 1) / result.data.pageSize) + 1;
+            this.pageModel.nodeList.map(n=>{
+              n.type='';
+              return n;
+            })
         }
       });
     },
@@ -897,6 +902,15 @@ export default {
       this.domain = domain.name;
       this.domainId = domain.id;
       this.getDomainGraph();
+      this.pageModel.nodeList.map(n=>{
+        if(n.name==domain.name){
+          n.type="success";
+        }
+        else{
+          n.type="";
+        }
+        return n;
+      })
     },
     //保存图片
     saveImage () {

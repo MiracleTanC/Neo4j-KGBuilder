@@ -1105,9 +1105,39 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import url('../assets/css/kgbuilder2.scss');
 .knowledge-BOX {
   width: 100%;
   height: 100%;
 }
+.SVG {
+    width: 100%;
+    height:100%;
+    margin: 0;
+    padding: 0;
+  }
+
+text {
+    cursor: pointer;
+    max-width: 30px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  circle {
+    cursor: pointer;
+  }
+
+  .circle_none {
+    display: none;
+  }
+  .nodetext {
+    font-size: 12px;
+    font-family: SimSun;
+    fill: #000000;
+  }
+  .sase{
+    background: #ffffff;
+  }
 </style>
