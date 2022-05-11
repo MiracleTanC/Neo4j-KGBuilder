@@ -27,6 +27,8 @@ public class DomainCleanService {
                 if(nodeCount<10){
                     kgService.deleteDomain(domainItem.getId());
                     kgGraphService.deleteKGDomain(domainItem.getName());
+                    // 删除索引
+                    Neo4jUtil.deleteIndex(domainItem.getName());
                 }
             }
         }

@@ -668,45 +668,37 @@ export default {
     drawNode(node) {
       const _this = this
       const gradient = node.enter().append('g')
-      const grainold = gradient
-        .append('svg:defs')
-        .append('svg:linearGradient')
-        .attr('id', (d) => {
-          return 'circle_A' + d.uuid
-        })
-        .attr('x1', '0%')
-        .attr('y1', '0%')
-        .attr('x2', '100%')
-        .attr('y2', '100%')
-        .attr('spreadMethod', 'pad')
-      grainold
-        .append('svg:stop')
-        .attr('offset', '0%')
-        .attr('stop-color','#FB6E6F')
-      grainold
-        .append('svg:stop')
-        .attr('offset', '100%')
-        .attr('stop-color','#D13F3F')
       const nodeEnter = gradient.append('circle')
+      const defs = gradient.append('defs').attr('id', function(d){
+                return 'imgdef'+d.uuid;
+              })
+      const catpattern = defs
+              .append('pattern')
+              .attr('id',  function(d){
+                return 'catpattern'+d.uuid;
+              })
+              .attr('height', 1)
+              .attr('width', 1)
+      catpattern
+              .append('image')
+              .attr('width', (d)=>d.r * 2)
+              .attr('height', (d)=>d.r * 2)
+              .attr('xlink:href', function(d){
+                if(d.image){
+                  if(d.image.indexOf('http')>-1){
+                    return d.image
+                  }else{
+                    return process.env.VUE_APP_BASE_API+d.image
+                  }
+                }
+              })
       nodeEnter.attr('r', function(d) {
         return d.r?parseInt(d.r):25
       })
       nodeEnter
-        .attr('fill', function(d, i) {
+        .attr('fill', function(d) {
            if (d.image) {
-              const defs = gradient.append('defs').attr('id', 'imgdef')
-              const catpattern = defs
-              .append('pattern')
-              .attr('id', 'catpattern' + d.uuid)
-              .attr('height', 1)
-              .attr('width', 1)
-            catpattern
-              .append('image')
-              .attr('width', d.r * 2)
-              .attr('height', d.r * 2)
-              //.attr('xlink:href', 'https://cn.bing.com/rp/ar_9isCNU2Q-VG1yEDDHnx8HAFQ.png')
-              .attr('xlink:href', process.env.VUE_APP_BASE_API+d.image)
-            return 'url(#catpattern' + d.uuid + ')'
+           return 'url(#catpattern' + d.uuid + ')'
           } else {
             if(d.color){
               return d.color
@@ -717,9 +709,6 @@ export default {
         .attr('class', (d) => {
           return 'circle_' + d.uuid
         })
-      // .attr("filter", function (d) {
-      //   return "url(#filterNode" + d.uuid+")";
-      // })
       nodeEnter.style("opacity", 1);
       nodeEnter.style('stroke-opacity', 0.6)
       nodeEnter
