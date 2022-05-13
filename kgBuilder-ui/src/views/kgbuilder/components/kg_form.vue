@@ -326,9 +326,10 @@ export default {
   },
   components: {},
   methods: {
-    init(drawerShow,operate) {
+    init(drawerShow,operate,domain) {
       this.operate = operate;
       this.drawerShow = drawerShow;
+       this.uploadParam.domain=domain
     },
     initNode(drawerShow,operate,node,domainId) {
       this.operate = operate;
@@ -373,15 +374,8 @@ export default {
         //imageList: JSON.stringify(this.nodeImageList)
         imagePath: this.nodeImageList[0].file
       };
-      kgBuilderApi.saveNodeImage(JSON.stringify(data)).then(result => {
-        if (result.code == 200) {
-          this.init(false,"");
-          this.$message({
-            message: "操作成功",
-            type: "success"
-          });
-        }
-      });
+      this.init(false,"");
+      this.$emit("saveNodeImage",data);
     },
     //上传富文本
     saveNodeContent() {
@@ -390,12 +384,8 @@ export default {
         nodeId: this.graphData.uuid,
         content: this.editorContent
       };
-      kgBuilderApi.saveNodeContent(JSON.stringify(data)).then(result => {
-        if (result.code == 200) {
-          this.init(false,"");
-          this.$message({ message: "操作成功", type: "success" });
-        }
-      });
+      this.init(false,"");
+      this.$emit("saveNodeContent",data);
     },
     //预览图片
     handlePictureCardPreview(item) {

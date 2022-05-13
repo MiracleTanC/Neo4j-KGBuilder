@@ -1424,7 +1424,7 @@ export default {
     },
     //快速添加
     btnQuickAddNode () {
-      this.$refs.kg_form.init(true, "batchAdd");
+      this.$refs.kg_form.init(true, "batchAdd",this.domain);
     },
     //删除领域
     deleteDomain (id, value) {
@@ -1525,7 +1525,11 @@ export default {
     },
     //导入图谱
     importGraph () {
-      this.$refs.kg_form.init(true, "import");
+       if (!this.domain || this.domain == '') {
+        this.$message.warning("请选择一个领域");
+        return;
+      }
+      this.$refs.kg_form.init(true, "import",this.domain);
     },
     exportGraph () {
       if (!this.domain || this.domain == '') {
