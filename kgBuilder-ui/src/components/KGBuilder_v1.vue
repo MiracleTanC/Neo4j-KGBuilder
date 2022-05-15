@@ -21,19 +21,13 @@ import _ from "lodash";
 import { EventBus } from "@/utils/event-bus.js";
 import menuLink from "@/components/KGBuilderMenuLink";
 import menuBlank from "@/components/KGBuilderMenuBlank";
-import SvgIcon from "@/components/SvgIcon.vue";
+
 export default {
   name: "KGBuilder2",
-  inject: [
-    "_thisKey",
-    "Dset",
-    "createSingleNode",
-    "updateCoordinateOfNode"
-  ],
+  inject: ["_thisKey", "Dset", "createSingleNode", "updateCoordinateOfNode"],
   components: {
     menuLink,
-    menuBlank,
-    SvgIcon
+    menuBlank
   },
   props: {
     styles: {
@@ -48,8 +42,8 @@ export default {
       type: Array,
       default: []
     },
-    domainId: {
-      type: Object,
+    domain: {
+      type: String,
       default: 0
     },
     domainId: {
@@ -76,8 +70,6 @@ export default {
           d3.selectAll(".nodeButton").attr("transform", d3.event.transform);
         }),
       updateLink: null,
-      editLink: null, // 编辑连线
-      editLinkState: false,
       clone: null,
       scale: null,
       selectNode: {
@@ -96,6 +88,13 @@ export default {
       nodeSymbolGroup: null,
       nodeButtonGroup: null,
       nodeButtonAction: "",
+      movingLine: {
+        from: "",
+        to: "",
+        isDrawing: false,
+        defaultEvent: null,
+        container: null
+      },
       graph: {
         nodes: [],
         links: []
@@ -194,10 +193,10 @@ export default {
       this.nodeSymbolGroup = this.svg.append("g").attr("class", "nodeSymbol");
       this.nodeButtonGroup = this.svg.append("g").attr("class", "nodeButton");
       this.addMaker();
+      let _this = this;
       this.svg.on(
         "click",
         function() {
-          //console.log('svg click')
           d3.selectAll(".buttongroup").classed("circle_none", true);
           d3.selectAll("g[id^='circle_menu_']").style("display", "none");
         },
@@ -596,7 +595,7 @@ export default {
             .append("use")
             .attr("width", 30)
             .attr("height", 30)
-            .attr("xlink:href", "#" + item.icon.content);
+            .attr("xlink:href", item.icon.content);
         }
         if (item.icon.type == "url" || item.icon.type == "icon") {
           buttonEnter
@@ -630,20 +629,52 @@ export default {
             })
             .attr("font-size", 10);
         }
+        let _this = this;
         buttonEnter.on("click", function(d, i) {
           //console.log(d)
-          let currentItem = menuItems[i-actionIndex];
+          let currentItem = menuItems[i - actionIndex];
           if (currentItem.childrens && currentItem.childrens.length > 0) {
             let levelGroup = "#circle_menu_" + m.uuid + "_level_" + (level + 1);
             d3.selectAll(levelGroup).style("display", "block");
-            let btn="g[class^='menu_"+m.uuid+"_level_"+(level + 1)+"']";
+            let btn =
+              "g[class^='menu_" + m.uuid + "_level_" + (level + 1) + "']";
             //console.log(btn)
-             d3.selectAll(btn).style("display", "none");
-              let selectBtn="g[class^='menu_"+m.uuid+"_level_"+(level + 1)+"_pAction_"+i+"']";
-              //console.log(selectBtn)
-             d3.selectAll(selectBtn).style("display", "block");
+            d3.selectAll(btn).style("display", "none");
+            let selectBtn =
+              "g[class^='menu_" +
+              m.uuid +
+              "_level_" +
+              (level + 1) +
+              "_pAction_" +
+              i +
+              "']";
+            //console.log(selectBtn)
+            d3.selectAll(selectBtn).style("display", "block");
           } else {
-            currentItem.defaultEvent(m, _this, d3);
+            if (currentItem.title == "连线") {
+              //var m = d3.mouse(this);
+              var po = [m.x, m.y];
+              _this.movingLine.isDrawing = true;
+              _this.movingLine.from = m.uuid;
+              _this.movingLine.defaultEvent = currentItem.defaultEvent;
+              _this.movingLine.container = _this.svg
+                .append("line")
+                .attr("id", "drawLineTemp")
+                .attr("x1", po[0])
+                .attr("y1", po[1])
+                .attr("x2", po[0])
+                .attr("y2", po[1])
+                .style("opacity", 1)
+                .attr("stroke", "#FBB613")
+                .attr("stroke-width", 2)
+                .attr("marker-end", "url(#arrow)");
+              _this.svg.on("mousemove", function() {
+                var m = d3.mouse(this);
+                _this.movingLine.container.attr("x2", m[0]).attr("y2", m[1]);
+              });
+            } else {
+              currentItem.defaultEvent(m, _this, d3);
+            }
           }
           d3.event.stopPropagation();
         });
@@ -833,6 +864,28 @@ export default {
           .style("stroke-width", "6")
           .style("stroke", "#1890ff")
           .style("opacity", 1);
+        if (_this.movingLine.isDrawing && _this.movingLine.from != d.uuid) {
+          _this.movingLine.to = d.uuid;
+          _this.svg.on("mousemove", null);
+          _this.movingLine.isDrawing = false;
+          console.log(_this.movingLine.from, _this.movingLine.to);
+          let data = {
+            domain: _this.domain,
+            sourceId: _this.movingLine.from,
+            targetId: _this.movingLine.to,
+            ship: ""
+          };
+          d3.select("#drawLineTemp").remove();
+          _this.movingLine.defaultEvent(data, _this, d3);
+          _this.movingLine = {
+            from: "",
+            to: "",
+            isDrawing: false,
+            defaultEvent: null,
+            container: null
+          };
+          //console.log("dddd"+d.uuid)
+        }
       });
       nodeEnter.on("mouseleave", function(d) {
         const aa = d3.select(this)._groups[0][0];
@@ -903,12 +956,11 @@ export default {
       // });
       nodeEnter.on("click", function(d, i) {
         console.log("node click");
-        _this.selectNode.id = d.uuid;
-        _this.selectNode.cname = d.name;
+
         _this.svg.selectAll(".buttongroup").style("display", "block");
-         d3.selectAll("g[id^='circle_menu_']").style("display", "none");
-        let btn="g[id^='circle_menu_"+d.uuid+"_level_0']";
-         d3.selectAll(btn).style("display", "block");
+        d3.selectAll("g[id^='circle_menu_']").style("display", "none");
+        let btn = "g[id^='circle_menu_" + d.uuid + "_level_0']";
+        d3.selectAll(btn).style("display", "block");
         //因为svg也有click事件，这里要阻止冒泡
         d3.event.stopPropagation();
       });
@@ -962,7 +1014,7 @@ export default {
         }
       });
       nodeTextEnter.on("click", function(d, i) {
-        _this.selectNode.id = d.uuid;
+        _this.selectNode.uuid = d.uuid;
         _this.selectNode.cname = d.name;
         const out_buttongroup_id = ".out_buttongroup_" + d.uuid;
         _this.svg.selectAll(".buttongroup").style("display", "none");
@@ -1011,8 +1063,8 @@ export default {
         .attr("class", function(d, i) {
           return "buttongroup out_buttongroup_" + d.uuid;
         })
-        .style('display','none')
-        //.classed("circle_none", true);
+        .style("display", "none");
+      //.classed("circle_none", true);
 
       return nodeButtonEnter;
     },
@@ -1057,8 +1109,6 @@ export default {
         });
       // 连线鼠标滑入
       linkEnter.on("mouseenter", function(d) {
-        _this.editLinkState = true;
-        _this.editLink = d;
         d3.select(".Links_" + d.lk.uuid)
           .style("stroke-width", "10")
           .attr("stroke", "#e4e2e2")

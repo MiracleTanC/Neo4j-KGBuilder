@@ -294,6 +294,7 @@ export default {
       drawerShow: false,
       operate: "",
       batchCreateData:{
+        sourceUuid:'',
         sourceName: '',
         targetNames: '',
         relation: ''
@@ -336,6 +337,12 @@ export default {
       this.drawerShow = drawerShow;
       this.domainId=domainId;
       this.graphData=node;
+    },
+    initBatchAddChild(drawerShow,operate,node,domain) {
+      this.operate = operate;
+      this.drawerShow = drawerShow;
+      this.domain=domain;
+      this.batchCreateData.sourceUuid=node.uuid;
     },
     batchCreateNode(){
       this.init(false,"");

@@ -240,7 +240,7 @@ export default {
                 content: "点"
               },
               defaultEvent: (d, _this, d3) => {
-                console.log("点");
+                this.$refs.kg_form.initBatchAddChild(true, "batchAddChild",d,this.domain);
               },
               childrens:[]
             },
@@ -251,7 +251,7 @@ export default {
                 content: "块"
               },
               defaultEvent: (d, _this, d3) => {
-                console.log("块");
+                this.$message({ message: "开发中", type: "success" });
               }
             },
             {
@@ -261,7 +261,7 @@ export default {
                 content: "集"
               },
               defaultEvent: (d, _this, d3) => {
-                console.log("集");
+                this.$message({ message: "开发中", type: "success" });
               }
             }
           ]
@@ -269,8 +269,8 @@ export default {
         {
           title: "编辑",
           icon: {
-            type: "text",
-            content: "编辑"
+            type: "icon",
+            content: "#icon-editor"
           },
           defaultEvent: (d, _this, d3) => {
             _this.$nextTick(() => {
@@ -294,8 +294,8 @@ export default {
         {
           title: "展开",
           icon: {
-            type: "text",
-            content: "展开"
+            type: "icon",
+            content: "#icon-salescenter-fill"
           },
           defaultEvent: (d, _this, d3) => {
             let data = { domain: _this.domain, nodeId: d.uuid };
@@ -318,8 +318,8 @@ export default {
         {
           title: "删除",
           icon: {
-            type: "text",
-            content: "删除"
+            type: "icon",
+            content: "#icon-ashbin-fill"
           },
           defaultEvent: (d, _this, d3) => {
             let data = { domain: _this.domain, nodeId: d.uuid };
@@ -351,32 +351,118 @@ export default {
           },
           childrens: []
         },
-
         {
           title: "连线",
           icon: {
-            type: "url",
-            content:
-              "http://img.51miz.com/Element/00/34/01/92/9c0a6df0_E340192_95075075.png"
+            type: "icon",
+            content:"#icon-link"
           },
-          defaultEvent: (d, _this, d3) => {
-            console.log("连线");
-            _this.isAddLink = true;
-            _this.selectNode = d;
+          defaultEvent: (data, _this, d3) => {
+            this.createLink(data);
+           _this.updateGraph();
           },
           childrens: []
         },
-        // 隐藏相关节点和连线
         {
-          title: "隐藏",
+          title: "哈哈这里也可以用外部图片",
           icon: {
-            type: "icon",
-            content: "icon-zuzhi"
+            type: "url",
+            content: "https://tvax2.sinaimg.cn/crop.0.0.1008.1008.50/006Y2wSTly8gurymhtku4j60s00s0gn602.jpg"
           },
           defaultEvent: (d, _this, d3) => {
-            console.log("showMe");
+
           },
-          childrens: []
+          childrens: [{
+              title: "点",
+              icon: {
+                type: "text",
+                content: "点"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("点");
+              },
+              childrens:[{
+              title: "点1",
+              icon: {
+                type: "text",
+                content: "点1"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("点1");
+              },
+              childrens:[{
+              title: "点2",
+              icon: {
+                type: "text",
+                content: "点2"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("点");
+              },
+              childrens:[]
+            },
+            {
+              title: "块2",
+              icon: {
+                type: "text2",
+                content: "块"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("块2");
+              }
+            },
+            {
+              title: "集2",
+              icon: {
+                type: "text",
+                content: "集2"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("集2");
+              }
+            }]
+            },
+            {
+              title: "块1",
+              icon: {
+                type: "text",
+                content: "块1"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("块1");
+              }
+            },
+            {
+              title: "集1",
+              icon: {
+                type: "text1",
+                content: "集"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("集1");
+              }
+            }]
+            },
+            {
+              title: "块",
+              icon: {
+                type: "text",
+                content: "块"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("块");
+              }
+            },
+            {
+              title: "集",
+              icon: {
+                type: "text",
+                content: "集"
+              },
+              defaultEvent: (d, _this, d3) => {
+                console.log("集");
+              }
+            }]
         }
       ],
       _thisView: null,
@@ -472,8 +558,6 @@ export default {
             }
           }
           _this.graphData.nodes.push(newNode);
-
-          //_this.$refs.kg_builder.updateGraph();
         }
       });
     },
@@ -613,19 +697,11 @@ export default {
         });
     },
     //添加连线
-    createLink(sourceId, targetId, ship) {
-      let data = {
-        domain: this.domain,
-        sourceId: sourceId,
-        targetId: targetId,
-        ship: ship
-      };
+    createLink(data) {
       kgBuilderApi.createLink(data).then(result => {
         if (result.code == 200) {
           let newShip = result.data;
           this.graphData.links.push(newShip);
-          this.updateGraph();
-          this.isAddLink = false;
         }
       });
     },
@@ -994,7 +1070,7 @@ export default {
     batchCreateChildNode(param) {
       let data = {
         domain: this.domain,
-        sourceId: this.selectNode.nodeId,
+        sourceId: param.sourceUuid,
         targetNames: param.targetNodeNames,
         relation: param.relation
       };
@@ -1003,7 +1079,6 @@ export default {
           //把不存在于画布的节点添加到画布
           this.mergeNodeAndLink(result.data.nodes, result.data.ships);
           //重新绘制
-          this.updateGraph();
           this.$message({
             message: "操作成功",
             type: "success"
@@ -1021,8 +1096,6 @@ export default {
         if (result.code == 200) {
           //把不存在于画布的节点添加到画布
           this.mergeNodeAndLink(result.data, null);
-          //重新绘制
-          this.updateGraph();
           this.$message({
             message: "操作成功",
             type: "success"
