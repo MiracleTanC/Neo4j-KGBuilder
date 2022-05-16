@@ -10,12 +10,8 @@
     <!-- 左侧 -->
     <el-scrollbar class="mind-l">
       <div class="ml-m">
-        <h2 class="ml-ht">图谱列表</h2>
+        <h2 class="hometitle ml-ht">图谱列表</h2>
         <el-button
-          type="info"
-          style="margin: 2px 0 4px 2px;"
-          plain
-          size="small"
           @click="createDomain"
           >新建图谱</el-button
         >
@@ -214,7 +210,8 @@ export default {
       deleteLinkName: this.deleteLinkName,
       quickAddNodes: this.btnQuickAddNode,
       createSingleNode: this.createSingleNode,
-      updateCoordinateOfNode: this.updateCoordinateOfNode
+      updateCoordinateOfNode: this.updateCoordinateOfNode,
+      getNodeDetail:this.getNodeDetail
     };
   },
   data() {
@@ -307,7 +304,7 @@ export default {
                   result.data.relationship
                 );
                 //重新绘制
-                _this.updateGraph();
+                //_this.updateGraph();
               } else {
                 _this.$message.error("展开失败 :" + item.executionTime);
               }
@@ -564,13 +561,14 @@ export default {
      saveNodeImage(data) {
        let image=data.imagePath;
        let nodeId=data.nodeId
+       let _this = this;
       kgBuilderApi.saveNodeImage(JSON.stringify(data)).then(result => {
         if (result.code == 200) {
-          this.graphData.nodes.filter(n=>n.uuid==nodeId).map(m=>{
+          _this.graphData.nodes.filter(n=>n.uuid==nodeId).map(m=>{
             m.image=image;
             return m;
           })
-          this.$message({
+          _this.$message({
             message: "操作成功",
             type: "success"
           });
@@ -587,7 +585,6 @@ export default {
     },
     //画布直接添加节点
     createSingleNode(left, top) {
-      debugger;
       let data = { name: "", r: 30 };
       data.domain = this.domain;
       kgBuilderApi.createNode(data).then(result => {
@@ -598,7 +595,8 @@ export default {
             y: top,
             fx: left,
             fy: top,
-            r: parseInt(newNode.r)
+            r: parseInt(newNode.r),
+            image:''
           });
           this.graphData.nodes.push(newNode);
         }
@@ -714,7 +712,6 @@ export default {
         inputValue: sdata.cname
       })
         .then(function(res) {
-          debugger;
           let value = res.value;
           let data = {
             domain: _this.domain,

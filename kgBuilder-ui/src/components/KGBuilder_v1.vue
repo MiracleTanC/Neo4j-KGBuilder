@@ -24,7 +24,7 @@ import menuBlank from "@/components/KGBuilderMenuBlank";
 
 export default {
   name: "KGBuilder2",
-  inject: ["_thisKey", "Dset", "createSingleNode", "updateCoordinateOfNode"],
+  inject: ["_thisKey", "Dset", "createSingleNode", "updateCoordinateOfNode","getNodeDetail"],
   components: {
     menuLink,
     menuBlank
@@ -53,6 +53,7 @@ export default {
   },
   data() {
     return {
+      timer: null,
       fullscreenLoading: false,
       style: {},
       // 缩放配置
@@ -68,6 +69,7 @@ export default {
           d3.selectAll(".lineText").attr("transform", d3.event.transform);
           d3.selectAll(".nodeSymbol").attr("transform", d3.event.transform);
           d3.selectAll(".nodeButton").attr("transform", d3.event.transform);
+          d3.selectAll(".tempLine").attr("transform", d3.event.transform);
         }),
       updateLink: null,
       clone: null,
@@ -154,6 +156,7 @@ export default {
       //_this.$refs.node_richer.close();
       if (event.target.tagName != "circle" && event.target.tagName != "link") {
         d3.select("#nodeDetail").style("display", "none");
+        d3.select("#richContainer").style("display", "none");
       }
       let cursor = document.getElementById("BOX-SVG").style.cursor;
       if (cursor == "crosshair") {
@@ -652,12 +655,12 @@ export default {
             d3.selectAll(selectBtn).style("display", "block");
           } else {
             if (currentItem.title == "连线") {
-              //var m = d3.mouse(this);
-              var po = [m.x, m.y];
+              var po = d3.mouse(this);
+              //var po = [m.x, m.y];//取圆心位置缩放和平移的时候起点位置视觉上有偏移，这里直接获取鼠标指针位置
               _this.movingLine.isDrawing = true;
               _this.movingLine.from = m.uuid;
               _this.movingLine.defaultEvent = currentItem.defaultEvent;
-              _this.movingLine.container = _this.svg
+              _this.movingLine.container = _this.svg.append("g").attr("class","tempLine")
                 .append("line")
                 .attr("id", "drawLineTemp")
                 .attr("x1", po[0])
@@ -895,8 +898,14 @@ export default {
         d3.select(".nodeText").style("fill-opacity", 1);
         d3.selectAll("path[class^='Links_']").style("display", "block");
         d3.selectAll("text[class^='LinkText_']").style("display", "block");
+        clearTimeout(_this.timer);
       });
       nodeEnter.on("mouseover", function(d) {
+        const e = window.event;
+         _this.timer = setTimeout(function () {
+           d3.select("#richContainer").style("display", "block");
+          _this.getNodeDetail(d.uuid, e.pageX+30, e.pageY);
+        }, 2000);
         //todo鼠标放上去只显示相关节点，其他节点和连线隐藏
         d3.selectAll(".node").style("fill-opacity", 0.5);
         var relvantNodeIds = [];
@@ -955,8 +964,7 @@ export default {
       //     d3.event.preventDefault();
       // });
       nodeEnter.on("click", function(d, i) {
-        console.log("node click");
-
+        //console.log("node click");
         _this.svg.selectAll(".buttongroup").style("display", "block");
         d3.selectAll("g[id^='circle_menu_']").style("display", "none");
         let btn = "g[id^='circle_menu_" + d.uuid + "_level_0']";

@@ -22,6 +22,8 @@
                 </a>
             </li>
           </ul>
+          <h2 class="hometitle">加群口诀</h2>
+          <span>有福同享有难退群</span>
         </div>
 </template>
 

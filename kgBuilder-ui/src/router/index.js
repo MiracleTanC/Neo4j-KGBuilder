@@ -8,7 +8,7 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import("../views/kgbuilder/index.vue")
+    component: () => import("../views/kgbuilder/index_v1.vue")
   },
   {
     path: "/builder",

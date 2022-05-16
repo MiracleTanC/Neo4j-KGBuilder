@@ -1,6 +1,6 @@
 <template>
    <div id="richContainer" :style="richerStyle" v-show="richerShow">
-      <div
+      <!-- <div
         class="mind-fj-box"
         v-show="showImageList.length > 0 || editorContent != ''"
       >
@@ -13,10 +13,11 @@
             </el-carousel-item>
           </el-carousel>
         </div>
-        <el-scrollbar v-show="editorContent != ''" class="mind-fj-p">
+
+      </div> -->
+      <el-scrollbar v-show="editorContent != ''" class="mind-fj-p">
           <p v-html="editorContent"></p>
         </el-scrollbar>
-      </div>
     </div>
 </template>
 

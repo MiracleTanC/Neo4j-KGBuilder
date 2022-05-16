@@ -63,7 +63,7 @@
           </el-upload>
         </el-form-item>
         <el-form-item label-width="120px">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button @click="resetSubmit">取 消</el-button>
           <el-button type="primary" @click="submitUpload">确 定</el-button>
         </el-form-item>
       </el-form>
@@ -231,7 +231,7 @@
         </el-form-item>
         <el-form-item label-width="120px">
           <el-button type="primary" @click="batchCreateChildNode">确定</el-button>
-          <el-button>取消</el-button>
+          <el-button @click="resetSubmit">取消</el-button>
         </el-form-item>
       </el-form>
 
@@ -330,19 +330,22 @@ export default {
     init(drawerShow,operate,domain) {
       this.operate = operate;
       this.drawerShow = drawerShow;
-       this.uploadParam.domain=domain
+       this.uploadParam.domain=domain;
+        this.propActiveName="propEdit";
     },
     initNode(drawerShow,operate,node,domainId) {
       this.operate = operate;
       this.drawerShow = drawerShow;
       this.domainId=domainId;
       this.graphData=node;
+       this.propActiveName="propEdit";
     },
     initBatchAddChild(drawerShow,operate,node,domain) {
       this.operate = operate;
       this.drawerShow = drawerShow;
       this.domain=domain;
       this.batchCreateData.sourceUuid=node.uuid;
+       this.propActiveName="propEdit";
     },
     batchCreateNode(){
       this.init(false,"");
