@@ -24,7 +24,13 @@ import menuBlank from "@/components/KGBuilderMenuBlank";
 
 export default {
   name: "KGBuilder2",
-  inject: ["_thisKey", "Dset", "createSingleNode", "updateCoordinateOfNode","getNodeDetail"],
+  inject: [
+    "_thisKey",
+    "Dset",
+    "createSingleNode",
+    "updateCoordinateOfNode",
+    "getNodeDetail"
+  ],
   components: {
     menuLink,
     menuBlank
@@ -140,6 +146,8 @@ export default {
     //画布右击
     initContainerRightClick(event) {
       let _this = this;
+      _this.svg.on("mousemove", null);
+      d3.select("#drawLineTemp").remove();
       let menuBar = {
         left: event.clientX - 300,
         top: event.clientY - 140,
@@ -153,6 +161,8 @@ export default {
       let _this = this;
       _this.$refs.menu_blank.init({ show: false });
       _this.$refs.menu_link.init({ show: false });
+      _this.svg.on("mousemove", null);
+      d3.select("#drawLineTemp").remove();
       //_this.$refs.node_richer.close();
       if (event.target.tagName != "circle" && event.target.tagName != "link") {
         d3.select("#nodeDetail").style("display", "none");
@@ -660,7 +670,9 @@ export default {
               _this.movingLine.isDrawing = true;
               _this.movingLine.from = m.uuid;
               _this.movingLine.defaultEvent = currentItem.defaultEvent;
-              _this.movingLine.container = _this.svg.append("g").attr("class","tempLine")
+              _this.movingLine.container = _this.svg
+                .append("g")
+                .attr("class", "tempLine")
                 .append("line")
                 .attr("id", "drawLineTemp")
                 .attr("x1", po[0])
@@ -754,34 +766,40 @@ export default {
       d.y = d3.event.y;
       d.fx = d3.event.x;
       d.fy = d3.event.y;
-      let targetNodeIds = this.graph.links
-        .filter(n => n.sourceId == d.uuid)
-        .map(m => m.targetId);
-      if (targetNodeIds && targetNodeIds.length > 0) {
-        targetNodeIds.forEach(x => {
-          this.graph.nodes
-            .filter(n => n.uuid == x)
-            .map(m => {
-              m.fx = m.fx + vx;
-              m.fy = m.fy + vy;
-              m.x = m.x + vx;
-              m.y = m.y + vy;
-              return m;
-            });
-        });
-      }
+      // let targetNodeIds = this.graph.links
+      //   .filter(n => n.sourceId == d.uuid)
+      //   .map(m => m.targetId);
+      // if (targetNodeIds && targetNodeIds.length > 0) {
+      //   targetNodeIds.forEach(x => {
+      //     this.graph.nodes
+      //       .filter(n => n.uuid == x)
+      //       .map(m => {
+      //         m.fx = m.fx + vx;
+      //         m.fy = m.fy + vy;
+      //         m.x = m.x + vx;
+      //         m.y = m.y + vy;
+      //         return m;
+      //       });
+      //   });
+      // }
     },
     dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3);
       let moveNodes = [];
       moveNodes.push({ uuid: d.uuid, fx: d.fx, fy: d.fy });
-      let relevantNodes = this.graph.links.filter(n => n.sourceId == d.uuid);
-      if (relevantNodes && relevantNodes.length > 0) {
-        relevantNodes.forEach(x => {
+      let relevantNodes = this.graph.links
+        .filter(n => n.sourceId == d.uuid)
+        .map(m => m.targetId);
+      let arr = []; //去重复后的新数组
+      arr = relevantNodes.filter((element, index, self) => {
+        return self.indexOf(element) === index;
+      });
+      if (arr && arr.length > 0) {
+        arr.forEach(targetId => {
           let targetNodes = this.graph.nodes
-            .filter(n => n.uuid == x.targetId)
+            .filter(n => n.uuid == targetId)
             .map(m => {
-              let item = { uuid: m.uuid, fx: m.fx, fy: m.fy };
+              let item = { uuid: m.uuid, fx: m.x, fy: m.y };
               return item;
             });
           moveNodes = moveNodes.concat(targetNodes);
@@ -871,7 +889,7 @@ export default {
           _this.movingLine.to = d.uuid;
           _this.svg.on("mousemove", null);
           _this.movingLine.isDrawing = false;
-          console.log(_this.movingLine.from, _this.movingLine.to);
+          //console.log(_this.movingLine.from, _this.movingLine.to);
           let data = {
             domain: _this.domain,
             sourceId: _this.movingLine.from,
@@ -902,9 +920,9 @@ export default {
       });
       nodeEnter.on("mouseover", function(d) {
         const e = window.event;
-         _this.timer = setTimeout(function () {
-           d3.select("#richContainer").style("display", "block");
-          _this.getNodeDetail(d.uuid, e.pageX+30, e.pageY);
+        _this.timer = setTimeout(function() {
+          d3.select("#richContainer").style("display", "block");
+          _this.getNodeDetail(d.uuid, e.pageX + 30, e.pageY);
         }, 2000);
         //todo鼠标放上去只显示相关节点，其他节点和连线隐藏
         d3.selectAll(".node").style("fill-opacity", 0.5);

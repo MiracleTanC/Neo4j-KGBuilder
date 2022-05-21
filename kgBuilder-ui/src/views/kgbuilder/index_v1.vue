@@ -10,39 +10,42 @@
     <!-- 左侧 -->
     <el-scrollbar class="mind-l">
       <div class="ml-m">
-        <h2 class="hometitle ml-ht">图谱列表</h2>
-        <el-button
-          @click="createDomain"
-          >新建图谱</el-button
-        >
-        <div class="ml-a-box" style="min-height:280px">
-          <el-tag
-            @click="matchDomainGraph(m)"
-            v-for="(m, index) in pageModel.nodeList"
-            :key="index"
-            :type="m.type"
-            effect="dark"
-            :title="m.name"
-            style="margin:2px;cursor:pointer"
-          >
-            {{ m.name }}
-          </el-tag>
-        </div>
-        <div class="fr">
-          <a
-            href="javascript:void(0)"
-            class="svg-a-sm"
-            v-show="pageModel.pageIndex > 1"
-            @click="prev"
-            >上一页</a
-          >
-          <a
-            href="javascript:void(0)"
-            class="svg-a-sm"
-            v-show="pageModel.pageIndex < pageModel.totalPage"
-            @click="next"
-            >下一页</a
-          >
+        <div class="guanzhu" style="padding: 20px;">
+          <h2 class="hometitle ml-ht">图谱列表</h2>
+          <div class="ml-a-box" style="min-height:280px">
+            <el-tag
+              class="tag-ml-5"
+              @click="createDomain"
+              >新建图谱</el-tag
+            >
+            <el-tag
+              @click="matchDomainGraph(m)"
+              v-for="(m, index) in pageModel.nodeList"
+              :key="index"
+              :type="m.type"
+              effect="dark"
+              :title="m.name"
+              class="tag-ml-5"
+            >
+              {{ m.name }}
+            </el-tag>
+          </div>
+          <div class="fr">
+            <a
+              href="javascript:void(0)"
+              class="svg-a-sm"
+              v-show="pageModel.pageIndex > 1"
+              @click="prev"
+              >上一页</a
+            >
+            <a
+              href="javascript:void(0)"
+              class="svg-a-sm"
+              v-show="pageModel.pageIndex < pageModel.totalPage"
+              @click="next"
+              >下一页</a
+            >
+          </div>
         </div>
         <!-- 关注及交流 -->
         <div>
@@ -77,14 +80,13 @@
           <span>
             <span class="dibmr">
               <span>显示节点个数:</span>
-              <a
+              <el-tag
                 v-for="(m, index) in pageSizeList"
-                :key="index"
+                size="mini"
+                :key="index"  :type="m.isActive?'success':''"
+                class="tag-ml-5"
                 @click="setMatchSize(m)"
-                :title="m.size"
-                href="javascript:void(0)"
-                :class="[m.isActive ? 'sd-active' : '', 'sd']"
-                >{{ m.size }}</a
+                >{{ m.size }}</el-tag
               >
             </span>
           </span>
@@ -211,7 +213,7 @@ export default {
       quickAddNodes: this.btnQuickAddNode,
       createSingleNode: this.createSingleNode,
       updateCoordinateOfNode: this.updateCoordinateOfNode,
-      getNodeDetail:this.getNodeDetail
+      getNodeDetail: this.getNodeDetail
     };
   },
   data() {
@@ -237,9 +239,14 @@ export default {
                 content: "点"
               },
               defaultEvent: (d, _this, d3) => {
-                this.$refs.kg_form.initBatchAddChild(true, "batchAddChild",d,this.domain);
+                this.$refs.kg_form.initBatchAddChild(
+                  true,
+                  "batchAddChild",
+                  d,
+                  this.domain
+                );
               },
-              childrens:[]
+              childrens: []
             },
             {
               title: "块",
@@ -340,7 +347,7 @@ export default {
                 }
                 if (j >= 0) {
                   _this.graph.nodes.splice(j, 1); // 根据索引删除该节点
-                  _this.updateGraph();
+                  //_this.updateGraph();
                   _this.$message.success("操作成功!");
                 }
               }
@@ -352,11 +359,11 @@ export default {
           title: "连线",
           icon: {
             type: "icon",
-            content:"#icon-link"
+            content: "#icon-link"
           },
           defaultEvent: (data, _this, d3) => {
             this.createLink(data);
-           _this.updateGraph();
+            //_this.updateGraph();
           },
           childrens: []
         },
@@ -364,12 +371,12 @@ export default {
           title: "哈哈这里也可以用外部图片",
           icon: {
             type: "url",
-            content: "https://tvax2.sinaimg.cn/crop.0.0.1008.1008.50/006Y2wSTly8gurymhtku4j60s00s0gn602.jpg"
+            content:
+              "https://tvax2.sinaimg.cn/crop.0.0.1008.1008.50/006Y2wSTly8gurymhtku4j60s00s0gn602.jpg"
           },
-          defaultEvent: (d, _this, d3) => {
-
-          },
-          childrens: [{
+          defaultEvent: (d, _this, d3) => {},
+          childrens: [
+            {
               title: "点",
               icon: {
                 type: "text",
@@ -378,67 +385,71 @@ export default {
               defaultEvent: (d, _this, d3) => {
                 console.log("点");
               },
-              childrens:[{
-              title: "点1",
-              icon: {
-                type: "text",
-                content: "点1"
-              },
-              defaultEvent: (d, _this, d3) => {
-                console.log("点1");
-              },
-              childrens:[{
-              title: "点2",
-              icon: {
-                type: "text",
-                content: "点2"
-              },
-              defaultEvent: (d, _this, d3) => {
-                console.log("点");
-              },
-              childrens:[]
-            },
-            {
-              title: "块2",
-              icon: {
-                type: "text2",
-                content: "块"
-              },
-              defaultEvent: (d, _this, d3) => {
-                console.log("块2");
-              }
-            },
-            {
-              title: "集2",
-              icon: {
-                type: "text",
-                content: "集2"
-              },
-              defaultEvent: (d, _this, d3) => {
-                console.log("集2");
-              }
-            }]
-            },
-            {
-              title: "块1",
-              icon: {
-                type: "text",
-                content: "块1"
-              },
-              defaultEvent: (d, _this, d3) => {
-                console.log("块1");
-              }
-            },
-            {
-              title: "集1",
-              icon: {
-                type: "text1",
-                content: "集"
-              },
-              defaultEvent: (d, _this, d3) => {
-                console.log("集1");
-              }
-            }]
+              childrens: [
+                {
+                  title: "点1",
+                  icon: {
+                    type: "text",
+                    content: "点1"
+                  },
+                  defaultEvent: (d, _this, d3) => {
+                    console.log("点1");
+                  },
+                  childrens: [
+                    {
+                      title: "点2",
+                      icon: {
+                        type: "text",
+                        content: "点2"
+                      },
+                      defaultEvent: (d, _this, d3) => {
+                        console.log("点");
+                      },
+                      childrens: []
+                    },
+                    {
+                      title: "块2",
+                      icon: {
+                        type: "text2",
+                        content: "块"
+                      },
+                      defaultEvent: (d, _this, d3) => {
+                        console.log("块2");
+                      }
+                    },
+                    {
+                      title: "集2",
+                      icon: {
+                        type: "text",
+                        content: "集2"
+                      },
+                      defaultEvent: (d, _this, d3) => {
+                        console.log("集2");
+                      }
+                    }
+                  ]
+                },
+                {
+                  title: "块1",
+                  icon: {
+                    type: "text",
+                    content: "块1"
+                  },
+                  defaultEvent: (d, _this, d3) => {
+                    console.log("块1");
+                  }
+                },
+                {
+                  title: "集1",
+                  icon: {
+                    type: "text1",
+                    content: "集"
+                  },
+                  defaultEvent: (d, _this, d3) => {
+                    console.log("集1");
+                  }
+                }
+              ]
             },
             {
               title: "块",
@@ -459,7 +470,8 @@ export default {
               defaultEvent: (d, _this, d3) => {
                 console.log("集");
               }
-            }]
+            }
+          ]
         }
       ],
       _thisView: null,
@@ -558,16 +570,18 @@ export default {
         }
       });
     },
-     saveNodeImage(data) {
-       let image=data.imagePath;
-       let nodeId=data.nodeId
-       let _this = this;
+    saveNodeImage(data) {
+      let image = data.imagePath;
+      let nodeId = data.nodeId;
+      let _this = this;
       kgBuilderApi.saveNodeImage(JSON.stringify(data)).then(result => {
         if (result.code == 200) {
-          _this.graphData.nodes.filter(n=>n.uuid==nodeId).map(m=>{
-            m.image=image;
-            return m;
-          })
+          _this.graphData.nodes
+            .filter(n => n.uuid == nodeId)
+            .map(m => {
+              m.image = image;
+              return m;
+            });
           _this.$message({
             message: "操作成功",
             type: "success"
@@ -596,7 +610,7 @@ export default {
             fx: left,
             fy: top,
             r: parseInt(newNode.r),
-            image:''
+            image: ""
           });
           this.graphData.nodes.push(newNode);
         }
@@ -645,7 +659,7 @@ export default {
               if (j >= 0) {
                 _this.selectNode.nodeId = 0;
                 _this.graphData.nodes.splice(j, 1); // 根据索引删除该节点
-                _this.updateGraph();
+                //_this.updateGraph();
                 _this.$message({
                   type: "success",
                   message: "操作成功!"
@@ -752,7 +766,7 @@ export default {
                   }
                 }
               }
-              _this.updateGraph();
+              //_this.updateGraph();
               _this.$message({
                 message: "操作成功",
                 type: "success"
@@ -876,7 +890,7 @@ export default {
           //把不存在于画布的节点添加到画布
           this.mergeNodeAndLink(result.data.node, result.data.relationship);
           //重新绘制
-          this.updateGraph();
+          //this.updateGraph();
         }
       });
     },
@@ -1055,7 +1069,7 @@ export default {
           //把不存在于画布的节点添加到画布
           this.mergeNodeAndLink(result.data.nodes, result.data.ships);
           //重新绘制
-          this.updateGraph();
+          //this.updateGraph();
           this.$message({
             message: "操作成功",
             type: "success"
@@ -1468,4 +1482,10 @@ ul {
   display: inline-block;
   line-height: 30px;
 }
+.tag-ml-5{
+ margin:5px;
+ cursor:pointer;
+ float:left
+}
+
 </style>
