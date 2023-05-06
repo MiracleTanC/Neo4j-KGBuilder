@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/datasource")
 public class DatasourceController extends BaseController {
 
@@ -33,11 +33,6 @@ public class DatasourceController extends BaseController {
 
     @Autowired
     MetaDataColumnService metaDataColumnService;
-
-    @GetMapping("/")
-    public String Index() {
-        return "/datasource/index";
-    }
 
     @GetMapping("/getDataSource")
     @ResponseBody

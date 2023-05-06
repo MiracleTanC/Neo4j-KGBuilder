@@ -1,6 +1,7 @@
 package com.warmer.base.util;
 
 import org.neo4j.driver.*;
+import org.neo4j.driver.Record;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 import org.neo4j.driver.types.Relationship;

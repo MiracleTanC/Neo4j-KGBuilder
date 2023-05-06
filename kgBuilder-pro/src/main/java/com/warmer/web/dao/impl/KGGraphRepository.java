@@ -68,7 +68,7 @@ public class KGGraphRepository implements KGGraphDao {
      * 查询图谱节点和关系
      */
     @Override
-    public HashMap<String, Object> getDomainGraph(GraphQuery query) {
+    public HashMap<String, Object> queryGraphResult(GraphQuery query) {
         HashMap<String, Object> nr = new HashMap<String, Object>();
         try {
             String domain = query.getDomain();

@@ -1,24 +1,25 @@
 package com.warmer.web.service.impl;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.text.csv.*;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.IdUtil;
-import com.warmer.web.config.WebAppConfig;
-import com.warmer.base.util.CSVUtil;
 import com.warmer.base.util.ExcelUtil;
+import com.warmer.web.config.WebAppConfig;
 import com.warmer.base.util.GraphPageRecord;
 import com.warmer.base.util.StringUtil;
 import com.warmer.web.dao.impl.KGGraphRepository;
 import com.warmer.web.entity.CategoryNode;
 import com.warmer.web.model.NodeItem;
-import com.warmer.web.dao.KnowledgeGraphDao;
 import com.warmer.web.model.TreeExcel;
 import com.warmer.web.model.TreeExcelRecordData;
 import com.warmer.web.request.GraphQuery;
 
 import com.warmer.web.request.NodeCoordinateItem;
 import com.warmer.web.service.CategoryNodeService;
-import com.warmer.web.service.KgGraphNodeService;
 import com.warmer.web.service.KgGraphService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,11 +28,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +57,8 @@ public class KGGraphServiceImpl implements KgGraphService {
     }
 
     @Override
-    public HashMap<String, Object> getDomainGraph(GraphQuery query) {
-        return kgRepository.getDomainGraph(query);
+    public HashMap<String, Object> queryGraphResult(GraphQuery query) {
+        return kgRepository.queryGraphResult(query);
     }
 
     @Override
@@ -176,20 +177,17 @@ public class KGGraphServiceImpl implements KgGraphService {
     @Override
     public void importBySyz(MultipartFile file,HttpServletRequest request,String label,Integer isCreateIndex) throws Exception {
         List<Map<String, Object>> dataList = getFormatData(file);
-        List<List<String>> list = new ArrayList<>();
+        String filename = config.getLocation()+IdUtil.getSnowflakeNextIdStr()+ ".csv";
+        CsvWriter writer = CsvUtil.getWriter(filename, CharsetUtil.CHARSET_UTF_8);
         for (Map<String, Object> item : dataList) {
-            List<String> lst = new ArrayList<>();
-            lst.add(item.get("sourceNode").toString());
-            lst.add(item.get("targetNode").toString());
-            lst.add(item.get("relationship").toString());
-            list.add(lst);
+            String[] lst = new String[3];
+            lst[0]=item.get("sourceNode").toString();
+            lst[1]=item.get("targetNode").toString();
+            lst[2]=item.get("relationship").toString();
+            writer.write(lst);
         }
-        String savePath = config.getLocation();
-        String filename = "tc" + System.currentTimeMillis() + ".csv";
-        CSVUtil.createCsvFile(list, savePath,filename);
         String serverUrl=request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
         String csvUrl = "http://"+serverUrl+ "/file/download/" + filename;
-        //String csvUrl = "https://neo4j.com/docs/cypher-manual/3.5/csv/artists.csv";
         batchInsertByCSV(label, csvUrl, isCreateIndex);
     }
     private List<Map<String, Object>> getFormatData(MultipartFile file) throws Exception {
@@ -214,11 +212,11 @@ public class KGGraphServiceImpl implements KgGraphService {
                         if(row==null) continue;
                         int cellSize = row.getPhysicalNumberOfCells();
                         if (cellSize != 3) continue; //只读取3列
-                        row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                        row.getCell(0);
                         Cell cell0 = row.getCell(0);//节点1
-                        row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                        row.getCell(1);
                         Cell cell1 = row.getCell(1);//节点2
-                        row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);
+                        row.getCell(2);
                         Cell cell2 = row.getCell(2);//关系
                         if (null == cell0 || null == cell1 || null == cell2) {
                             continue;
@@ -236,24 +234,18 @@ public class KGGraphServiceImpl implements KgGraphService {
                     }
                 }
             } else if (fileName.endsWith(".csv")) {
-                List<List<String>> list = CSVUtil.readCsvFile(file);
-                if(list!=null){
-                    for (List<String> lst : list) {
-                        if (lst.size() != 3) {
-                            continue;
-                        }
-                        String sourceNode = lst.get(0);
-                        String targetNode = lst.get(1);
-                        String relationShip = lst.get(2);
-                        if (StringUtil.isBlank(sourceNode) || StringUtils.isBlank(targetNode) || StringUtils.isBlank(relationShip)) {
-                            continue;
-                        }
-                        Map<String, Object> map = new HashMap<String, Object>();
-                        map.put("sourceNode", sourceNode);
-                        map.put("targetNode", targetNode);
-                        map.put("relationship", relationShip);
-                        mapList.add(map);
-                    }
+                CsvReader reader = CsvUtil.getReader();
+                String filename = config.getLocation()+IdUtil.getSnowflakeNextIdStr()+ ".csv";
+                File fileTemp = new File(filename);
+                FileUtils.copyInputStreamToFile(file.getInputStream(), fileTemp);
+                CsvData data = reader.read(fileTemp);
+                for (CsvRow csvRow : data) {
+                    List<String> lst = csvRow.getRawList();
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("sourceNode", lst.get(0));
+                    map.put("targetNode", lst.get(1));
+                    map.put("relationship", lst.get(2));
+                    mapList.add(map);
                 }
 
             }

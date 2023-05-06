@@ -70,7 +70,7 @@ class kgBuilderApi extends BaseAPI{
     });
   }
   getDomainGraph(data) {
-    return this.post("/getDomainGraph",data,{
+    return this.post("/queryGraphResult",data,{
       headers: {
         'Content-Type': 'application/json'
       }

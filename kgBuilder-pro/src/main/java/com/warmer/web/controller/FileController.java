@@ -1,8 +1,9 @@
 package com.warmer.web.controller;
 
-import com.warmer.base.util.*;
+import cn.hutool.core.util.IdUtil;
+import com.warmer.base.util.FileResponse;
+import com.warmer.base.util.FileResult;
 import com.warmer.web.config.WebAppConfig;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,9 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Controller
@@ -24,8 +23,7 @@ import java.util.Map;
 public class FileController extends BaseController {
 	@Autowired
 	private WebAppConfig appConfig;
-	@Autowired
-	private QiniuUploadService qiniuUploadService;
+
 
 	@PostMapping("/upload")
 	@ResponseBody
@@ -37,12 +35,13 @@ public class FileController extends BaseController {
 		try {
 			for (MultipartFile file : files) {
 				FileResult fileResult = new FileResult();
-				//String contentType = file.getContentType();
 				String rootFileName = file.getOriginalFilename();
-				String fileName = ImageUtil.saveImg(file, filePath);
+				String suffix= rootFileName.substring(rootFileName.lastIndexOf("."));
+				String fileName =filePath+ IdUtil.getSnowflakeNextIdStr()+"."+suffix;
+				File saveFile = new File(fileName);
+				file.transferTo(saveFile);        // 文件保存
 				if (StringUtils.isNotBlank(fileName)) {
 					String success = "上传成功";
-					log.info(success);
 					fileResult.setMessage(success);
 					fileResult.setName(rootFileName);
 					fileResult.setStatus(0);
@@ -111,34 +110,5 @@ public class FileController extends BaseController {
 		return null;
 	}
 
-	@PostMapping("/qiniuUpload")
-	@ResponseBody
-	public FileResponse qiniuUpload(HttpServletRequest req,HttpServletResponse response){
-		FileResponse res = new FileResponse();
-		List<FileResult> fre = new ArrayList<FileResult>();
-		List<MultipartFile> files = ((MultipartHttpServletRequest) req).getFiles("file");
-		try {
-			for (MultipartFile file : files) {
-				String fileName = file.getOriginalFilename();
-				String url="http://"+qiniuUploadService.uploadImage(file,fileName);
-				FileResult fileResult = new FileResult();
-				if (StringUtils.isNotBlank(url)) {
-					String success = "上传成功";
-					fileResult.setMessage(success);
-					fileResult.setName(fileName);
-					fileResult.setStatus(0);
-					fileResult.setUrl(url);
-					fre.add(fileResult);
-				}
-			}
-			response.setHeader("X-Frame-Options", "SAMEORIGIN");// 解决IFrame拒绝的问题
-			res.setSuccess(1);
-			res.setMessage("ok");
-			res.setResults(fre);
-		} catch (FileUploadException e) {
-			log.error(e.getMessage());
-		}
-		return res;
-	}
 
 }

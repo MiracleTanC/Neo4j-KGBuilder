@@ -131,14 +131,14 @@ public class TreeExcel {
         }
 
         String cellVal = "";
-        if (cell.getCellTypeEnum() == CellType.NUMERIC) {
+        if (cell.getCellType() == CellType.NUMERIC) {
 
             java.text.DecimalFormat formatter = new java.text.DecimalFormat("########.####");
             cellVal = formatter.format(cell.getNumericCellValue());
 
-        } else if (cell.getCellTypeEnum() == CellType.BOOLEAN) {
+        } else if (cell.getCellType() == CellType.BOOLEAN) {
             cellVal = String.valueOf(cell.getBooleanCellValue());
-        } else if (cell.getCellTypeEnum() == CellType.FORMULA) {
+        } else if (cell.getCellType() == CellType.FORMULA) {
             try {
                 cellVal = cell.getStringCellValue();
             } catch (IllegalStateException e) {
@@ -157,7 +157,7 @@ public class TreeExcel {
         }
         CellStyle cellStyle = cell.getCellStyle();
         ColorInfo bgColor = null;
-        if (cellStyle.getFillPatternEnum() == FillPatternType.SOLID_FOREGROUND) {
+        if (cellStyle.getFillPattern() == FillPatternType.SOLID_FOREGROUND) {
             bgColor = excelColor2UOF(cellStyle.getFillForegroundColorColor());
         }
         if (bgColor == null) {

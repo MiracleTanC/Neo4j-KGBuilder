@@ -5,8 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.7.11</version>
+        <relativePath/>
     </parent>
     <groupId>com.warmer</groupId>
     <artifactId>kgbuilder</artifactId>
@@ -21,42 +21,24 @@
         <neo4j.version>4.4.5</neo4j.version>
         <mysql.version>8.0.16</mysql.version>
         <mybatis.version>2.1.3</mybatis.version>
-        <pagehelper.version>1.3.0</pagehelper.version>
+        <pagehelper.version>1.4.6</pagehelper.version>
         <fastjson.version>1.2.78</fastjson.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <qiniu-sdk.version>7.2.17</qiniu-sdk.version>
         <poi.version>3.17</poi.version>
         <javacsv.version>2.0</javacsv.version>
         <hanlp.version>portable-1.7.8</hanlp.version>
-        <lombok.version>1.18.12</lombok.version>
-        <hutool.version>5.7.16</hutool.version>
+        <lombok.version>1.18.26</lombok.version>
+        <hutool.version>5.8.18</hutool.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
+        <fasterxml.jackson.version>2.15.0</fasterxml.jackson.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.11.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j.driver</groupId>
-            <artifactId>neo4j-java-driver</artifactId>
-            <version>${neo4j.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional> <!-- 这个需要为 true 热部署才有效 -->
+            <optional>true</optional>
         </dependency>
 
     </dependencies>

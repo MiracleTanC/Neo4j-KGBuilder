@@ -33,7 +33,7 @@ public interface KGGraphDao {
 	 * @param query
 	 * @return node relationship
 	 */
-	HashMap<String, Object> getDomainGraph(GraphQuery query);
+	HashMap<String, Object> queryGraphResult(GraphQuery query);
 
 	/**
 	 * 获取节点列表
