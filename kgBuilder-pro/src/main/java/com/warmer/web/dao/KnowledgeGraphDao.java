@@ -12,15 +12,14 @@ import java.util.Map;
 @Mapper
 public interface KnowledgeGraphDao {
 	List<KgDomain> getDomains();
-	List<KgDomain> getRecommendDomainList();
 	List<KgDomain> getDomainList(@Param("domainName")String domainName, @Param("type")Integer type,@Param("commend")Integer commend);
 	void saveDomain(KgDomain map);
 	void updateDomain(KgDomain map);
 	void deleteDomain(@Param("id") Integer id);
 	List<KgDomain> getDomainByName(@Param("domainName") String domainName);
+	KgDomain getDomainByLabel(@Param("label") String label);
 	List<KgDomain> getDomainById(@Param("domainId")Integer domainId);
 	KgDomain selectById(@Param("domainId")Integer domainId);
-
 	void saveNodeImage(@Param("maplist") List<Map<String, Object>> mapList);
 	void saveNodeContent(@Param("params") Map<String, Object> map);
 	void updateNodeContent(@Param("params") Map<String, Object> map);

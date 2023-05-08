@@ -61,7 +61,7 @@
         <span>
           <span class="dibmr">
             <span>当前领域:</span>
-            <span style="color:red">{{ domain }}</span>
+            <span style="color:red">{{ domainAlia }}</span>
           </span>
         </span>
         <div v-show="domain != ''" class="fl" style="display: flex">
@@ -486,6 +486,7 @@ export default {
       ],
       domain: "",
       domainId: 0,
+      domainAlia:"",
       nodeName: "",
       pageSize: 500,
       activeNode: null,
@@ -938,6 +939,7 @@ export default {
             if (result.code == 200) {
               this.getDomain();
               this.domain = value;
+              this.domainAlia = value;
               this.getDomainGraph();
             }
           });
@@ -970,7 +972,8 @@ export default {
       this.getLabels(data);
     },
     matchDomainGraph(domain) {
-      this.domain = domain.name;
+      this.domain = domain.label;
+      this.domainAlia = domain.name;
       this.domainId = domain.id;
       this.getDomainGraph();
       this.pageModel.nodeList.map(n => {

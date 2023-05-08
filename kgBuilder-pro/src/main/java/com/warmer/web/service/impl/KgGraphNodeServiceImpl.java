@@ -13,11 +13,10 @@ import com.warmer.web.request.GraphNodeColumnItem;
 import com.warmer.web.request.GraphNodeItem;
 import com.warmer.web.request.GraphItem;
 import com.warmer.web.service.KgGraphNodeService;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,7 @@ public class KgGraphNodeServiceImpl implements KgGraphNodeService {
     @Autowired
     private KgGraphLinkDao kgGraphLinkDao;
     @Autowired
-    private KnowledgeGraphService kgService;
+    private KGManagerService kgService;
     @Override
     public void createNode(GraphItem submitItem) throws IOException {
         //先删除在保存

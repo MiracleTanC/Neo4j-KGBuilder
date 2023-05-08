@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface KgGraphService {
+public interface KGGraphService {
 	/**
 	 * 领域标签分页
 	 * @param queryItem

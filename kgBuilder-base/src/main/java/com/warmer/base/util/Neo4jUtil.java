@@ -161,6 +161,21 @@ public class Neo4jUtil implements AutoCloseable {
         }
         return ents;
     }
+    public static  Map<String,Object> getLabelsInfo() {
+        Map<String,Object> ent = new HashMap<>();
+        try (Session session = neo4jDriver.session()) {
+            String cypherSql="CALL apoc.meta.stats() YIELD labels RETURN labels";
+            Result result = session.run(cypherSql);
+            if (result.hasNext()) {
+                Record record = result.single();
+                Map<String, Object> mp = record.asMap();
+                ent = (Map<String, Object>) mp.get("labels");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return ent;
+    }
     /**
      * 删除索引
      * @param label

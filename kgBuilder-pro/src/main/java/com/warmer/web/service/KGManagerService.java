@@ -8,15 +8,15 @@ import com.warmer.web.entity.KgNodeDetailFile;
 import java.util.List;
 import java.util.Map;
 
-public interface KnowledgeGraphService {
+public interface KGManagerService {
 	List<KgDomain> getDomains();
-	List<KgDomain> getRecommendDomainList();
 	List<KgDomain> getDomainList(String domainName,Integer type,Integer commend);
 	Integer saveDomain(KgDomain map);
-	Integer quickCreateDomain(String domain,Integer type);
+	Integer quickCreateDomain(String domain,String domainAlia,Integer type);
 	void updateDomain(KgDomain map);
 	void deleteDomain(Integer id);
 	List<KgDomain> getDomainByName(String domainName);
+	KgDomain getDomainByLabel(String label);
 	List<KgDomain> getDomainById(Integer domainId);
 	KgDomain selectById(Integer domainId);
 	void saveNodeImage(List<Map<String, Object>> mapList);

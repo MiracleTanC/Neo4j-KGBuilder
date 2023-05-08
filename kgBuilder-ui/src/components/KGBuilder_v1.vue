@@ -190,7 +190,7 @@ export default {
             .forceLink()
             .distance(function(d) {
               return 60;
-              // return Math.floor(Math.random() * (700 - 200)) ;
+               //return Math.floor(Math.random() * (700 - 200)) ;
             })
             .id(function(d) {
               return d.uuid;
@@ -766,22 +766,22 @@ export default {
       d.y = d3.event.y;
       d.fx = d3.event.x;
       d.fy = d3.event.y;
-      // let targetNodeIds = this.graph.links
-      //   .filter(n => n.sourceId == d.uuid)
-      //   .map(m => m.targetId);
-      // if (targetNodeIds && targetNodeIds.length > 0) {
-      //   targetNodeIds.forEach(x => {
-      //     this.graph.nodes
-      //       .filter(n => n.uuid == x)
-      //       .map(m => {
-      //         m.fx = m.fx + vx;
-      //         m.fy = m.fy + vy;
-      //         m.x = m.x + vx;
-      //         m.y = m.y + vy;
-      //         return m;
-      //       });
-      //   });
-      // }
+      let targetNodeIds = this.graph.links
+        .filter(n => n.sourceId == d.uuid)
+        .map(m => m.targetId);
+      if (targetNodeIds && targetNodeIds.length > 0) {
+        targetNodeIds.forEach(x => {
+          this.graph.nodes
+            .filter(n => n.uuid == x)
+            .map(m => {
+              m.fx = m.x + vx;
+              m.fy = m.y + vy;
+              m.x = m.x + vx;
+              m.y = m.y + vy;
+              return m;
+            });
+        });
+      }
     },
     dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3);

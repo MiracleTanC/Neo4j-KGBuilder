@@ -2,21 +2,20 @@ package com.warmer.web.job;
 
 import com.warmer.base.util.Neo4jUtil;
 import com.warmer.web.entity.KgDomain;
-import com.warmer.web.service.KgGraphService;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGGraphService;
+import com.warmer.web.service.KGManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Component
 public class DomainCleanService {
     @Autowired
-    private KgGraphService kgGraphService;
+    private KGGraphService kgGraphService;
     @Autowired
-    private KnowledgeGraphService kgService;
+    private KGManagerService kgService;
     @Scheduled(cron = "0 0 1 * * ? ")
     public void clearDomain(){
         List<KgDomain> domains = kgService.getDomains();

@@ -1,11 +1,12 @@
 package com.warmer.web.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.warmer.base.util.DateUtil;
 import com.warmer.web.dao.KnowledgeGraphDao;
 import com.warmer.web.entity.KgDomain;
 import com.warmer.web.entity.KgNodeDetail;
 import com.warmer.web.entity.KgNodeDetailFile;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,18 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
+public class KGManagerServiceImpl implements KGManagerService {
 
     @Autowired
     KnowledgeGraphDao knowledgeGraphDao;
     @Override
     public List<KgDomain> getDomains() {
         return knowledgeGraphDao.getDomains();
-    }
-
-    @Override
-    public List<KgDomain> getRecommendDomainList() {
-        return knowledgeGraphDao.getRecommendDomainList();
     }
 
     @Override
@@ -41,9 +37,10 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
     }
 
     @Override
-    public Integer quickCreateDomain(String domain,Integer type) {
+    public Integer quickCreateDomain(String domain,String domainAlia,Integer type) {
         KgDomain item = new KgDomain();
-        item.setName(domain);
+        item.setName(domainAlia);
+        item.setLabel(domain);
         item.setNodeCount(0);
         item.setShipCount(0);
         item.setCreateUser("tc");
@@ -66,6 +63,11 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
     @Override
     public List<KgDomain> getDomainByName(String domainName) {
         return knowledgeGraphDao.getDomainByName(domainName);
+    }
+
+    @Override
+    public KgDomain getDomainByLabel(String label) {
+        return knowledgeGraphDao.getDomainByLabel(label);
     }
 
     @Override

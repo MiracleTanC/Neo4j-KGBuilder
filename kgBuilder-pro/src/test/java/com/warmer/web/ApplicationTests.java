@@ -2,8 +2,8 @@ package com.warmer.web;
 
 import com.warmer.base.util.Neo4jUtil;
 import com.warmer.web.entity.KgDomain;
-import com.warmer.web.service.KgGraphService;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGGraphService;
+import com.warmer.web.service.KGManagerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 class ApplicationTests {
 
     @Autowired
-    private KgGraphService kgGraphService;
+    private KGGraphService kgGraphService;
     @Autowired
-    private KnowledgeGraphService kgService;
+    private KGManagerService kgService;
     @Test
     void contextLoads() {
         List<KgDomain> domains = kgService.getDomains();

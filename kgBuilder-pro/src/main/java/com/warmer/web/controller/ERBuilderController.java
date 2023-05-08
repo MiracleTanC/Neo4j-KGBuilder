@@ -4,7 +4,7 @@ import com.warmer.base.util.R;
 import com.warmer.web.entity.KgDomain;
 import com.warmer.web.request.GraphItem;
 import com.warmer.web.service.KgGraphNodeService;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGManagerService;
 import com.warmer.web.service.impl.WorkFlowDirectorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequestMapping(value = "/er")
 public class ERBuilderController extends BaseController {
     @Autowired
-    private KnowledgeGraphService kgService;
+    private KGManagerService kgService;
 
     @Autowired
     private KgGraphNodeService kgGraphNodeService;

@@ -3,7 +3,6 @@ package com.warmer.web.service.impl;
 
 import com.github.pagehelper.util.StringUtil;
 import com.warmer.base.common.PageRecord;
-import com.warmer.base.util.BeanUtils;
 import com.warmer.base.util.DbUtils;
 import com.warmer.base.util.Neo4jUtil;
 import com.warmer.meta.entity.MetaDataSource;
@@ -22,7 +21,7 @@ import com.warmer.web.request.GraphNodeColumnItem;
 import com.warmer.web.request.GraphNodeItem;
 import com.warmer.web.service.IWorkFlowDirectorService;
 import com.warmer.web.service.KgGraphNodeService;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +52,7 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
     @Autowired
     MetaDataColumnService metaDataColumnService;
     @Autowired
-    private KnowledgeGraphService kgService;
+    private KGManagerService kgService;
     @Autowired
     private KgGraphNodeMapServiceImpl kgGraphNodeMapServiceImpl;
     @Autowired

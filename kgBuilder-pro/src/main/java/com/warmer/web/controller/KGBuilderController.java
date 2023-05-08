@@ -16,8 +16,8 @@ import com.warmer.web.entity.KgNodeDetailFile;
 import com.warmer.web.model.NodeItem;
 import com.warmer.web.request.*;
 import com.warmer.web.service.FeedBackService;
-import com.warmer.web.service.KgGraphService;
-import com.warmer.web.service.KnowledgeGraphService;
+import com.warmer.web.service.KGGraphService;
+import com.warmer.web.service.KGManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +35,9 @@ public class KGBuilderController extends BaseController {
     @Autowired
     private WebAppConfig config;
     @Autowired
-    private KgGraphService kgGraphService;
+    private KGGraphService kgGraphService;
     @Autowired
-    private KnowledgeGraphService kgService;
+    private KGManagerService kgManagerService;
     @Autowired
     FeedBackService feedBackService;
 
@@ -52,7 +52,7 @@ public class KGBuilderController extends BaseController {
         GraphPageRecord<KgDomain> resultRecord = new GraphPageRecord<KgDomain>();
         try {
             PageHelper.startPage(queryItem.getPageIndex(), queryItem.getPageSize(), true);
-            List<KgDomain> domainList = kgService.getDomainList(queryItem.getDomain(), queryItem.getType(), queryItem.getCommend());
+            List<KgDomain> domainList = kgManagerService.getDomainList(queryItem.getDomain(), queryItem.getType(), queryItem.getCommend());
             PageInfo<KgDomain> pageInfo = new PageInfo<KgDomain>(domainList);
             long total = pageInfo.getTotal();
             resultRecord.setPageIndex(queryItem.getPageIndex());
@@ -137,12 +137,13 @@ public class KGBuilderController extends BaseController {
     public R<String> createDomain(String domain, Integer type) {
         try {
             if (!StringUtil.isBlank(domain)) {
-                List<KgDomain> domainItem = kgService.getDomainByName(domain);
+                List<KgDomain> domainItem = kgManagerService.getDomainByName(domain);
                 if (domainItem.size() > 0) {
                     return R.create(ReturnStatus.Error, "领域已存在");
                 } else {
-                    int domainId = kgService.quickCreateDomain(domain, type);// 保存到mysql
-                    kgGraphService.createDomain(domain);// 保存到图数据
+                    String label=String.format("%s_%s",domain, IdUtil.nanoId(6));
+                    int domainId = kgManagerService.quickCreateDomain(label,domain, type);// 保存到mysql
+                    kgGraphService.createDomain(label);// 保存到图数据
                     return R.success(domainId);
                 }
             }
@@ -376,7 +377,7 @@ public class KGBuilderController extends BaseController {
     @RequestMapping(value = "/deleteDomain")
     public R<List<HashMap<String, Object>>> deleteDomain(Integer domainId, String domain) {
         try {
-            kgService.deleteDomain(domainId);
+            kgManagerService.deleteDomain(domainId);
             kgGraphService.deleteKGDomain(domain);
             return R.success();
         } catch (Exception e) {
@@ -421,24 +422,23 @@ public class KGBuilderController extends BaseController {
                                  MultipartFile file,
                                  HttpServletRequest request) {
         try {
-            String label = request.getParameter("domain");
+            String domain = request.getParameter("domain");
             Integer type = Integer.parseInt(request.getParameter("type"));
-            List<KgDomain> domainList = kgService.getDomainByName(label);
+            List<KgDomain> domainList = kgManagerService.getDomainByName(domain);
             int domainExist = 0;
             if (domainList != null && domainList.size() > 0) {
                 //导入已有图谱，更新图谱创建时间
                 KgDomain domainItem = domainList.get(0);
                 domainItem.setModifyTime(DateUtil.getDateNow());
-                kgService.updateDomain(domainItem);
+                kgManagerService.updateDomain(domainItem);
                 domainExist = 1;
             } else {
-                label = StringUtil.isBlank(label) ? IdUtil.getSnowflakeNextIdStr() : label;
-                kgService.quickCreateDomain(label, type);// 三元组
+                kgManagerService.quickCreateDomain(domain,domain, type);// 三元组
             }
             if (type.equals(1)) {//三元组导入
-                kgGraphService.importBySyz(file, request, label, domainExist);
+                kgGraphService.importBySyz(file, request, domain, domainExist);
             } else {
-                kgGraphService.importByCategory(file, request, label);
+                kgGraphService.importByCategory(file, request, domain);
             }
             return R.success("操作成功");
         } catch (Exception e) {
@@ -508,7 +508,7 @@ public class KGBuilderController extends BaseController {
     @RequestMapping(value = "/getNodeImage")
     public R<List<Map<String, Object>>> getNodeImageList(int domainId, int nodeId) {
         try {
-            List<KgNodeDetailFile> images = kgService.getNodeImageList(domainId, nodeId);
+            List<KgNodeDetailFile> images = kgManagerService.getNodeImageList(domainId, nodeId);
             return R.success(images);
         } catch (Exception e) {
             e.printStackTrace();
@@ -527,7 +527,7 @@ public class KGBuilderController extends BaseController {
     @RequestMapping(value = "/getNodeContent")
     public R<Map<String, Object>> getNodeContent(int domainId, int nodeId) {
         try {
-            List<KgNodeDetail> contents = kgService.getNodeContent(domainId, nodeId);
+            List<KgNodeDetail> contents = kgManagerService.getNodeContent(domainId, nodeId);
             if (contents != null && contents.size() > 0) {
                 return R.success(contents.get(0));
             }
@@ -553,11 +553,11 @@ public class KGBuilderController extends BaseController {
             Map<String, Object> res = new HashMap<String, Object>();
             res.put("content", "");
             res.put("imageList", new String[]{});
-            List<KgNodeDetail> contents = kgService.getNodeContent(domainId, nodeId);
+            List<KgNodeDetail> contents = kgManagerService.getNodeContent(domainId, nodeId);
             if (contents != null && contents.size() > 0) {
                 res.replace("content", contents.get(0).getContent());
             }
-            List<KgNodeDetailFile> images = kgService.getNodeImageList(domainId, nodeId);
+            List<KgNodeDetailFile> images = kgManagerService.getNodeImageList(domainId, nodeId);
             if (images != null && images.size() > 0) {
                 res.replace("imageList", images);
             }
@@ -599,7 +599,7 @@ public class KGBuilderController extends BaseController {
             int domainId = (int) params.get("domainId");
             String nodeId = params.get("nodeId").toString();
             String imagePath = params.get("imagePath").toString();
-            List<KgDomain> domainList = kgService.getDomainById(domainId);
+            List<KgDomain> domainList = kgManagerService.getDomainById(domainId);
             if (domainList != null && domainList.size() > 0) {
                 String domainName = domainList.get(0).getName();
                 if (StringUtil.isNotBlank(imagePath)) {
@@ -613,13 +613,13 @@ public class KGBuilderController extends BaseController {
                     sb.put("createUser", "tc");
                     sb.put("createTime", DateUtil.getDateNow());
                     submitItemList.add(sb);
-                    kgService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
-                    kgService.saveNodeImage(submitItemList);
+                    kgManagerService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
+                    kgManagerService.saveNodeImage(submitItemList);
                     // 更新到图数据库,表明该节点有附件,加个标识,0=没有,1=有
                     kgGraphService.updateNodeImg(domainName, Long.parseLong(nodeId), imagePath);
                     return R.success("操作成功");
                 } else {
-                    kgService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
+                    kgManagerService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
                     kgGraphService.removeNodeImg(domainName, Long.parseLong(nodeId));
                     return R.success("操作成功");
                 }
@@ -645,11 +645,11 @@ public class KGBuilderController extends BaseController {
             int domainId = (int) params.get("domainId");
             String nodeId = params.get("nodeId").toString();
             String content = params.get("content").toString();
-            List<KgDomain> domainList = kgService.getDomainById(domainId);
+            List<KgDomain> domainList = kgManagerService.getDomainById(domainId);
             if (domainList != null && domainList.size() > 0) {
                 String domainName = domainList.get(0).getName();
                 // 检查是否存在
-                List<KgNodeDetail> items = kgService.getNodeContent(domainId, Integer.parseInt(nodeId));
+                List<KgNodeDetail> items = kgManagerService.getNodeContent(domainId, Integer.parseInt(nodeId));
                 if (items != null && items.size() > 0) {
                     KgNodeDetail oldItem = items.get(0);
                     Map<String, Object> item = new HashMap<String, Object>();
@@ -658,7 +658,7 @@ public class KGBuilderController extends BaseController {
                     item.put("content", content);
                     item.put("modifyUser", username);
                     item.put("modifyTime", DateUtil.getDateNow());
-                    kgService.updateNodeContent(item);
+                    kgManagerService.updateNodeContent(item);
                     return R.success("更新成功");
                 } else {
                     Map<String, Object> sb = new HashMap<String, Object>();
@@ -669,7 +669,7 @@ public class KGBuilderController extends BaseController {
                     sb.put("createUser", username);
                     sb.put("createTime", DateUtil.getDateNow());
                     if (sb.size() > 0) {
-                        kgService.saveNodeContent(sb);
+                        kgManagerService.saveNodeContent(sb);
                         return R.success("保存成功");
                     }
                 }

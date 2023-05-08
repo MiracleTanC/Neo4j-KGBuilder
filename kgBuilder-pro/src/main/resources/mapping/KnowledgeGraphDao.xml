@@ -5,12 +5,15 @@
 	<resultMap id="BaseResultMap" type="com.warmer.web.entity.KgDomain">
 		<id column="id" jdbcType="INTEGER" property="id" />
 		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="label" jdbcType="VARCHAR" property="label" />
 		<result column="nodeCount" jdbcType="INTEGER" property="nodeCount" />
 		<result column="shipCount" jdbcType="INTEGER" property="shipCount" />
 		<result column="status" jdbcType="INTEGER" property="status" />
-		<result column="createUser" jdbcType="INTEGER" property="createUser" />
+
 		<result column="commend" jdbcType="INTEGER" property="commend" />
+		<result column="createUser" jdbcType="INTEGER" property="createUser" />
 		<result column="createTime" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modifyUser" jdbcType="VARCHAR" property="modifyUser" />
 		<result column="modifyTime" jdbcType="TIMESTAMP" property="modifyTime" />
 	</resultMap>
 	<resultMap id="BaseFileResultMap" type="com.warmer.web.entity.KgNodeDetailFile">
@@ -37,12 +40,17 @@
 		<result column="modifyTime" jdbcType="VARCHAR" property="modifyTime" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, `name`, nodeCount, shipCount,status,createUser,commend,createTime
+		id, `name`,`label`, nodeCount, shipCount,status,createUser,commend,createTime
 	</sql>
 	<select id="getDomains" resultMap="BaseResultMap">
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM kg_domain where status=1 order by createTime desc
+	</select>
+	<select id="getDomainByLabel" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM kg_domain where status=1 and `label`=#{label} order by createTime desc
 	</select>
 	<select id="getDomainList" resultMap="BaseResultMap" >
 		SELECT
@@ -62,15 +70,6 @@
 	    </where>
 		order by createTime desc
 	</select>
-	<select id="getRecommendDomainList" resultMap="BaseResultMap" >
-		SELECT
-		<include refid="Base_Column_List" />
-		FROM kg_domain
-		<where >
-			status=1 and commend=1
-		</where>
-		order by id desc
-	</select>
 	<select id="getDomainByName" resultMap="BaseResultMap" parameterType="String">
 		SELECT
 		<include refid="Base_Column_List" />
@@ -88,15 +87,16 @@
 	</select>
 
 	<insert id="saveDomain" parameterType="map" keyColumn="id" keyProperty="id"  useGeneratedKeys="true">
-        INSERT INTO kg_domain(name, createUser,nodeCount, shipCount,status,type,commend,createTime,modifyTime) VALUES (#{name},#{createUser},#{nodeCount},#{shipCount},1,#{type},#{commend},now(),now())
+        INSERT INTO kg_domain(name, label,createUser,nodeCount, shipCount,status,type,commend,createTime,modifyTime)
+		VALUES (#{name},#{label},#{createUser},#{nodeCount},#{shipCount},1,#{type},#{commend},now(),now())
     </insert>
 	<update id="updateDomain" parameterType="map">
         UPDATE kg_domain
         SET 
         name =#{name} ,
-        createUser=#{createUser} ,
         nodeCount=#{nodeCount},
         shipCount=#{shipCount},
+		modifyUser=#{modifyUser} ,
 		modifyTime=now()
         WHERE id = #{id}
     </update>

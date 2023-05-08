@@ -1,6 +1,5 @@
 package com.warmer.web.service.impl;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.text.csv.*;
 import cn.hutool.core.util.CharsetUtil;
@@ -18,7 +17,7 @@ import com.warmer.web.request.GraphQuery;
 
 import com.warmer.web.request.NodeCoordinateItem;
 import com.warmer.web.service.CategoryNodeService;
-import com.warmer.web.service.KgGraphService;
+import com.warmer.web.service.KGGraphService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -39,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class KGGraphServiceImpl implements KgGraphService {
+public class KGGraphServiceImpl implements KGGraphService {
 
     @Autowired
     private KGGraphRepository kgRepository;
