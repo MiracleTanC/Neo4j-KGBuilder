@@ -176,8 +176,9 @@ public class KGGraphServiceImpl implements KGGraphService {
     @Override
     public void importBySyz(MultipartFile file,HttpServletRequest request,String label,Integer isCreateIndex) throws Exception {
         List<Map<String, Object>> dataList = getFormatData(file);
-        String filename = config.getLocation()+IdUtil.getSnowflakeNextIdStr()+ ".csv";
-        CsvWriter writer = CsvUtil.getWriter(filename, CharsetUtil.CHARSET_UTF_8);
+        String filename = IdUtil.getSnowflakeNextIdStr()+ ".csv";
+        String fullFileName = config.getLocation()+filename;
+        CsvWriter writer = CsvUtil.getWriter(fullFileName, CharsetUtil.CHARSET_UTF_8);
         for (Map<String, Object> item : dataList) {
             String[] lst = new String[3];
             lst[0]=item.get("sourceNode").toString();
