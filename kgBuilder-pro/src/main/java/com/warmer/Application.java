@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,8 @@ public class Application implements ApplicationRunner {
 
     @Autowired
     private KGManagerService kgManagerService;
+    @Value("${app.initNeo4jOnStartup:true}")
+    private boolean initNeo4jOnStartup;
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -35,6 +38,9 @@ public class Application implements ApplicationRunner {
      */
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        if(!initNeo4jOnStartup){
+            return;
+        }
         Map<String, Object> labelsInfo = Neo4jUtil.getLabelsInfo();
         if(labelsInfo!=null&&labelsInfo.keySet().size()>0){
             for (String label : labelsInfo.keySet()) {

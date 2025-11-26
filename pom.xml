@@ -28,7 +28,7 @@
         <poi.version>3.17</poi.version>
         <javacsv.version>2.0</javacsv.version>
         <hanlp.version>portable-1.7.8</hanlp.version>
-        <lombok.version>1.18.26</lombok.version>
+        <lombok.version>1.18.34</lombok.version>
         <hutool.version>5.8.18</hutool.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <fasterxml.jackson.version>2.15.0</fasterxml.jackson.version>
@@ -41,10 +41,30 @@
             <optional>true</optional>
         </dependency>
 
-    </dependencies>
+</dependencies>
     <modules>
         <module>kgBuilder-base</module>
         <module>kgBuilder-meta</module>
         <module>kgBuilder-pro</module>
     </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

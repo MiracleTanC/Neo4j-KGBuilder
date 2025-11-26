@@ -14,8 +14,12 @@ spring:
       url: jdbc:mysql://你的ip:3306/kg?useSSL=false&serverTimezone=UTC
       driverClassName: com.mysql.cj.jdbc.Driver
       username: root
-      password: 你的密码
+      password: 123456
       type: com.zaxxer.hikari.HikariDataSource
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 mybatis:
   typeAliasesPackage: com.warmer.kgmaker.entity
   mapperLocations: classpath*:/mapping/*.xml
