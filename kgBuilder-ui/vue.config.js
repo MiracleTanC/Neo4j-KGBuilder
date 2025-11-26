@@ -35,20 +35,23 @@ module.exports = {
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
-        target: process.env.VUE_APP_BACKEND || `http://localhost:8080`,
+        target: process.env.VUE_APP_BACKEND || `http://localhost:8081`,
         changeOrigin: true,
         pathRewrite: {
           ["^" + process.env.VUE_APP_BASE_API]: ""
         }
       }
     },
-    disableHostCheck: true
+    allowedHosts: "all"
   },
   configureWebpack: {
     name: name,
     resolve: {
       alias: {
         "@": resolve("src")
+      },
+      fallback: {
+        path: require.resolve("path-browserify")
       }
     }
   },
@@ -82,16 +85,6 @@ module.exports = {
       .end();
 
     config.when(process.env.NODE_ENV !== "development", config => {
-      config
-        .plugin("ScriptExtHtmlWebpackPlugin")
-        .after("html")
-        .use("script-ext-html-webpack-plugin", [
-          {
-            // `runtime` must same as runtimeChunk name. default is `runtime`
-            inline: /runtime\..*\.js$/
-          }
-        ])
-        .end();
       config.optimization.splitChunks({
         chunks: "all",
         cacheGroups: {
@@ -115,11 +108,7 @@ module.exports = {
           }
         }
       });
-      config.optimization.runtimeChunk("single"),
-        {
-          from: path.resolve(__dirname, "./public/robots.txt"), //防爬虫文件
-          to: "./" //到根目录下
-        };
+      config.optimization.runtimeChunk("single");
     });
   }
 };

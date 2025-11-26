@@ -11228,8 +11228,6 @@ export default {
 </script>
 
   <style scoped>
-    @import '/static/icon/demo.css';
-    @import '/static/icon/iconfont.css';
     .main .logo {
       margin-top: 0;
       height: auto;

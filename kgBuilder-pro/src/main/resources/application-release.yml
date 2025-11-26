@@ -9,14 +9,14 @@ spring:
     cache : false
     mode: HTML5
   neo4j:
-    url: bolt://localhost:7687
-    username: neo4j
-    password: 123456
+    url: ${NEO4J_URL:bolt://localhost:7687}
+    username: ${NEO4J_USERNAME:neo4j}
+    password: ${NEO4J_PASSWORD:123456}
   datasource:
-    url: jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC
+    url: ${DB_URL:jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC}
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 123456
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
     type: com.zaxxer.hikari.HikariDataSource
 mybatis:
   typeAliasesPackage: com.warmer.kgmaker.entity
@@ -30,14 +30,14 @@ pagehelper:
 #--------七牛云配置
 qiniu:
   access:
-    key: 2J5BOKpbxDlzkYVYZ5dwGsS3jAevVmOJwcL3fIdpwd
+    key: ${QINIU_ACCESS_KEY:change_me}
   secret:
-    key: 2LXAQbFFbFR_I76bseNEmus-Sjnh4RRaSRsazX5Djw
+    key: ${QINIU_SECRET_KEY:change_me}
   bucket:
-    name: nndt
+    name: ${QINIU_BUCKET_NAME:nndt}
     host:
-      name: file.miaoleyan.com
-  prefixName: /nndt
+      name: ${QINIU_HOST:file.miaoleyan.com}
+  prefixName: ${QINIU_PREFIX:/nndt}
 #--------七牛云配置
 img:  #//如果是Windows情况下，格式是 D:\\blog\\image\\   linx 格式"/home/blog/image/";
   location : D:\\blog\\image\\
