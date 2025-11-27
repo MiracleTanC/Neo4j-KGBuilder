@@ -19,6 +19,7 @@ import com.warmer.web.request.GraphItem;
 import com.warmer.web.request.GraphLinkItem;
 import com.warmer.web.request.GraphNodeColumnItem;
 import com.warmer.web.request.GraphNodeItem;
+import com.warmer.web.service.AbstractWorkFlowService;
 import com.warmer.web.service.IWorkFlowDirectorService;
 import com.warmer.web.service.KgGraphNodeService;
 import com.warmer.web.service.KGManagerService;
@@ -54,6 +55,9 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
     @Autowired
     private KgGraphNodeService kgGraphNodeService;
 
+    @Autowired
+    private Map<String, AbstractWorkFlowService> workFlowServices;
+
     /**
      * 导演方法。
      * 从config json串中提取组件和连接信息
@@ -80,7 +84,12 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
             log.info("头结点数量：" + componentContainer.getStartNodes().size());
             componentContainer.getStartNodes().forEach(node -> {
                 log.info("检查头结点");
-                createGraphNode(node);
+                AbstractWorkFlowService service = workFlowServices.get(node.getNodeCode());
+                if (service != null) {
+                    service.process(node);
+                } else {
+                    log.error("未找到对应类型的服务: {}", node.getNodeCode());
+                }
                 componentContainer.markExecutedDone(node);
             });
             //获取除起始节点外的所有节点
@@ -96,7 +105,12 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
                         DataNode node = componentContainer.getDataNodeByNodeId(id);
                         //本身没有执行
                         if (!node.isExecuted()) {
-                            createGraphNode(node);
+                            AbstractWorkFlowService service = workFlowServices.get(node.getNodeCode());
+                            if (service != null) {
+                                service.process(node);
+                            } else {
+                                log.error("未找到对应类型的服务: {}", node.getNodeCode());
+                            }
                             componentContainer.markExecutedDone(node);
                             break;
                         }
@@ -121,60 +135,6 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
     }
 
 
-    /**
-     * 执行组件服务调用
-     *
-     * @param dataNode CpNode
-     */
-
-    private boolean createGraphNode(DataNode dataNode) {
-        /**
-         * 创建图谱节点
-         * <p>
-         * 根据组件配置读取数据源与数据表元信息，确保包含主键列；
-         * 分页拉取表数据，逐条调用 {@link #executeNode(String, Integer, Integer, List, List)}
-         * 以主实体列为中心生成节点及其属性节点，并建立属性关系。
-         * </p>
-         *
-         * @param dataNode 组件节点（包含数据源、数据表及选中字段）
-         * @return boolean 是否成功触发节点生成流程（若缺少主键列则返回 false）
-         */
-        Integer sourceId = dataNode.getData().getSourceId();
-        MetaDataSource metaDataSource = metaDataSourceService.queryById(sourceId);
-        Integer tableId = dataNode.getData().getTableId();
-        MetaDataTable metaDataTable = metaDataTableService.queryById(tableId);
-        String tableName=metaDataTable.getDataTableCode();
-        List<DataColumnVo> dbColumns = metaDataColumnService.queryByTableId(tableId);
-        List<DataColumnVo> primaryItem=dbColumns.stream().filter(n->n.getIsPrimary().equals(1)).collect(Collectors.toList());
-        if(primaryItem==null||primaryItem.size()==0){
-            return false;
-        }
-        //界面上选中的列id
-        List<Integer> selectColumns = dataNode.getData().getItems().stream().map(n -> n.getColumnId()).collect(Collectors.toList());
-        //转化成列对象集合
-        List<GraphNodeColumnItem> dataColumns=dataNode.getData().getItems();
-        DataColumnVo primaryModel=primaryItem.get(0);
-        if(!selectColumns.contains(primaryModel.getDataColumnId())){
-            GraphNodeColumnItem item= new GraphNodeColumnItem();
-            item.setColumnId(primaryModel.getDataColumnId());
-            item.setItemCode(primaryModel.getDataColumnName());
-            item.setItemName(primaryModel.getDataColumnAlia());
-            item.setIsPrimary(primaryModel.getIsPrimary());
-            dataColumns.add(item);
-        }
-        //取出字段名
-        List<String> columns=dataColumns.stream().map(n->n.getItemCode()).collect(Collectors.toList());
-        //读取数据记录
-        int totalCount = DbUtils.getTableDataNum(metaDataSource.getDbType(), metaDataSource.getDbName(), metaDataSource.getConnectUrl(), tableName, metaDataSource.getDbUserName(), metaDataSource.getDbPassWord(), metaDataSource.getDriverName(), metaDataSource.getMaxPoolSize());
-        int pageSize=500;
-        long totalPage = totalCount / pageSize + ((totalCount % pageSize) == 0 ? 0 : 1);
-        for (Integer pageIndex = 1; pageIndex <= totalPage; pageIndex++) {
-            //逐条生成图谱
-            PageRecord<Map<String, Object>> dataItems = DbUtils.getTableInfoByPage(pageIndex, pageSize, metaDataSource.getDbType(), metaDataSource.getDbName(), metaDataSource.getConnectUrl(), tableName, metaDataSource.getDbUserName(), metaDataSource.getDbPassWord(), metaDataSource.getDriverName(), metaDataSource.getMaxPoolSize(), null, columns);
-            executeNode(dataNode.getDomain(),sourceId,tableId, dataItems.getData(),dataColumns);
-        }
-        return true;
-    }
     /**
      * 创建图谱关系
      * <p>
@@ -323,7 +283,10 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
         List<GraphNodeItem> nodeList = graphItem.getNodeList();
         nodeList.forEach(n -> {
             String id = n.getNodeKey();
-            String nodeCode = n.getNodeKey();
+            String nodeCode = n.getType(); // Use type instead of nodeKey
+            if (nodeCode == null || nodeCode.isEmpty()) {
+                nodeCode = "task"; // Default to task for backward compatibility
+            }
             String nodeName = n.getNodeName();
             DataNode dataNode = new DataNode();
             dataNode.setId(id);

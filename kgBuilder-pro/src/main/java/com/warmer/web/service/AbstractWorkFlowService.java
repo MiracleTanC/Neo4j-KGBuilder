@@ -3,7 +3,6 @@ package com.warmer.web.service;
 import com.warmer.web.domain.DataNode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * 流程组件父类
@@ -11,8 +10,6 @@ import org.springframework.context.annotation.Configuration;
  * @author tanc
  * @time 2022-1-21 10:03:59
  */
-@Configuration
-@Data
 @Slf4j
 public abstract class AbstractWorkFlowService {
     /**

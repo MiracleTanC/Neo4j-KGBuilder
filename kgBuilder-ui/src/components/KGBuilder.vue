@@ -280,14 +280,17 @@ export default {
         console.log('鼠标移出')
         d3.select(this).style('stroke-width', 2)
         //todo其他节点和连线一并显示
-        d3.select('.node').style('fill-opacity', 1)
-        d3.select('.nodeText').style('fill-opacity', 1)
-        d3.selectAll('.line').style('stroke-opacity', 1)
-        d3.selectAll('.lineText').style('fill-opacity', 1)
+        _this.qaGraphNode.selectAll('circle').style('fill-opacity', 1)
+        _this.qaGraphNodeText.selectAll('text').style('fill-opacity', 1)
+        _this.qaGraphLink.selectAll('line').style('stroke-opacity', 1)
+        _this.qaGraphLinkText.selectAll('text').style('fill-opacity', 1)
       })
       nodeEnter.on('mouseover', function (d) {
         //todo鼠标放上去只显示相关节点，其他节点和连线隐藏
-        d3.selectAll('.node').style('fill-opacity', 0.1)
+        _this.qaGraphNode.selectAll('circle').style('fill-opacity', 0.1)
+        _this.qaGraphNodeText.selectAll('text').style('fill-opacity', 0.1)
+        _this.qaGraphLink.selectAll('line').style('stroke-opacity', 0.1)
+        _this.qaGraphLinkText.selectAll('text').style('fill-opacity', 0.1)
         var relvantNodeIds = []
         var relvantNodes = _this.graph.links.filter(function (n) {
           return n.sourceId == d.uuid || n.targetId == d.uuid
@@ -300,38 +303,31 @@ export default {
         _this.qaGraphNode
           .selectAll('circle')
           .style('fill-opacity', function (c) {
-            if (relvantNodeIds.indexOf(c.uuid) > -1) {
+            if (relvantNodeIds.indexOf(c.uuid) > -1 || c.uuid === d.uuid) {
               return 1.0
             }
           })
-        //透明所有节点文字
-        d3.selectAll('.nodeText').style('fill-opacity', 0.1)
         //显示相关的节点文字
         _this.qaGraphNodeText
           .selectAll('text')
           .style('fill-opacity', function (c) {
-            if (relvantNodeIds.indexOf(c.uuid) > -1) {
+            if (relvantNodeIds.indexOf(c.uuid) > -1 || c.uuid === d.uuid) {
               return 1.0
             }
           })
-        //透明所有连线
-        d3.selectAll('.line').style('stroke-opacity', 0.1)
         //显示相关的连线
         _this.qaGraphLink
           .selectAll('line')
           .style('stroke-opacity', function (c) {
-            if (c.lk.targetId === d.uuid) {
-              console.log(c)
+            if (c.lk.sourceId === d.uuid || c.lk.targetId === d.uuid) {
               return 1.0
             }
           })
-        //透明所有连线文字
-        d3.selectAll('.lineText').style('fill-opacity', 0.1)
         //显示相关的连线文字
         _this.qaGraphLinkText
-          .selectAll('.lineText')
+          .selectAll('text')
           .style('fill-opacity', function (c) {
-            if (c.lk.targetId === d.uuid) {
+            if (c.lk.sourceId === d.uuid || c.lk.targetId === d.uuid) {
               return 1.0
             }
           })
