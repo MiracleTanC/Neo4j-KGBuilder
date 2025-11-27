@@ -110,14 +110,13 @@ public class TreeExcel {
                             data = JsonHelper.parseObject(val, TreeExcelRecordData.class);
                         }
                     }
-                    String recordId = "";
                     boolean isLeaf = colIx == maxColIx - 1;
                     if (StringUtils.isNotBlank(cellVal)) {
                         TreeExcelRecordData result = resultHandler.store(cellVal, cellColor, data, isLeaf);
                         String json = JsonHelper.toJSONString(result);
                         setFont(wb, json, colIx, row);
                     }
-                    log.info(String.format("cellVal:%s recordId:%s parentId:%s isLeaf:%s,color:%s", cellVal, recordId, data.getRecordId(), isLeaf, cellColor));
+                    log.info(String.format("cellVal:%s recordId:%s parentId:%s isLeaf:%s,color:%s", cellVal, "", data.getRecordId(), isLeaf, cellColor));
                 }
 
             }
@@ -186,10 +185,6 @@ public class TreeExcel {
             byte[] b = xc.getRGB();
             //CTColor ctColor = xc.getCTColor();
             if (b != null) {// 一定是argb
-                int t = 0;
-                if (b[0] < 0) {
-                    t = b[0] + 255;
-                }
                 if (b.length > 3) {
                     ci = ColorInfo.fromARGB(formatColorIndex(b[0]),formatColorIndex(b[1]),formatColorIndex(b[2]), b[3]);
                 } else {
@@ -200,10 +195,6 @@ public class TreeExcel {
             HSSFColor hc = (HSSFColor) color;
             short[] s = hc.getTriplet();// 一定是rgb
             if (s != null) {
-                int t = 0;
-                if (s[0] < 0) {
-                    t = s[0] + 255;
-                }
                 if (s.length > 3) {
                     ci = ColorInfo.fromARGB(formatColorIndex(s[0]),formatColorIndex(s[1]),formatColorIndex(s[2]), s[3]);
                 } else {
@@ -254,12 +245,11 @@ public class TreeExcel {
     private CellModel getCellValIfMerged(Workbook wb, Sheet sheet, Row row, int rowIndex, int col) {
         Cell cell = row.getCell(col);
         String cellVal = getCellVal(cell);
-        String cellColor = getCellColor(cell);
         String fontName = getFont(wb, col, row);
         if (!StringUtils.isNotBlank(cellVal)) {
             return getMergedRegionValue(wb, sheet, rowIndex, col);
         }
-        return new CellModel(cellVal, fontName, cellColor);
+        return new CellModel(cellVal, fontName);
     }
 
     private CellModel getMergedRegionValue(Workbook wb, Sheet sheet, int row, int column) {
@@ -290,17 +280,10 @@ public class TreeExcel {
     class CellModel {
         private String cellVal;
         private String fontName;
-        private String cellColor;
 
         public CellModel(String cellVal, String fontName) {
             this.cellVal = cellVal;
             this.fontName = fontName;
-        }
-
-        public CellModel(String cellVal, String fontName, String cellColor) {
-            this.cellVal = cellVal;
-            this.fontName = fontName;
-            this.cellColor = cellColor;
         }
 
         public String getCellVal() {

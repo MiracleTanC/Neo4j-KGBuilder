@@ -1,10 +1,11 @@
 package com.warmer.meta.entity;
 
-import java.util.Date;
 import java.io.Serializable;
 
 import com.warmer.base.common.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * (MetaDataTable)实体类
  *
@@ -12,6 +13,7 @@ import lombok.Data;
  * @since 2021-11-21 11:00:20
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class MetaDataTable extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 146313789945681038L;
     /**

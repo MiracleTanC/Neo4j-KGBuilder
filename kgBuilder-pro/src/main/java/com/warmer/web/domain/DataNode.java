@@ -4,7 +4,6 @@ import com.warmer.web.request.GraphNodeItem;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 /**
  * 数据分析流程化配置中的节点数据存放对象
  */

@@ -1,11 +1,8 @@
 package com.warmer.meta.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.warmer.base.util.DbUtils;
-import com.warmer.meta.dto.DataTableSubmitItem;
 import com.warmer.meta.entity.MetaDataSource;
+import com.warmer.base.util.DbUtils;
 import com.warmer.meta.dao.MetaDataSourceDao;
-import com.warmer.meta.entity.MetaDataTable;
 import com.warmer.meta.service.MetaDataSourceService;
 import com.warmer.meta.vo.DatasourceVo;
 import org.springframework.stereotype.Service;

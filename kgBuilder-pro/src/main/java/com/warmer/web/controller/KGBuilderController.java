@@ -57,7 +57,7 @@ public class KGBuilderController extends BaseController {
             long total = pageInfo.getTotal();
             resultRecord.setPageIndex(queryItem.getPageIndex());
             resultRecord.setPageSize(queryItem.getPageSize());
-            resultRecord.setTotalCount(new Long(total).intValue());
+            resultRecord.setTotalCount((int) total);
             resultRecord.setNodeList(pageInfo.getList());
             return R.success(resultRecord);
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class KGBuilderController extends BaseController {
      */
 
     @RequestMapping(value = "/getCypherResult")
-    public R<KgDomain> getCypherResult(String cypher) {
+    public R<HashMap<String, Object>> getCypherResult(String cypher) {
         try {
             HashMap<String, Object> graphData = Neo4jUtil.getGraphNodeAndShip(cypher);
             return R.success(graphData);
@@ -111,7 +111,7 @@ public class KGBuilderController extends BaseController {
      */
 
     @RequestMapping(value = "/getRelationNodeCount")
-    public R<String> getRelationNodeCount(String domain, long nodeId) {
+    public R<Long> getRelationNodeCount(String domain, long nodeId) {
         try {
             long totalCount = 0;
             if (!StringUtil.isBlank(domain)) {
@@ -134,7 +134,7 @@ public class KGBuilderController extends BaseController {
      */
 
     @RequestMapping(value = "/createDomain")
-    public R<String> createDomain(String domain, Integer type) {
+    public R<Integer> createDomain(String domain, Integer type) {
         try {
             if (!StringUtil.isBlank(domain)) {
                 List<KgDomain> domainItem = kgManagerService.getDomainByName(domain);
@@ -506,7 +506,7 @@ public class KGBuilderController extends BaseController {
      */
 
     @RequestMapping(value = "/getNodeImage")
-    public R<List<Map<String, Object>>> getNodeImageList(int domainId, int nodeId) {
+    public R<List<KgNodeDetailFile>> getNodeImageList(int domainId, int nodeId) {
         try {
             List<KgNodeDetailFile> images = kgManagerService.getNodeImageList(domainId, nodeId);
             return R.success(images);
@@ -525,13 +525,13 @@ public class KGBuilderController extends BaseController {
      */
 
     @RequestMapping(value = "/getNodeContent")
-    public R<Map<String, Object>> getNodeContent(int domainId, int nodeId) {
+    public R<KgNodeDetail> getNodeContent(int domainId, int nodeId) {
         try {
             List<KgNodeDetail> contents = kgManagerService.getNodeContent(domainId, nodeId);
             if (contents != null && contents.size() > 0) {
                 return R.success(contents.get(0));
             }
-            return R.success(new ArrayList<>());
+            return R.success(null);
         } catch (Exception e) {
             e.printStackTrace();
             return R.error(e.getMessage());

@@ -496,10 +496,6 @@ public class DbUtils {
         return sql;
     }
 
-    private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate) {
-        return getQuerySQL(filterItems,dbType,tableName,dbName,pageIndex,pageSize,jdbcTemplate,null);
-    }
-
     private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate,List<String> columns) {
         String sql = "";
         String whereSQL = buildWhereSql(dbType,filterItems);
@@ -587,25 +583,5 @@ public class DbUtils {
             }
         }
         return builder.toString();
-    }
-
-    private static List<String> parserFieldList(String sql) {
-        List<String> result = null;
-        try {
-            sql = sql.toLowerCase();
-            String field = sql.substring(7, sql.indexOf(" from "));
-            String[] fieldList = field.split(",");
-            List<String> fields = Arrays.stream(fieldList).map(n -> {
-                if (n.contains(" as ")) {
-                    n = n.substring(n.lastIndexOf("as") + 2).trim();
-                }
-                n = n.replace("`", "");
-                return n;
-            }).collect(Collectors.toList());
-            result = fields;
-        } catch (Exception e) {
-            log.error(e.getMessage());;
-        }
-        return result;
     }
 }

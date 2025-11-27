@@ -334,7 +334,7 @@ public class Neo4jUtil implements AutoCloseable {
                         if ("NODE".equals(typeName)) {
                             Node noe4jNode = pair.value().asNode();
                             Map<String, Object> map = noe4jNode.asMap();
-                            String uuid = String.valueOf(noe4jNode.id());
+                            String uuid = noe4jNode.elementId();
                             if (!uuids.contains(uuid)) {
                                 for (Entry<String, Object> entry : map.entrySet()) {
                                     String key = entry.getKey();
@@ -448,16 +448,17 @@ public class Neo4jUtil implements AutoCloseable {
      * @param <T>
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static <T> String getKeyValCyphersql(T obj) {
         Map<String, Object> map = new HashMap<String, Object>();
         List<String> sqlList = new ArrayList<String>();
         // 得到类对象
-        Class userCla = obj.getClass();
+        Class<?> userCla = obj.getClass();
         /* 得到类中的所有属性集合 */
         Field[] fs = userCla.getDeclaredFields();
         for (int i = 0; i < fs.length; i++) {
             Field f = fs[i];
-            Class type = f.getType();
+            Class<?> type = f.getType();
 
             f.setAccessible(true); // 设置些属性是可以访问的
             Object val = new Object();
@@ -476,10 +477,10 @@ public class Neo4jUtil implements AutoCloseable {
                         arr[j] = "'" + arr[j] + "'";
                     }
                     v = String.join(",", arr);
-                    sql = "n." + key + "=[" + val + "]";
+                    sql = "n." + key + "=[" + v + "]";
                 } else if (val instanceof List) {
                     //如果为true则强转成String数组
-                    List<String> arr = (ArrayList<String>) val;
+                    List<String> arr = (List<String>) val;
                     List<String> aa = new ArrayList<String>();
                     String v = "";
                     for (String s : arr) {
@@ -518,10 +519,10 @@ public class Neo4jUtil implements AutoCloseable {
         try {
             List<T> list = new ArrayList<T>();
             for (HashMap<String, Object> r : maps) {
-                T t = type.newInstance();
-                Iterator iter = r.entrySet().iterator();// 该方法获取列名.获取一系列字段名称.例如name,age...
+                T t = type.getDeclaredConstructor().newInstance();
+                Iterator<Entry<String, Object>> iter = r.entrySet().iterator();// 该方法获取列名.获取一系列字段名称.例如name,age...
                 while (iter.hasNext()) {
-                    Entry entry = (Entry) iter.next();// 把hashmap转成Iterator再迭代到entry
+                    Entry<String, Object> entry = iter.next();// 把hashmap转成Iterator再迭代到entry
                     String key = entry.getKey().toString(); // 从iterator遍历获取key
                     Object value = entry.getValue(); // 从hashmap遍历获取value
                     if ("serialVersionUID".toLowerCase().equals(key.toLowerCase())) {
@@ -585,10 +586,10 @@ public class Neo4jUtil implements AutoCloseable {
      */
     public static <T> T hashMapToObjectItem(HashMap<String, Object> map, Class<T> type) {
         try {
-            T t = type.newInstance();
-            Iterator iter = map.entrySet().iterator();
+            T t = type.getDeclaredConstructor().newInstance();
+            Iterator<Entry<String, Object>> iter = map.entrySet().iterator();
             while (iter.hasNext()) {
-                Entry entry = (Entry) iter.next();// 把hashmap转成Iterator再迭代到entry
+                Entry<String, Object> entry = iter.next();// 把hashmap转成Iterator再迭代到entry
                 String key = entry.getKey().toString(); // 从iterator遍历获取key
                 Object value = entry.getValue(); // 从hashmap遍历获取value
                 if ("serialVersionUID".toLowerCase().equals(key.toLowerCase())) {

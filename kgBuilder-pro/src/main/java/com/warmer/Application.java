@@ -1,10 +1,8 @@
 package com.warmer;
 
-import cn.hutool.core.util.IdUtil;
 import com.warmer.base.util.DateUtil;
 import com.warmer.base.util.Neo4jUtil;
 import com.warmer.web.entity.KgDomain;
-import com.warmer.web.service.KGGraphService;
 import com.warmer.web.service.KGManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -14,8 +12,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication

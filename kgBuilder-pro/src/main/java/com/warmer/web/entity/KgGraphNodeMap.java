@@ -2,8 +2,6 @@ package com.warmer.web.entity;
 
 import java.io.Serializable;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * kg_graph_node_map

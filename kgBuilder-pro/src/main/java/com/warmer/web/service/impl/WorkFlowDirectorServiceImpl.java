@@ -44,8 +44,6 @@ import java.util.stream.Collectors;
 public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
 
     @Autowired
-    Neo4jUtil neo4jUtil;
-    @Autowired
     MetaDataSourceService metaDataSourceService;
     @Autowired
     MetaDataTableService metaDataTableService;
@@ -54,11 +52,7 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
     @Autowired
     private KGManagerService kgService;
     @Autowired
-    private KgGraphNodeMapServiceImpl kgGraphNodeMapServiceImpl;
-    @Autowired
     private KgGraphNodeService kgGraphNodeService;
-    @Autowired
-    private KgGraphLinkServiceImpl kgGraphLinkServiceImpl;
 
     /**
      * 导演方法。
@@ -222,7 +216,7 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
             GraphNodeColumnItem primaryItem=primaryItems.get(0);
             String dataId=node.get(primaryItem.getItemCode()).toString();
             String cy = String.format("merge (n:`%s` {name:'%s',dataId:'%s',tableId:%s,sourceId:%s}) return n",domain,node.get(mainEntity.getItemCode()),dataId,tableId,sourceId);
-            HashMap<String, Object> mainNode = neo4jUtil.getSingleGraphNode(cy);
+            HashMap<String, Object> mainNode = Neo4jUtil.getSingleGraphNode(cy);
             mainNodeUuid = mainNode.get("uuid").toString();
             for (String key : node.keySet()) {
                 if(key.equalsIgnoreCase(mainEntity.getItemCode())||key.equalsIgnoreCase(primaryItem.getItemCode())) continue;
