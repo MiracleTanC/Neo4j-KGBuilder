@@ -1800,7 +1800,7 @@
 
             <li class="dib">
               <span class="icon iconfont">&#xe821;</span>
-                <div class="name">cecurity-protection-fill</div>
+                <div class="name">security-protection-fill</div>
                 <div class="code-name">&amp;#xe821;</div>
               </li>
 
@@ -2496,7 +2496,7 @@
 
             <li class="dib">
               <span class="icon iconfont">&#xe75c;</span>
-                <div class="name">cecurity-protection</div>
+                <div class="name">security-protection</div>
                 <div class="code-name">&amp;#xe75c;</div>
               </li>
 
@@ -5613,11 +5613,11 @@
           </li>
 
           <li class="dib">
-            <span class="icon iconfont icon-cecurity-protection-fill"></span>
+            <span class="icon iconfont icon-security-protection-fill"></span>
             <div class="name">
-              cecurity-protection-fill
+              security-protection-fill
             </div>
-            <div class="code-name">.icon-cecurity-protection-fill
+            <div class="code-name">.icon-security-protection-fill
             </div>
           </li>
 
@@ -11228,8 +11228,6 @@ export default {
 </script>
 
   <style scoped>
-    @import '/static/icon/demo.css';
-    @import '/static/icon/iconfont.css';
     .main .logo {
       margin-top: 0;
       height: auto;
@@ -11245,6 +11243,7 @@ export default {
       font-size: 22px;
       color: #fff;
       background: linear-gradient(-45deg, #3967FF, #B500FE);
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }

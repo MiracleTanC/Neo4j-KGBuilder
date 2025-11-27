@@ -1,8 +1,5 @@
 package com.warmer.base.enums;
 
-import lombok.Getter;
-
-@Getter
 public enum ReturnStatus {
     Success("操作成功", 200),
     OPERAFAIL("操作失败", 201),
@@ -32,6 +29,12 @@ public enum ReturnStatus {
     private ReturnStatus(String name, Integer value) {
         this.name = name;
         this.value = value;
+    }
+    public String getName() {
+        return name;
+    }
+    public Integer getValue() {
+        return value;
     }
     @Override
     public String toString() {

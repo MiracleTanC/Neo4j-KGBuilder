@@ -2,7 +2,6 @@ package com.warmer.web.entity;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Tolerate;
 
 import java.util.Date;

@@ -4,8 +4,6 @@ import com.warmer.meta.entity.MetaDataSource;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
-import java.util.Locale;
-
 @Data
 public class DatasourceSubmitItem {
 

@@ -12,8 +12,8 @@ public class BeanUtils {
         return JsonHelper.parseObject(JsonHelper.toJSONString(sourceObject), clazz);
     }
 
-    public static <T> List<T> trans(List list, Class<T> clazz) throws IOException {
-        ArrayList result = new ArrayList();
+    public static <T> List<T> trans(List<?> list, Class<T> clazz) throws IOException {
+        List<T> result = new ArrayList<>();
         for (Object item : list) {
             result.add(trans(item, clazz));
         }
@@ -24,8 +24,8 @@ public class BeanUtils {
         org.springframework.beans.BeanUtils.copyProperties(source, target);
     }
 
-    public static <T> PageInfo<T> transPage(PageInfo info, Class<T> clazz) throws IOException {
-        PageInfo<T> pageInfo = new PageInfo();
+    public static <T> PageInfo<T> transPage(PageInfo<?> info, Class<T> clazz) throws IOException {
+        PageInfo<T> pageInfo = new PageInfo<>();
         copyProperties(info, pageInfo);
         List<T> trans = trans(info.getList(), clazz);
         pageInfo.setList(trans);

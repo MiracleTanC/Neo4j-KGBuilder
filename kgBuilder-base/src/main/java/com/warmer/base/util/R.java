@@ -28,8 +28,8 @@ public class R<T> {
 	 * @param msg
 	 * @return
 	 */
-	public static R warn(String msg) {
-		return new R(ReturnStatus.ValidateFailure.getValue(), msg, "");
+	public static <T> R<T> warn(String msg) {
+		return new R<>(ReturnStatus.ValidateFailure.getValue(), msg, null);
 	}
 
 	/**
@@ -37,8 +37,8 @@ public class R<T> {
 	 *
 	 * @return
 	 */
-	public static R create(ReturnStatus returnStatus) {
-		return new R(returnStatus.getValue(), returnStatus.getName(), "");
+	public static <T> R<T> create(ReturnStatus returnStatus) {
+		return new R<>(returnStatus.getValue(), returnStatus.getName(), null);
 	}
 
 	/**
@@ -46,8 +46,8 @@ public class R<T> {
 	 *
 	 * @return
 	 */
-	public static R create(ReturnStatus returnStatus, String msg) {
-		return new R(returnStatus.getValue(), msg, "");
+	public static <T> R<T> create(ReturnStatus returnStatus, String msg) {
+		return new R<>(returnStatus.getValue(), msg, null);
 	}
 
 	/**
@@ -56,8 +56,8 @@ public class R<T> {
 	 * @param msg
 	 * @return
 	 */
-	public static R error(String msg) {
-		return new R(ReturnStatus.Error.getValue(), msg, "");
+	public static <T> R<T> error(String msg) {
+		return new R<>(ReturnStatus.Error.getValue(), msg, null);
 	}
 
 	/**
@@ -65,8 +65,8 @@ public class R<T> {
 	 *
 	 * @return
 	 */
-	public static R error() {
-		return new R(ReturnStatus.Error.getValue(), ReturnStatus.Error.getName(), "");
+	public static <T> R<T> error() {
+		return new R<>(ReturnStatus.Error.getValue(), ReturnStatus.Error.getName(), null);
 	}
 
 	/**
@@ -75,8 +75,8 @@ public class R<T> {
 	 * @param <T>
 	 * @return
 	 */
-	public static <T> R success() {
-		return new R(ReturnStatus.Success.getValue(), "", "");
+	public static <T> R<T> success() {
+		return new R<>(ReturnStatus.Success.getValue(), "", null);
 	}
 
 	/**
@@ -86,8 +86,8 @@ public class R<T> {
 	 * @param <T>
 	 * @return
 	 */
-	public static <T> R success(T data) {
-		return new R(ReturnStatus.Success.getValue(), "", data);
+	public static <T> R<T> success(T data) {
+		return new R<>(ReturnStatus.Success.getValue(), "", data);
 	}
 	/**
 	 * 成功
@@ -96,8 +96,8 @@ public class R<T> {
 	 * @param <T>
 	 * @return
 	 */
-	public static <T> R success(String msg) {
-		return new R(ReturnStatus.Success.getValue(), msg, null);
+	public static <T> R<T> success(String msg) {
+		return new R<>(ReturnStatus.Success.getValue(), msg, null);
 	}
 	/**
 	 * 成功
@@ -106,8 +106,8 @@ public class R<T> {
 	 * @param <T>
 	 * @return
 	 */
-	public static <T> R success(T data, String msg) {
-		return new R(ReturnStatus.Success.getValue(), msg, data);
+	public static <T> R<T> success(T data, String msg) {
+		return new R<>(ReturnStatus.Success.getValue(), msg, data);
 	}
 
 

@@ -1,17 +1,12 @@
 package com.warmer.meta.service.impl;
 
-import com.warmer.base.util.DbUtils;
 import com.warmer.meta.entity.MetaDataColumn;
 import com.warmer.meta.dao.MetaDataColumnDao;
-import com.warmer.meta.entity.MetaDataSource;
-import com.warmer.meta.entity.MetaDataTable;
 import com.warmer.meta.service.MetaDataColumnService;
 import com.warmer.meta.vo.DataColumnVo;
-import com.warmer.meta.vo.DataTableVo;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
+import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 

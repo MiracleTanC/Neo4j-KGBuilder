@@ -1,6 +1,5 @@
 package com.warmer.web.service.impl;
 
-import cn.hutool.core.util.IdUtil;
 import com.warmer.base.util.DateUtil;
 import com.warmer.web.dao.KnowledgeGraphDao;
 import com.warmer.web.entity.KgDomain;

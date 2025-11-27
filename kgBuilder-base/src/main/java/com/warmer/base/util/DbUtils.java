@@ -6,7 +6,6 @@ import com.warmer.base.common.FieldQueryItem;
 import com.warmer.base.common.PageRecord;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -329,9 +328,8 @@ public class DbUtils {
                 // 赋值一页的项目数
                 pageRecord.setPageSize(pageSize);
                 // 赋值总记录数
-                Object[] params = null;
                 String countsql = getQueryCountSQL(tableName, selectType, selectMessage, dbType, dbName);
-                Integer totalCount = jdbcTemplate.queryForObject(countsql, params, Integer.class);
+                Integer totalCount = jdbcTemplate.queryForObject(countsql, Integer.class);
                 pageRecord.setTotalCount(totalCount);
                 // 赋值每页项目
                 pageRecord.setData(arrayList);
@@ -382,9 +380,8 @@ public class DbUtils {
                 // 赋值一页的项目数
                 pageRecord.setPageSize(pageSize);
                 // 赋值总记录数
-                Object[] params = null;
                 String countSql = getQueryCountSQL(tableName, filterItems, dbType, dbName);
-                Integer totalCount = jdbcTemplate.queryForObject(countSql, params, Integer.class);
+                Integer totalCount = jdbcTemplate.queryForObject(countSql, Integer.class);
                 pageRecord.setTotalCount(totalCount);
                 // 赋值每页项目
                 pageRecord.setData(arrayList);
@@ -405,8 +402,7 @@ public class DbUtils {
             log.error(e.getMessage());;
         }
         // 赋值总记录数
-        Object[] params = null;
-        Integer count = jdbcTemplate.queryForObject(sql, params, Integer.class);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
         return count;
     }
     private static String getQueryCountSQL(String tableName, int selectType, String selectMessage, String dbType, String dbName) {
@@ -500,10 +496,6 @@ public class DbUtils {
         return sql;
     }
 
-    private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate) {
-        return getQuerySQL(filterItems,dbType,tableName,dbName,pageIndex,pageSize,jdbcTemplate,null);
-    }
-
     private static String getQuerySQL( List<FieldQueryItem> filterItems,String dbType, String tableName, String dbName, int pageIndex, int pageSize, JdbcTemplate jdbcTemplate,List<String> columns) {
         String sql = "";
         String whereSQL = buildWhereSql(dbType,filterItems);
@@ -591,25 +583,5 @@ public class DbUtils {
             }
         }
         return builder.toString();
-    }
-
-    private static List<String> parserFieldList(String sql) {
-        List<String> result = null;
-        try {
-            sql = sql.toLowerCase();
-            String field = sql.substring(7, sql.indexOf(" from "));
-            String[] fieldList = field.split(",");
-            List<String> fields = Arrays.stream(fieldList).map(n -> {
-                if (n.contains(" as ")) {
-                    n = n.substring(n.lastIndexOf("as") + 2).trim();
-                }
-                n = n.replace("`", "");
-                return n;
-            }).collect(Collectors.toList());
-            result = fields;
-        } catch (Exception e) {
-            log.error(e.getMessage());;
-        }
-        return result;
     }
 }

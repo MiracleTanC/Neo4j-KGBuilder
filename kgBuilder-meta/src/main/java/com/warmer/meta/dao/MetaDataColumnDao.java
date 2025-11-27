@@ -1,7 +1,6 @@
 package com.warmer.meta.dao;
 
 import com.warmer.meta.entity.MetaDataColumn;
-import com.warmer.meta.vo.DataTableVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;

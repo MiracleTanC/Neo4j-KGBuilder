@@ -1,6 +1,6 @@
 package com.warmer.base.util;
 
-import org.apache.commons.lang3.ObjectUtils;
+import java.util.Objects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,11 +53,11 @@ public class StringUtil {
      * @param colName 列名
      * @return
      */
-    public static String join(String join,List<Map> cols,String colName){
+    public static String join(String join,List<Map<String, Object>> cols,String colName){
         List<String> aColCons = new ArrayList<String>();
-        for (Map map:
+        for (Map<String, Object> map:
              cols) {
-            aColCons.add(ObjectUtils.toString(map.get(colName)));
+            aColCons.add(Objects.toString(map.get(colName), ""));
         }
         return join(join,aColCons);
     }

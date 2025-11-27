@@ -2,7 +2,6 @@ package com.warmer.meta.service;
 
 import com.warmer.meta.entity.MetaDataColumn;
 import com.warmer.meta.vo.DataColumnVo;
-import com.warmer.meta.vo.DataTableVo;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package com.warmer.web.service.impl;
 
 import com.warmer.web.dao.KgGraphLinkDao;
-import com.warmer.web.dao.KgGraphNodeMapDao;
 import com.warmer.web.entity.KgGraphLink;
 import com.warmer.web.service.KgGraphLinkService;
 import org.springframework.beans.factory.annotation.Autowired;

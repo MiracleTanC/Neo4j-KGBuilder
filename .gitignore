@@ -25,3 +25,8 @@
 /nbdist/
 /.nb-gradle/
 /kgBuilder-ui/.history/
+
+# Local configuration files
+application-local.yml
+application-secret.yml
+

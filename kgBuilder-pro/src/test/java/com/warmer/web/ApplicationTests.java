@@ -62,7 +62,6 @@ class ApplicationTests {
         List<HashMap<String, Object>> domains = Neo4jUtil.getGraphLabels();
         int i=0;
         if(domains!=null&&domains.size()>0){
-            List<HashMap<String, Object>> graphIndex = Neo4jUtil.getGraphIndex();
             for (HashMap<String, Object> domainItem : domains) {
                 String label=domainItem.get("label").toString();
                 String cypher=String.format("match(n:`%s`) return count(n)",label);

@@ -34,4 +34,23 @@ public class FieldQueryItem implements Serializable {
      */
     private String value;
 
+    public String getJoinOperate() {
+        return joinOperate;
+    }
+
+    public Integer getCondition() {
+        return condition;
+    }
+
+    public String getOperate() {
+        return operate;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

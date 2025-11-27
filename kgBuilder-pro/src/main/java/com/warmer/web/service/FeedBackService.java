@@ -1,8 +1,6 @@
 package com.warmer.web.service;
 
 import com.warmer.web.entity.KgFeedBack;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

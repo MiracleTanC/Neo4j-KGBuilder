@@ -2,7 +2,6 @@ package com.warmer.meta.dao;
 
 import com.warmer.meta.entity.MetaDataSource;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
