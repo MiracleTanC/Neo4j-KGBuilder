@@ -52,6 +52,7 @@
 Neo4j-KGBuilder/
 ├── docs/               # 文档及图片资源
 │   └── images/         # 项目截图
+│   └── README.md       # 文档索引与规范
 ├── kgBuilder-base/     # 基础模块（工具类、通用实体）
 ├── kgBuilder-meta/     # 元数据管理模块
 ├── kgBuilder-pro/      # 核心业务模块（API、服务实现）
@@ -86,25 +87,36 @@ Neo4j-KGBuilder/
 ### 前端启动 (Frontend Setup)
 
 1.  进入前端目录:
-    ```bash
-    cd kgBuilder-ui
-    ```
+```bash
+cd kgBuilder-ui
+```
 2.  安装依赖:
-    ```bash
-    npm install
-    ```
+```bash
+npm install
+```
 3.  启动开发服务器:
-    ```bash
-    npm run serve
-    ```
+```bash
+npm run serve
+```
 4.  构建发布:
-    ```bash
-    npm run build
-    ```
+```bash
+npm run build
+```
 
 ### 访问应用 (Access)
 
 启动成功后，访问: [http://localhost](http://localhost) (默认端口根据前端配置)
+
+## 文档结构 (Documentation)
+
+- 顶层说明：当前文件 `README.md`
+- 文档索引与规范：`docs/README.md`
+- 前端指南与命令：`kgBuilder-ui/README.md`
+
+## 代码注释规范 (Code Comments)
+
+- JavaScript/Vue 使用 JSDoc（示例见 `kgBuilder-ui/src/api/modules/kgBuilderApi.js`）
+- Java 使用 Javadoc（示例见 `kgBuilder-pro/src/main/java/com/warmer/web/controller/KGBuilderController.java`）
 
 ## 使用说明 (Usage)
 

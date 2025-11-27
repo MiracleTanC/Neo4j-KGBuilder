@@ -650,10 +650,15 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 保存或更新节点正文内容
+     * 保存或更新节点正文内容。
+     * <p>
+     * 前端提交节点正文内容（富文本），若已存在则更新，否则新增。
+     * 同步在图数据库中标记该节点拥有附件（fileStatus=1）。
+     * </p>
      *
-     * @param params 包含domainId, nodeId, content的Map
-     * @return R<String> 操作结果
+     * @param params 参数 Map，包含：
+     *               domainId(int) 领域 ID，nodeId(string) 节点 ID，content(string) 正文内容
+     * @return 操作结果描述
      */
     @RequestMapping(value = "/saveNodeContent")
     public R<String> saveNodeContent(@RequestBody Map<String, Object> params) {

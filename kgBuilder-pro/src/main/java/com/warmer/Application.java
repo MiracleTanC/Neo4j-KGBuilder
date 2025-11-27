@@ -14,6 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
+/**
+ * 应用入口
+ *
+ * - 启动 Spring Boot 应用
+ * - 可选：启动后从 Neo4j 读取标签并同步到 MySQL 领域表
+ */
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.warmer"})
 public class Application implements ApplicationRunner {
@@ -27,10 +33,12 @@ public class Application implements ApplicationRunner {
     }
 
     /**
-     * 启动时初始化现有的neo4j 标签到mysql
-     * 将标签同步到mysql管理是为了权限区分，根据需要选择，mysql不是必须
-     * @param args
-     * @throws Exception
+     * 应用启动后回调
+     *
+     * 从 Neo4j 读取现有标签及节点计数，并根据配置同步到 MySQL 的领域表。
+     *
+     * @param args 启动参数
+     * @throws Exception 执行期间的异常
      */
     @Override
     public void run(ApplicationArguments args) throws Exception {

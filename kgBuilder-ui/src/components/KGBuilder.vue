@@ -396,6 +396,11 @@ export default {
         })
       return node
     },
+    /**
+     * 绘制节点文字
+     * @param {Array} nodes 节点数据
+     * @returns {Object} 节点文字选择集
+     */
     drawNodeText(nodes) {
       var _this = this
       var nodeText = this.qaGraphNodeText
@@ -437,6 +442,11 @@ export default {
         })
       return nodeText
     },
+    /**
+     * 绘制连线
+     * @param {Array} links 连线数据
+     * @returns {Object} 连线选择集
+     */
     drawLink(links) {
       var _this = this
       var link = this.qaGraphLink.selectAll('line').data(links, function (d) {
@@ -458,6 +468,11 @@ export default {
       link = linkEnter.merge(link)
       return link
     },
+    /**
+     * 绘制连线文字
+     * @param {Array} links 连线数据
+     * @returns {Object} 连线文字选择集
+     */
     drawLinkText(links) {
       var _this = this
       var linktext = _this.qaGraphLinkText
@@ -480,6 +495,11 @@ export default {
       })
       return linktext
     },
+    /**
+     * 绘制节点操作按钮组
+     * @param {Array} nodes 节点数据
+     * @returns {Object} 按钮组选择集
+     */
     drawButtonGroup(nodes) {
       var _this = this
       d3.selectAll('.nodeButton >g').remove()
@@ -514,6 +534,10 @@ export default {
       nodeButton = nodeButtonEnter.merge(nodeButton)
       return nodeButton
     },
+    /**
+     * 绘制工具按钮定义(defs)
+     * 根据节点半径生成不同的环形按钮组定义
+     */
     drawToolButton() {
       var _this = this
       //先删除所有为节点自定义的按钮组
@@ -572,6 +596,10 @@ export default {
         }
       })
     },
+    /**
+     * 绑定按钮组事件
+     * 为环形菜单的按钮绑定点击事件
+     */
     bindEventButtonGroup() {
       var _this = this
       //按钮组事件绑定
@@ -584,6 +612,11 @@ export default {
         })
       })
     },
+    /**
+     * 格式化图谱数据
+     * 处理节点的坐标和连线的源/目标引用
+     * @returns {Object} 包含处理后的nodes和links的对象
+     */
     formatData() {
       var _this = this
       var lks = _this.graph.links
@@ -617,6 +650,10 @@ export default {
       data.links = links
       return data
     },
+    /**
+     * 更新图谱
+     * 根据最新的节点和连线数据重绘图谱，包括节点、连线、文字和按钮组
+     */
     updateGraph() {
       var _this = this
       var data = _this.formatData()
@@ -708,6 +745,10 @@ export default {
       //为按钮组绑定事件
       _this.bindEventButtonGroup()
     },
+    /**
+     * 拖拽开始事件
+     * @param {Object} d 被拖拽的节点数据
+     */
     dragStarted(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.8).restart()
        d.x = d3.event.x
@@ -715,12 +756,21 @@ export default {
       d.fx = d.x
       d.fy = d.y
     },
+    /**
+     * 拖拽进行中事件
+     * 更新节点坐标
+     * @param {Object} d 被拖拽的节点数据
+     */
     dragged(d) {
        d.x = d3.event.x
       d.y = d3.event.y
       d.fx = d3.event.x
       d.fy = d3.event.y
     },
+    /**
+     * 拖拽结束事件
+     * @param {Object} d 被拖拽的节点数据
+     */
     dragEnded(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0)
        d.x = d3.event.x
@@ -728,6 +778,10 @@ export default {
       d.fx = d3.event.x
       d.fy = d3.event.y
     },
+    /**
+     * 缩放事件
+     * 处理画布的缩放和平移
+     */
     zoomed() {
       d3.selectAll('.node').attr('transform', d3.event.transform)
       d3.selectAll('.nodeText text').attr('transform', d3.event.transform)
@@ -736,6 +790,11 @@ export default {
       d3.selectAll('.nodeButton').attr('transform', d3.event.transform)
       //_this.svg.selectAll("g").attr("transform", d3.event.transform);
     },
+    /**
+     * 点击缩放按钮
+     * @param {number} direction 缩放方向，1为放大，-1为缩小
+     * @returns {boolean} 如果超出缩放范围返回false
+     */
     zoomClick(direction) {
       var self = this
       var factor = 0.2
@@ -747,20 +806,38 @@ export default {
       }
       self.zoom.scaleBy(self.svg, targetZoom) // 执行该方法后 会触发zoom事件
     },
+    /**
+     * 放大图谱
+     */
     zoomIn() {
       this.zoomClick(1)
     },
+    /**
+     * 缩小图谱
+     */
     zoomOut() {
       this.zoomClick(-1)
     },
+    /**
+     * 还原/刷新图谱
+     * 重置缩放和平移状态
+     */
     refresh() {
       this.svg.call(this.zoom.transform, d3.zoomIdentity)
     },
+    /**
+     * 切换全屏显示
+     */
     showFull() {
       this.isFullscreen = !this.isFullscreen
       var full = document.getElementById('kg_container')
       this.fullScreen(full)
     },
+    /**
+     * 进入全屏模式
+     * 兼容不同浏览器的全屏API
+     * @param {HTMLElement} element 需要全屏显示的元素
+     */
     fullScreen(element) {
       if (element.requestFullscreen) {
         element.requestFullscreen()
@@ -772,6 +849,10 @@ export default {
         element.msRequestFullscreen()
       }
     },
+    /**
+     * 退出全屏模式
+     * 兼容不同浏览器的退出全屏API
+     */
     exitFullScreen() {
       this.isFullscreen = !this.isFullscreen
       if (document.exitFullscreen) {
@@ -782,8 +863,17 @@ export default {
         document.webkitExitFullscreen()
       }
     },
+    /**
+     * 收起节点（未实现）
+     */
     btnCollapseNode() {},
+    /**
+     * 展开节点（未实现）
+     */
     btnOpenNode() {},
+    /**
+     * 关闭（未实现）
+     */
     close() {},
   },
 }

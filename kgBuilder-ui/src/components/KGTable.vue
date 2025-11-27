@@ -153,19 +153,37 @@
 <script>
 export default {
   name: 'kgTable',
+  /**
+   * 通用表格组件
+   *
+   * - 支持选择、分页、操作列、插槽自定义渲染
+   * - 通过事件向父组件上报选择与分页变化
+   */
   props: {
+    /**
+     * 是否显示操作按钮区域
+     */
     buttonGroup: {
       type: Boolean,
       default: true
     },
+    /**
+     * 表格加载状态
+     */
     loading: {
       type: Boolean,
       default: false
     },
+    /**
+     * 列定义数组
+     */
     columns: {
       type: Array,
       required: true
     },
+    /**
+     * 分页对象
+     */
     pageObj: {
       type: Object,
       required: true,
@@ -176,9 +194,15 @@ export default {
         totalCount: 0
       })
     },
+    /**
+     * 操作列配置
+     */
     operation: {
       type: Object
     },
+    /**
+     * 组件配置项
+     */
     config: {
       type: Object,
       default: () => ({
@@ -197,6 +221,10 @@ export default {
     }
   },
   computed: {
+    /**
+     * 动态计算表格绑定属性
+     * @returns {Object}
+     */
     tableBind() {
       const obj = {}
       if (!this.config.notUseMaxHeight) {
@@ -227,22 +255,49 @@ export default {
     })
   },
   methods: {
+    /**
+     * 选择项变化
+     * @param {Array<Object>} selection 当前选择项
+     */
     onSelectionChange(selection) {
       this.multipleSelection = selection
       this.$emit('selection-change', this.multipleSelection)
     },
+    /**
+     * 单选变化
+     * @param {Array<Object>} selection 当前选择项
+     * @param {Object} row 当前行
+     */
     onSelectChange(selection, row) {
       this.$emit('select', selection, row)
     },
+    /**
+     * 全选变化
+     * @param {Array<Object>} selection 当前选择项
+     */
     onSelectAllChange(selection) {
       this.$emit('select-all', selection)
     },
+    /**
+     * 分页事件
+     * @param {{page:number,limit:number}} payload 分页信息
+     */
     getPage({ page, limit }) {
       this.$emit('pagination', { page, limit })
     },
+    /**
+     * 操作点击事件
+     * @param {string} method 方法标识
+     * @param {Object} row 行数据
+     */
     handleClick(method, row) {
       this.$emit('handleClick', { method, row })
     },
+    /**
+     * 切换行选择状态
+     * @param {Object} row 行数据
+     * @param {boolean} selected 是否选中
+     */
     toggleRowSelection(row, selected) {
       this.$refs.table.toggleRowSelection(row, selected)
     }
