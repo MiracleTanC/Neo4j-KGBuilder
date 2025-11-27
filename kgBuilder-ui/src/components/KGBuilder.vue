@@ -119,6 +119,10 @@ export default {
   created() {},
   watch: {},
   methods: {
+    /**
+     * 初始化图谱容器
+     * 创建SVG元素，配置力导向图模拟器(Simulation)
+     */
     initGraphContainer() {
       this.gcontainer = d3.select('#gid')
       if (this.isFullscreen) {
@@ -163,6 +167,10 @@ export default {
         false
       )
     },
+    /**
+     * 初始化图谱数据
+     * 加载静态测试数据
+     */
     initGraph() {
       var _this = this
       axios.get('/static/kgData.json', {}).then(function (response) {
@@ -172,6 +180,10 @@ export default {
         _this.updateGraph()
       })
     },
+    /**
+     * 添加箭头标记
+     * 用于连线的指向箭头
+     */
     addMaker() {
       var arrowMarker = this.svg
         .append('marker')
@@ -186,6 +198,10 @@ export default {
       var arrowPath = 'M2,2 L10,6 L2,10 L6,6 L2,2' // 定义箭头形状
       arrowMarker.append('path').attr('d', arrowPath).attr('fill', '#ccc')
     },
+    /**
+     * 展开节点（模拟）
+     * 添加预定义的测试节点和关系
+     */
     openNode() {
       var _this = this
       var noddd = [
@@ -228,6 +244,10 @@ export default {
       _this.graph.links = _this.graph.links.concat(newships)
       _this.updateGraph()
     },
+    /**
+     * 绘制节点
+     * @param {Array} nodes 节点数据
+     */
     drawNode(nodes) {
       var _this = this
       var node = this.qaGraphNode.selectAll('circle').data(nodes, function (d) {
