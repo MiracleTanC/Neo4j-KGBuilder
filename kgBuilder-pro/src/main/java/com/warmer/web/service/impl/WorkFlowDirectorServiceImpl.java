@@ -128,6 +128,17 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
      */
 
     private boolean createGraphNode(DataNode dataNode) {
+        /**
+         * 创建图谱节点
+         * <p>
+         * 根据组件配置读取数据源与数据表元信息，确保包含主键列；
+         * 分页拉取表数据，逐条调用 {@link #executeNode(String, Integer, Integer, List, List)}
+         * 以主实体列为中心生成节点及其属性节点，并建立属性关系。
+         * </p>
+         *
+         * @param dataNode 组件节点（包含数据源、数据表及选中字段）
+         * @return boolean 是否成功触发节点生成流程（若缺少主键列则返回 false）
+         */
         Integer sourceId = dataNode.getData().getSourceId();
         MetaDataSource metaDataSource = metaDataSourceService.queryById(sourceId);
         Integer tableId = dataNode.getData().getTableId();
@@ -164,6 +175,18 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
         }
         return true;
     }
+    /**
+     * 创建图谱关系
+     * <p>
+     * 解析连线配置中的源/目标表与字段，确保源表主键存在；
+     * 分页读取源表数据，基于源记录的主键与映射字段，
+     * 为匹配的目标记录建立指定标签的关系。
+     * </p>
+     *
+     * @param domain   领域名称
+     * @param dataLink 连线配置（源/目标表、字段及关系标签）
+     * @return boolean 是否成功触发关系生成流程
+     */
     private boolean createGraphLink(String domain,DataLink dataLink) {
         String sourceIdStr = dataLink.getSourceId();
         String[] sourceArr=sourceIdStr.split("-");
@@ -201,6 +224,22 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
         return true;
     }
 
+    /**
+     * 执行节点生成
+     * <p>
+     * 要求：列集合中至少包含一个主实体列（isMainEntity=1）与一个主键列（isPrimary=1）。
+     * 对于每条记录：
+     * - 合并创建主节点（携带 dataId/tableId/sourceId 属性）；
+     * - 其余非空列创建属性节点；
+     * - 按列别名/列名建立主节点到属性节点的关系。
+     * </p>
+     *
+     * @param domain  领域名称
+     * @param sourceId 数据源ID
+     * @param tableId  数据表ID
+     * @param nodes   表记录列表
+     * @param columns 列配置（含 isMainEntity、isPrimary、itemCode、itemName）
+     */
     private void executeNode(String domain,Integer sourceId,Integer tableId, List<Map<String, Object>> nodes,List<GraphNodeColumnItem> columns) {
         for (Map<String, Object> node : nodes) {
             String mainNodeUuid="";
@@ -235,6 +274,24 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
     }
 
 
+    /**
+     * 执行关系生成
+     * <p>
+     * 基于源表主键列与映射字段，定位源/目标节点并创建关系：
+     * match 源节点 (n) 与目标节点 (m)，按 sourceId/tableId/dataId 精确匹配；
+     * merge (n)-[r:label]->(m)。
+     * </p>
+     *
+     * @param domain              领域名称
+     * @param label               关系标签
+     * @param sourceDataSourceId  源数据源ID
+     * @param sourceTableId       源表ID
+     * @param sourceFieldCode     源字段编码（映射到目标主键）
+     * @param targetDataSourceId  目标数据源ID
+     * @param targetTableId       目标表ID
+     * @param nodes               源表记录列表
+     * @param columns             源表列配置（含主键标识）
+     */
     private void executeLink(String domain,String label,Integer sourceDataSourceId,Integer sourceTableId,String sourceFieldCode,Integer targetDataSourceId,Integer targetTableId,
                              List<Map<String, Object>> nodes,List<DataColumnVo> columns) {
         for (Map<String, Object> node : nodes) {
@@ -249,6 +306,15 @@ public class WorkFlowDirectorServiceImpl implements IWorkFlowDirectorService {
     }
     /**
      * 从config中提取流程组件
+     * <p>
+     * 解析图谱配置中的节点与连线，构建组件容器：
+     * - 节点：映射为 DataNode，记录前置/后置关系及是否起始节点；
+     * - 连线：映射为 DataLink，记录源/目标及标签；
+     * 并根据入度为 0 的节点标记为起始节点。
+     * </p>
+     *
+     * @param graphItem 图谱配置（节点/连线列表及领域名）
+     * @return ComponentContainer 解析后的组件容器
      */
     public ComponentContainer explainComponentConfig(GraphItem graphItem) {
         log.info("解析配置信息");

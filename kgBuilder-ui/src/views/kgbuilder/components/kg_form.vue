@@ -327,12 +327,25 @@ export default {
   },
   components: {},
   methods: {
+    /**
+     * 初始化抽屉与导入模式
+     * @param {boolean} drawerShow 是否显示抽屉
+     * @param {string} operate 操作类型（import/export/batchAdd 等）
+     * @param {string} domain 领域标签
+     */
     init(drawerShow,operate,domain) {
       this.operate = operate;
       this.drawerShow = drawerShow;
        this.uploadParam.domain=domain;
         this.propActiveName="propEdit";
     },
+    /**
+     * 初始化节点编辑表单
+     * @param {boolean} drawerShow 是否显示抽屉
+     * @param {string} operate 操作类型（create/update）
+     * @param {Object} node 节点数据
+     * @param {number} domainId 领域ID
+     */
     initNode(drawerShow,operate,node,domainId) {
       this.operate = operate;
       this.drawerShow = drawerShow;
@@ -340,6 +353,13 @@ export default {
       this.graphData=node;
        this.propActiveName="propEdit";
     },
+    /**
+     * 初始化批量添加子节点表单
+     * @param {boolean} drawerShow 是否显示抽屉
+     * @param {string} operate 操作类型（batchAddChild）
+     * @param {{uuid:string}} node 源节点对象（需包含 uuid）
+     * @param {string} domain 领域标签
+     */
     initBatchAddChild(drawerShow,operate,node,domain) {
       this.operate = operate;
       this.drawerShow = drawerShow;
@@ -347,36 +367,67 @@ export default {
       this.batchCreateData.sourceUuid=node.uuid;
        this.propActiveName="propEdit";
     },
+    /**
+     * 批量创建节点（源节点 + 关系 + 子节点）
+     * @emits batchCreateNode 发送批量创建参数
+     */
     batchCreateNode(){
       this.init(false,"");
        this.$emit("batchCreateNode",this.batchCreateData);
     },
+    /**
+     * 批量为某个源节点创建子节点
+     * @emits batchCreateChildNode 发送批量创建参数
+     */
     batchCreateChildNode(){
       this.init(false,"");
        this.$emit("batchCreateChildNode",this.batchCreateData);
     },
+    /**
+     * 批量创建同级节点
+     * @emits batchCreateSameNode 发送批量创建参数
+     */
      batchCreateSameNode(){
       this.init(false,"");
        this.$emit("batchCreateSameNode",this.batchCreateData);
     },
+    /**
+     * 创建单个节点
+     * @emits createNode 发送当前节点数据
+     */
     createNode(){
       this.init(false,"");
       this.$emit("createNode",this.graphData);
     },
+    /**
+     * 初始化图片列表
+     * @param {Array<{file:string,imageType:number}>} imageList 图片列表
+     */
     initImage(imageList){
       this.nodeImageList=imageList;
     },
+    /**
+     * 初始化富文本内容
+     * @param {string} content 富文本 HTML 内容
+     */
     initContent(content){
       this.editorContent=content;
     },
     bthRecognition(){
 
     },
+    /**
+     * 关闭抽屉并重置面板
+     */
     resetSubmit() {
       this.drawerShow=false;
        this.propActiveName="propEdit"
     },
-    //节点上传图片
+    /**
+     * 保存节点图片
+     * @returns {void}
+     * @emits saveNodeImage 发送 {domainId,nodeId,imagePath}
+     */
     saveNodeImage() {
       let data = {
         domainId: this.domainId,
@@ -387,7 +438,11 @@ export default {
       this.init(false,"");
       this.$emit("saveNodeImage",data);
     },
-    //上传富文本
+    /**
+     * 保存节点富文本内容
+     * @returns {void}
+     * @emits saveNodeContent 发送 {domainId,nodeId,content}
+     */
     saveNodeContent() {
       let data = {
         domainId: this.domainId,
@@ -397,12 +452,17 @@ export default {
       this.init(false,"");
       this.$emit("saveNodeContent",data);
     },
-    //预览图片
+    /**
+     * 预览图片
+     * @param {{file:string}} item 图片项
+     */
     handlePictureCardPreview(item) {
       this.dialogImageUrl = this.imageUrlFormat(item);
       this.dialogImageVisible = true;
     },
-    //添加网络图片
+    /**
+     * 添加网络图片地址到列表
+     */
     addNetImage() {
       if (this.netImageUrl != "") {
         if(this.nodeImageList.length==0){
@@ -417,11 +477,18 @@ export default {
 
       }
     },
-    //移除图片
+    /**
+     * 从列表移除图片
+     * @param {{file:string}} url 图片项
+     */
     imageHandleRemove(url) {
       this.nodeImageList.splice(this.nodeImageList.indexOf(url), 1);
     },
-    //图片格式化
+    /**
+     * 图片地址格式化
+     * @param {{file:string}} item 图片项
+     * @returns {string} 完整可访问的图片地址
+     */
     imageUrlFormat(item) {
       if(item.file.indexOf("http")===0){
         return item.file;
@@ -429,6 +496,9 @@ export default {
         return process.env.VUE_APP_BASE_API+item.file;
       }
     },
+    /**
+     * 上传图片前校验（限制单节点单图）
+     */
     beforeUpload(){
       if(this.nodeImageList.length>0){
          this.$message({
@@ -437,6 +507,11 @@ export default {
         });
       }
     },
+    /**
+     * 图片上传成功回调
+     * @param {{success:number,results:Array<{url:string}>}} res 服务端返回
+     * @param {File} file 当前上传文件
+     */
     uploadSuccess(res, file) {
       if (res.success == 1) {
         for (let i = 0; i < res.results.length; i++) {
@@ -449,6 +524,9 @@ export default {
         this.$message.error(res.msg);
       }
     },
+    /**
+     * 初始化富文本编辑器并配置上传钩子
+     */
     initEditor() {
       if (this.editor != null) return;
       let _this=this;
@@ -473,6 +551,12 @@ export default {
       };
       this.editor.create();
     },
+    /**
+     * 属性面板页签点击处理
+     * @param {{name:string}} tab 当前页签对象
+     * @emits initNodeContent 初始化富文本内容
+     * @emits initNodeImage 初始化图片列表
+     */
     propHandleClick(tab) {
       if (tab.name == "richTextEdit") {
         this.initEditor();
@@ -485,6 +569,9 @@ export default {
         this.$emit("initNodeImage",{domainId:this.domainId,nodeId:this.graphData.uuid});
       }
     },
+    /**
+     * 导出当前领域图谱为 CSV
+     */
     exportCsv() {
       let data = { domain: this.uploadParam.domain };
       kgBuilderApi.exportGraph(data).then(result => {
@@ -494,6 +581,9 @@ export default {
         }
       });
     },
+    /**
+     * 提交图谱导入文件
+     */
     submitUpload() {
       this.$refs.uploadExcel.submit();
       //关闭窗口
@@ -501,6 +591,9 @@ export default {
        //刷新领域标签
        this.$emit("getDomain",1);
     },
+    /**
+     * 上传文件成功回调
+     */
     uploadExcelSuccess() {
       this.$refs.uploadExcel.clearFiles();
       this.uploadParam.domain = "";

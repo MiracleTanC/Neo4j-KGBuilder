@@ -538,28 +538,53 @@ export default {
     });
   },
   methods: {
+    /**
+     * 设置内部 this 视图引用
+     * @param {Object} item 视图实例
+     */
     _thisKey(item) {
       this._thisView = item;
     },
+    /**
+     * 注入 d3 引用
+     * @param {Object} item d3 实例
+     */
     Dset(item) {
       this.d3 = item;
     },
+    /**
+     * 上一页
+     */
     prev() {
       if (this.pageModel.pageIndex > 1) {
         this.pageModel.pageIndex--;
         this.getDomain();
       }
     },
+    /**
+     * 下一页
+     */
     next() {
       if (this.pageModel.pageIndex < this.pageModel.totalPage) {
         this.pageModel.pageIndex++;
         this.getDomain();
       }
     },
+    /**
+     * 打开编辑表单
+     * @param {boolean} flag 是否显示
+     * @param {string} action 操作类型
+     * @param {Object} data 节点或关系数据
+     * @param {number} domainId 领域ID
+     */
     editForm(flag, action, data, domainId) {
       this.$refs.kg_form.initNode(flag, action, data, domainId);
     },
     //创建节点
+    /**
+     * 创建或更新节点
+     * @param {Object} graphNode 节点数据
+     */
     createNode(graphNode) {
       let data = graphNode;
       data.domain = this.domain;
@@ -577,6 +602,10 @@ export default {
         }
       });
     },
+    /**
+     * 保存节点图片
+     * @param {Object} data 图片与节点信息
+     */
     saveNodeImage(data) {
       let image = data.imagePath;
       let nodeId = data.nodeId;
@@ -596,7 +625,10 @@ export default {
         }
       });
     },
-    //上传富文本
+    /**
+     * 保存节点富文本内容
+     * @param {Object} data 内容与节点信息
+     */
     saveNodeContent(data) {
       kgBuilderApi.saveNodeContent(JSON.stringify(data)).then(result => {
         if (result.code == 200) {
@@ -604,7 +636,11 @@ export default {
         }
       });
     },
-    //画布直接添加节点
+    /**
+     * 画布直接添加节点
+     * @param {number} left X 坐标
+     * @param {number} top Y 坐标
+     */
     createSingleNode(left, top) {
       let data = { name: "", r: 30 };
       data.domain = this.domain;
@@ -623,11 +659,18 @@ export default {
         }
       });
     },
+    /**
+     * 批量更新节点坐标
+     * @param {Array} nodes 坐标列表
+     */
     updateCoordinateOfNode(nodes) {
       let data = { domain: this.domain, nodes: nodes };
       kgBuilderApi.updateCoordinateOfNode(data).then(result => {});
     },
-    //删除节点
+    /**
+     * 删除节点并移除相关关系
+     * @param {string} out_buttongroup_id 外部按钮组选择器
+     */
     deleteNode(out_buttongroup_id) {
       let _this = this;
       _this
@@ -682,7 +725,10 @@ export default {
           });
         });
     },
-    //删除连线
+    /**
+     * 删除连线
+     * @param {Object} sdata 连线数据
+     */
     deleteLinkName(sdata) {
       let _this = this;
       _this
@@ -715,7 +761,10 @@ export default {
           });
         });
     },
-    //添加连线
+    /**
+     * 添加连线
+     * @param {Object} data 关系数据
+     */
     createLink(data) {
       kgBuilderApi.createLink(data).then(result => {
         if (result.code == 200) {
@@ -724,7 +773,10 @@ export default {
         }
       });
     },
-    //更新连线名称
+    /**
+     * 更新连线名称
+     * @param {Object} sdata 连线数据
+     */
     updateLinkName(sdata) {
       let _this = this;
       this.$prompt("请输入关系名称", "提示", {
@@ -752,7 +804,10 @@ export default {
         })
         .catch(function() {});
     },
-    //更新节点名称
+    /**
+     * 更新节点名称
+     * @param {Object} d 节点数据
+     */
     updateNodeName(d) {
       let _this = this;
       _this
@@ -788,7 +843,10 @@ export default {
           });
         });
     },
-    //初始化节点富文本内容
+    /**
+     * 初始化节点富文本内容
+     * @param {Object} data 节点与领域信息
+     */
     initNodeContent(data) {
       let param = { domainId: data.domainId, nodeId: data.nodeId };
       kgBuilderApi.getNodeContent(param).then(response => {
@@ -801,7 +859,10 @@ export default {
         }
       });
     },
-    //初始化节点添加的图片
+    /**
+     * 初始化节点图片列表
+     * @param {Object} data 节点与领域信息
+     */
     initNodeImage(data) {
       let param = { domainId: data.domainId, nodeId: data.nodeId };
       kgBuilderApi.getNodeImage(param).then(response => {
@@ -821,7 +882,12 @@ export default {
         }
       });
     },
-    //一次性获取富文本和图片
+    /**
+     * 获取节点富文本与图片并展示
+     * @param {number} nodeId 节点ID
+     * @param {number} left X 坐标
+     * @param {number} top Y 坐标
+     */
     getNodeDetail(nodeId, left, top) {
       let data = { domainId: this.domainId, nodeId: nodeId };
       kgBuilderApi.getNodeDetail(data).then(result => {
@@ -839,7 +905,9 @@ export default {
         }
       });
     },
-    //全屏
+    /**
+     * 请求画布全屏显示
+     */
     requestFullScreen() {
       let element = document.getElementById("graphcontainerdiv");
       let width = window.screen.width;
@@ -862,7 +930,9 @@ export default {
         element.msRequestFullscreen();
       }
     },
-    //获取图谱节点及关系
+    /**
+     * 获取图谱节点及关系
+     */
     getDomainGraph() {
       //this.loading = true;
       let data = {
@@ -889,7 +959,9 @@ export default {
         }
       });
     },
-    //展开更多节点
+    /**
+     * 展开更多关联节点
+     */
     getMoreNode() {
       let data = { domain: this.domain, nodeId: this.selectNode.nodeId };
       kgBuilderApi.getMoreRelationNode(data).then(result => {
@@ -901,11 +973,17 @@ export default {
         }
       });
     },
-    //快速添加
+    /**
+     * 快速批量添加节点
+     */
     btnQuickAddNode() {
       this.$refs.kg_form.init(true, "batchAdd", this.domain);
     },
-    //删除领域
+    /**
+     * 删除领域
+     * @param {number} id 领域ID
+     * @param {string} value 领域名称
+     */
     deleteDomain(id, value) {
       this.$confirm(
         "此操作将删除该标签及其下节点和关系(不可恢复), 是否继续?",
@@ -932,7 +1010,10 @@ export default {
           });
         });
     },
-    //创建新领域
+    /**
+     * 创建新领域
+     * @param {string} value 领域名称
+     */
     createDomain(value) {
       this.$prompt("请输入领域名称", "提示", {
         confirmButtonText: "确定",
@@ -952,7 +1033,10 @@ export default {
         })
         .catch(() => {});
     },
-    //获取领域标签
+    /**
+     * 获取领域标签分页列表
+     * @param {Object} data 查询参数
+     */
     getLabels(data) {
       kgBuilderApi.getDomains(data).then(result => {
         if (result.code == 200) {
@@ -966,6 +1050,10 @@ export default {
         }
       });
     },
+    /**
+     * 获取领域列表
+     * @param {number} [pageIndex] 页码
+     */
     getDomain(pageIndex) {
       this.pageModel.pageIndex = pageIndex
         ? pageIndex
@@ -977,6 +1065,10 @@ export default {
       };
       this.getLabels(data);
     },
+    /**
+     * 切换领域并加载图谱
+     * @param {Object} domain 领域项
+     */
     matchDomainGraph(domain) {
       this.domain = domain.label;
       this.domainAlia = domain.name;
@@ -991,7 +1083,9 @@ export default {
         return n;
       });
     },
-    //保存图片
+    /**
+     * 保存当前画布为图片
+     */
     saveImage() {
       html2canvas(document.querySelector(".graphContainer"), {
         width: document.querySelector(".graphContainer").offsetWidth, // canvas画板的宽度 一般都是要保存的那个dom的宽度
@@ -1005,13 +1099,21 @@ export default {
         a.click(); //点击触发下载
       });
     },
+    /**
+     * 显示图谱 JSON 数据
+     */
     showJsonData() {
       this.$refs.kg_json.init();
     },
+    /**
+     * 打开反馈对话框
+     */
     wanted() {
       this.$refs.kg_wanted.init();
     },
-    //导入图谱
+    /**
+     * 导入图谱文件
+     */
     importGraph() {
       if (!this.domain || this.domain == "") {
         this.$message.warning("请选择一个领域");
@@ -1019,6 +1121,9 @@ export default {
       }
       this.$refs.kg_form.init(true, "import", this.domain);
     },
+    /**
+     * 导出当前领域图谱
+     */
     exportGraph() {
       if (!this.domain || this.domain == "") {
         this.$message.warning("请选择一个领域");
@@ -1031,10 +1136,16 @@ export default {
         }
       });
     },
+    /**
+     * 打开帮助
+     */
     help() {
       this.$refs.kg_help.init();
     },
-    //设置画布内最大的点个数
+    /**
+     * 设置画布内最大节点数
+     * @param {Object} m 数量项
+     */
     setMatchSize(m) {
       for (let i = 0; i < this.pageSizeList.length; i++) {
         this.pageSizeList[i].isActive = false;
@@ -1045,7 +1156,11 @@ export default {
       this.pageSize = m.size;
       this.getDomainGraph();
     },
-    //合并节点和连线
+    /**
+     * 合并新节点与新关系到当前图谱
+     * @param {Array} newNodes 新节点集合
+     * @param {Array} newLinks 新关系集合
+     */
     mergeNodeAndLink(newNodes, newLinks) {
       let _this = this;
       newNodes.forEach(function(m) {
@@ -1065,7 +1180,10 @@ export default {
         }
       });
     },
-    //批量添加节点
+    /**
+     * 批量添加节点
+     * @param {Object} param 批量参数
+     */
     batchCreateNode(param) {
       let data = {
         domain: this.domain,
@@ -1086,7 +1204,10 @@ export default {
         }
       });
     },
-    //批量添加子节点
+    /**
+     * 批量添加子节点
+     * @param {Object} param 批量参数
+     */
     batchCreateChildNode(param) {
       let data = {
         domain: this.domain,
@@ -1106,7 +1227,10 @@ export default {
         }
       });
     },
-    //批量添加同级节点
+    /**
+     * 批量添加同级节点
+     * @param {Object} param 批量参数
+     */
     batchCreateSameNode(param) {
       let data = {
         domain: this.domain,
@@ -1431,6 +1555,7 @@ ul {
   border: 1px solid #d8dce5;
   color: #5a5e66;
   -webkit-appearance: none;
+  appearance: none;
   text-align: center;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;

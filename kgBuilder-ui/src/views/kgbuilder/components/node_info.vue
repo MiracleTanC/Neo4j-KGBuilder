@@ -25,6 +25,10 @@ import { codemirror } from "vue-codemirror";
 require("codemirror/mode/javascript/javascript.js");
 
 export default {
+  /**
+   * 信息面板组件
+   * 展示当前流程/图谱的 JSON 数据，高亮显示并支持滚动查看。
+   */
   props: {
     data: Object
   },
@@ -42,6 +46,10 @@ export default {
     codemirror
   },
   methods: {
+    /**
+     * 打开信息面板并渲染传入数据
+     * @returns {void}
+     */
     init() {
       this.dialogVisible = true;
       this.flowJsonData = JSON.stringify(this.data, null, 4).toString();

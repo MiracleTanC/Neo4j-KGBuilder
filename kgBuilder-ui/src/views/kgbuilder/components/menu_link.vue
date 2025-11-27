@@ -37,6 +37,10 @@ export default {
     };
   },
   computed: {
+    /**
+     * 连线菜单样式（绝对定位）
+     * @returns {{position:string,top:string,left:string}}
+     */
     linuMenuStyle() {
       return {
         position:'absolute',
@@ -49,6 +53,10 @@ export default {
 
   },
   methods: {
+    /**
+     * 初始化菜单位置与显隐
+     * @param {{top:number,left:number,show:boolean}} data 位置信息
+     */
     init(data) {
       //debugger
       this.top=data.top;
@@ -56,12 +64,23 @@ export default {
       this.linkMenuShow=data.show;
 
     },
+    /**
+     * 触发编辑连线事件
+     * @emits updateLinkName
+     */
     updateLinkName(){
       this.$emit("updateLinkName");
     },
+    /**
+     * 触发删除连线事件
+     * @emits deleteLink
+     */
     deleteLink(){
       this.$emit("deleteLink");
     },
+    /**
+     * 鼠标离开时隐藏菜单
+     */
     linkMenuBarLeave() {
       //d3.select(this).style("display", "none");
       this.linkMenuShow=false;

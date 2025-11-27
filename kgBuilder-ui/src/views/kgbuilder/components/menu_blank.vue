@@ -37,6 +37,10 @@ export default {
   },
   components: {},
   computed: {
+    /**
+     * 空白右键菜单样式（绝对定位）
+     * @returns {{position:string,top:string,left:string}}
+     */
     blankMenuStyle() {
       return {
         position: "absolute",
@@ -46,20 +50,38 @@ export default {
     }
   },
   methods: {
+    /**
+     * 初始化菜单位置与显隐
+     * @param {{top:number,left:number,show:boolean}} data 位置信息
+     */
     init(data) {
       this.top = data.top;
       this.left = data.left;
       this.menuBarShow = data.show;
     },
+    /**
+     * 触发添加单节点事件
+     * @emits btnAddSingle
+     */
     btnAddSingle() {
       this.$emit("btnAddSingle");
     },
+    /**
+     * 触发快速添加事件
+     * @emits btnQuickAddNode
+     */
     btnQuickAddNode() {
       this.$emit("btnQuickAddNode");
     },
+    /**
+     * 点击菜单区域隐藏菜单
+     */
     menuBarClick() {
       this.menuBarShow=false;
     },
+    /**
+     * 鼠标离开时隐藏菜单
+     */
     menuBarLeave() {
      this.menuBarShow=false;
     }

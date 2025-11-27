@@ -457,13 +457,23 @@ public class KGGraphServiceImpl implements KGGraphService {
     /**
      * 导入分类数据（树形结构）
      * <p>
-     * 解析Excel文件，构建分类树结构，并创建相应的节点和关系。
-     * 使用 TreeExcel 工具类处理层级关系。
+     * 解析 Excel 文件并按层级构建分类树：
+     * - 每个单元格可通过 "节点名称###关系" 指定与父节点的关系标签，仅识别第一组关系；
+     * - 顶层节点 `treeLevel` 置为 0，非顶层按父节点层级 +1；
+     * - 若父节点原为叶子，则在插入子节点后更新其叶子状态为非叶；
+     * - 为每个分类节点创建对应的图谱节点（携带颜色），并按父子关系创建图谱连线；
+     * - 空行、缺失单元格或无效值将被跳过。
      * </p>
      *
-     * @param file    上传的文件
-     * @param request HttpServletRequest对象
-     * @param label   领域标签
+     * 边界与异常处理：
+     * - 空 Sheet 或无数据时不执行任何写入；
+     * - `split("###")` 仅在存在分隔符时解析关系名，缺失则按空关系处理；
+     * - 字段 `parentId` 不存在时按根节点处理，避免空指针；
+     * - 颜色值按原样透传，不校验格式；
+     *
+     * @param file    上传的文件（支持 xls/xlsx）
+     * @param request HttpServletRequest 对象
+     * @param label   领域标签，用于在图谱中创建节点与关系
      * @throws Exception 处理异常
      */
     @Override
