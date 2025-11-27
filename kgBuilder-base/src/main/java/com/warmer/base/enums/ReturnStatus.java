@@ -1,7 +1,5 @@
 package com.warmer.base.enums;
 
-import lombok.Getter;
-
 public enum ReturnStatus {
     Success("操作成功", 200),
     OPERAFAIL("操作失败", 201),

@@ -146,11 +146,10 @@ public class DateUtil {
 	 * @return
 	 */
 	public static String getCurrentDate() {
-		long time = System.currentTimeMillis();
-		Date date = new Date(time);
-		int year = 1900 + date.getYear();
-		int month = date.getMonth() + 1;
-		int day = date.getDate();
+		Calendar cal = Calendar.getInstance();
+		int year = cal.get(Calendar.YEAR);
+		int month = cal.get(Calendar.MONTH) + 1;
+		int day = cal.get(Calendar.DAY_OF_MONTH);
 
 		String ymd = String.valueOf(year);
 		if (month < 10)
@@ -275,16 +274,16 @@ public class DateUtil {
 		String asDate;
 		Calendar cl = Calendar.getInstance();
 		year = Integer.valueOf(psDate.substring(0, 4)).intValue();
-		cl.set(cl.YEAR, year);
+		cl.set(Calendar.YEAR, year);
 		// Calendar的月份是从0开始的
 		month = Integer.valueOf(psDate.substring(4, 6)).intValue() - 1;
-		cl.set(cl.MONTH, month);
+		cl.set(Calendar.MONTH, month);
 		day = Integer.valueOf(psDate.substring(6)).intValue();
-		cl.set(cl.DAY_OF_MONTH, day);
-		cl.add(cl.DATE, piValue);
-		year = cl.get(cl.YEAR);
-		month = cl.get(cl.MONDAY) + 1;
-		day = cl.get(cl.DAY_OF_MONTH);
+		cl.set(Calendar.DAY_OF_MONTH, day);
+		cl.add(Calendar.DATE, piValue);
+		year = cl.get(Calendar.YEAR);
+		month = cl.get(Calendar.MONTH) + 1;
+		day = cl.get(Calendar.DAY_OF_MONTH);
 		asDate = String.valueOf(year);
 		if (month < 10)
 			asDate += "0" + String.valueOf(month);
@@ -315,11 +314,11 @@ public class DateUtil {
 			month = 0;
 		}
 		Calendar cl = Calendar.getInstance();
-		cl.set(cl.YEAR, year);
-		cl.set(cl.MONTH, month);
-		cl.set(cl.DAY_OF_MONTH, 1);
-		cl.add(cl.DATE, -1);
-		return String.valueOf(cl.get(cl.DAY_OF_MONTH));
+		cl.set(Calendar.YEAR, year);
+		cl.set(Calendar.MONTH, month);
+		cl.set(Calendar.DAY_OF_MONTH, 1);
+		cl.add(Calendar.DATE, -1);
+		return String.valueOf(cl.get(Calendar.DAY_OF_MONTH));
 	}
 
 	/**
@@ -341,8 +340,9 @@ public class DateUtil {
 			psDate2 = psDate2.substring(0, 4) + "/" + psDate2.substring(4, 6)
 					+ "/" + psDate2.substring(6, 8);
 
-			Date dt1 = new Date(psDate1);
-			Date dt2 = new Date(psDate2);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+			Date dt1 = sdf.parse(psDate1);
+			Date dt2 = sdf.parse(psDate2);
 			long l = dt1.getTime() - dt2.getTime();
 			l = l / 60 / 60 / 1000 / 24;
 			return Math.abs(l);

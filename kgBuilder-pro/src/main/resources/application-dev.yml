@@ -24,4 +24,4 @@ mybatis:
   mapperLocations: classpath*:/mapping/*.xml
 file:
   serverurl:  http://localhost:8081
-  location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linx 格式"/home/kgmanager/csv/";
+  location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linux 格式"/home/kgmanager/csv/";

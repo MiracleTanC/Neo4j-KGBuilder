@@ -2496,7 +2496,7 @@
 
             <li class="dib">
               <span class="icon iconfont">&#xe75c;</span>
-                <div class="name">cecurity-protection</div>
+                <div class="name">security-protection</div>
                 <div class="code-name">&amp;#xe75c;</div>
               </li>
 

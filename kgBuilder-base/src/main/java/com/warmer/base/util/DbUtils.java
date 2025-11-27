@@ -6,7 +6,6 @@ import com.warmer.base.common.FieldQueryItem;
 import com.warmer.base.common.PageRecord;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -329,9 +328,8 @@ public class DbUtils {
                 // 赋值一页的项目数
                 pageRecord.setPageSize(pageSize);
                 // 赋值总记录数
-                Object[] params = null;
                 String countsql = getQueryCountSQL(tableName, selectType, selectMessage, dbType, dbName);
-                Integer totalCount = jdbcTemplate.queryForObject(countsql, params, Integer.class);
+                Integer totalCount = jdbcTemplate.queryForObject(countsql, Integer.class);
                 pageRecord.setTotalCount(totalCount);
                 // 赋值每页项目
                 pageRecord.setData(arrayList);
@@ -382,9 +380,8 @@ public class DbUtils {
                 // 赋值一页的项目数
                 pageRecord.setPageSize(pageSize);
                 // 赋值总记录数
-                Object[] params = null;
                 String countSql = getQueryCountSQL(tableName, filterItems, dbType, dbName);
-                Integer totalCount = jdbcTemplate.queryForObject(countSql, params, Integer.class);
+                Integer totalCount = jdbcTemplate.queryForObject(countSql, Integer.class);
                 pageRecord.setTotalCount(totalCount);
                 // 赋值每页项目
                 pageRecord.setData(arrayList);
@@ -405,8 +402,7 @@ public class DbUtils {
             log.error(e.getMessage());;
         }
         // 赋值总记录数
-        Object[] params = null;
-        Integer count = jdbcTemplate.queryForObject(sql, params, Integer.class);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
         return count;
     }
     private static String getQueryCountSQL(String tableName, int selectType, String selectMessage, String dbType, String dbName) {
