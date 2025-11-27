@@ -8,6 +8,11 @@ import com.warmer.web.entity.KgNodeDetailFile;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 领域与节点内容管理服务接口
+ *
+ * 负责领域基本信息的维护（查询/新增/更新/删除），以及节点富文本与图片内容的存取。
+ */
 public interface KGManagerService {
 	/**
 	 * 获取所有领域

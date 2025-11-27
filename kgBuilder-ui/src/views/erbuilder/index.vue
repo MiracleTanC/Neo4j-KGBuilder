@@ -158,6 +158,12 @@ import FlowNodeForm from "@/views/erbuilder/components/node_form";
 import { kgBuilderApi } from "@/api";
 export default {
   name: "er",
+  /**
+   * ER 构建页
+   *
+   * - 左侧节点库、右侧画布与表单联动
+   * - 基于 `jsPlumb` 的节点/连线编辑、保存与执行生成图谱
+   */
   data() {
     return {
       // jsPlumb 实例
@@ -258,15 +264,25 @@ export default {
     this.jsPlumb = jsPlumb.getInstance();
   },
   methods: {
+    /**
+     * 显示领域输入框
+     */
     showAddDomain() {
       this.inputVisible = true;
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
+    /**
+     * 删除 ER 领域
+     * @param {number} domainId 领域ID
+     */
     deleteEr(domainId) {
       this.$message.success("计划中");
     },
+    /**
+     * 初始化领域列表
+     */
     initDomain() {
       let data = JSON.stringify(this.domainQuery);
       kgBuilderApi.getDomains(data).then(response => {
@@ -275,6 +291,9 @@ export default {
         }
       });
     },
+    /**
+     * 创建新领域
+     */
     createDomain() {
       let inputValue = this.inputValue;
       if (inputValue) {
@@ -293,6 +312,9 @@ export default {
       this.inputVisible = false;
       this.inputValue = "";
     },
+    /**
+     * 保存 ER 数据
+     */
     saveERdata() {
       let data = JSON.stringify(this.data);
       kgBuilderApi.saveData(data).then(response => {
@@ -305,6 +327,9 @@ export default {
         }
       });
     },
+    /**
+     * 执行 ER 生成图谱
+     */
      executeERdata() {
       kgBuilderApi.execute(this.data.domainId).then(response => {
         if (response.code == 200) {
@@ -317,6 +342,10 @@ export default {
       });
     },
     // 初始化数据
+    /**
+     * 加载领域的 ER 数据
+     * @param {number} domainId 领域ID
+     */
     initERData(domainId) {
       kgBuilderApi.getDomainNode(domainId).then(response => {
         if (response.code == 200) {
@@ -331,10 +360,17 @@ export default {
         }
       });
     },
+    /**
+     * 隐藏连线菜单
+     * @param {MouseEvent} e 事件
+     */
     hiddenLinkMenu(e) {
       //e.preventDefault();
       this.showLineMenu = false;
     },
+    /**
+     * 初始化 jsPlumb 并绑定事件
+     */
     jsPlumbInit() {
       this.jsPlumb.ready(() => {
         // 导入默认配置

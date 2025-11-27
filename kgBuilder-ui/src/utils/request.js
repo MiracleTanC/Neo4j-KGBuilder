@@ -4,6 +4,13 @@ import store from "@/store";
 import { getToken } from "@/utils/auth";
 import errorCode from "@/utils/errorCode";
 
+/**
+ * Axios 请求实例
+ *
+ * - 基于 `process.env.VUE_APP_BASE_API` 配置基础地址
+ * - 统一超时与默认 `Content-Type`
+ * - 封装请求/响应拦截器（Token 注入、错误提示、状态码处理）
+ */
 const queue = [] // 请求队列
 // 创建axios实例
 const service = axios.create({
@@ -15,7 +22,10 @@ const service = axios.create({
     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
   }
 });
-// 取消重复请求
+/**
+ * 取消重复请求
+ * @param {import('axios').AxiosRequestConfig} config 请求配置
+ */
 const removeRepeatRequest = config => {
   for (const key in queue) {
     const index = +key
@@ -33,7 +43,7 @@ const removeRepeatRequest = config => {
     }
   }
 }
-// request拦截器
+// 请求拦截器：注入 Token
 service.interceptors.request.use(
   config => {
     // 是否需要设置 token
@@ -49,7 +59,7 @@ service.interceptors.request.use(
   }
 );
 
-// 响应拦截器
+// 响应拦截器：统一状态码与错误提示
 service.interceptors.response.use(
   res => {
     // 未设置状态码则默认成功状态

@@ -1,5 +1,10 @@
 import BaseAPI from '@/utils/BaseAPI'
 
+/**
+ * 知识图谱 API 封装
+ *
+ * 涵盖领域管理、节点/关系增删改、图谱查询、文件导入导出、节点富文本与图片等接口。
+ */
 class kgBuilderApi extends BaseAPI{
   /**
    * 获取静态图谱数据

@@ -194,6 +194,12 @@ import kgbuilder from "@/components/KGBuilder_v1";
 import { EventBus } from "@/utils/event-bus.js";
 export default {
   name: "kgBuilderv1",
+  /**
+   * 图谱构建页面（v1）
+   *
+   * - 左侧领域列表、右侧图谱画布与工具栏
+   * - 集成领域创建、导入导出、截图与富文本/图片编辑
+   */
   components: {
     KgForm,
     NodeRicher,

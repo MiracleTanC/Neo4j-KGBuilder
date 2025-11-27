@@ -11,6 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 图谱构建与可视化服务接口
+ *
+ * 负责领域的图谱数据增删改查、节点与关系的批量/单体操作、坐标更新、
+ * 附件与图片管理，以及多种导入方式（CSV/Excel/文本三元组）。
+ */
 public interface KGGraphService {
 	/**
 	 * 领域标签分页查询

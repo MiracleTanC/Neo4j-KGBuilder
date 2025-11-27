@@ -4,10 +4,9 @@ import com.warmer.web.entity.KgGraphNodeMap;
 import java.util.List;
 
 /**
- * (KgGraphNodeMap)表服务接口
+ * 图谱节点映射管理服务接口
  *
- * @author tanc
- * @since 2021-12-24 15:53:51
+ * 管理领域内节点到图谱节点的映射关系查询与新增。
  */
 public interface KgGraphNodeMapService {
 

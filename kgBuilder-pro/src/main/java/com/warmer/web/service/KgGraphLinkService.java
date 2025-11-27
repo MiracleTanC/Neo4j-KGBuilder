@@ -4,10 +4,9 @@ import com.warmer.web.entity.KgGraphLink;
 import java.util.List;
 
 /**
- * (KgGraphLink)表服务接口
+ * 图谱关系管理服务接口
  *
- * @author tanc
- * @since 2021-12-24 15:53:53
+ * 提供按领域查询关系与新增关系的能力。
  */
 public interface KgGraphLinkService {
 

@@ -244,6 +244,12 @@ import KgHelp from "@/views/kgbuilder/components/kg_help";
 import html2canvas from "html2canvas";
 export default {
   name: "kgBuilder",
+  /**
+   * 图谱构建页（经典版）
+   *
+   * - 左侧领域列表与分页，右侧 D3 画布渲染
+   * - 支持节点/关系创建、批量操作、导入导出与截图
+   */
   components: {
     MenuBlank,
     MenuLink,

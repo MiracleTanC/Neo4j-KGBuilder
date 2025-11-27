@@ -2,6 +2,11 @@ package com.warmer.web.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+/**
+ * 流程导演服务接口
+ *
+ * 负责根据配置 JSON 串提取流程组件与连接信息，按顺序驱动各组件执行。
+ */
 public interface IWorkFlowDirectorService {
      /**
       * 导演方法。

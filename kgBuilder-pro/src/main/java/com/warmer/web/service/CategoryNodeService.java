@@ -7,6 +7,12 @@ import com.warmer.web.request.CategoryNodeQuery;
 import java.util.List;
 
 
+/**
+ * 分类节点业务服务接口
+ *
+ * 管理分类树节点的增删改查、系统编码初始化/维护、树层级计算、
+ * 以及附件导入场景下的批量清理与查询。
+ */
 public interface CategoryNodeService {
     /**
      * 根据主键删除节点
