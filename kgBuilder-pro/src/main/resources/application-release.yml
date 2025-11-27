@@ -8,16 +8,20 @@ spring:
   thymeleaf:
     cache : false
     mode: HTML5
-  neo4j:
-    url: ${NEO4J_URL:bolt://localhost:7687}
-    username: ${NEO4J_USERNAME:neo4j}
-    password: ${NEO4J_PASSWORD:123456}
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC}
     driverClassName: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
     type: com.zaxxer.hikari.HikariDataSource
+custom:
+  neo4j:
+    url: ${NEO4J_URL:bolt://localhost:7687}
+    username: ${NEO4J_USERNAME:neo4j}
+    password: ${NEO4J_PASSWORD:123456}
+  file:
+    serverurl:  http://localhost:8089
+    location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linux 格式"/home/kgmanager/csv/";
 mybatis:
   typeAliasesPackage: com.warmer.kgmaker.entity
   mapperLocations: classpath*:/mapping/*.xml
@@ -27,20 +31,4 @@ pagehelper:
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
-#--------七牛云配置
-qiniu:
-  access:
-    key: ${QINIU_ACCESS_KEY:change_me}
-  secret:
-    key: ${QINIU_SECRET_KEY:change_me}
-  bucket:
-    name: ${QINIU_BUCKET_NAME:nndt}
-    host:
-      name: ${QINIU_HOST:file.miaoleyan.com}
-  prefixName: ${QINIU_PREFIX:/nndt}
-#--------七牛云配置
-img:  #//如果是Windows情况下，格式是 D:\\blog\\image\\   linx 格式"/home/blog/image/";
-  location : D:\\blog\\image\\
-file:
-  serverurl:  http://localhost:8089
-  location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linx 格式"/home/kgmanager/csv/";
+

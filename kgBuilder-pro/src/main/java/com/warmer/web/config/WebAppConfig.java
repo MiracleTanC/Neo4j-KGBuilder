@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@ConfigurationProperties(prefix = "file")
+@ConfigurationProperties(prefix = "custom.file")
 @Data
 public class WebAppConfig{
 
