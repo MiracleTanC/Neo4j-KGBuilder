@@ -28,6 +28,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.util.*;
 
+/**
+ * 知识图谱构建控制器
+ * <p>
+ * 提供知识图谱的增删改查、导入导出、可视化数据查询等接口。
+ * </p>
+ *
+ * @author warmer
+ */
 @RestController
 @RequestMapping(value = "/")
 public class KGBuilderController extends BaseController {
@@ -42,10 +50,13 @@ public class KGBuilderController extends BaseController {
     FeedBackService feedBackService;
 
     /**
-     * 获取图谱标签列表（存放mysql表）
+     * 获取图谱标签列表。
+     * <p>
+     * 查询 MySQL 中存储的知识图谱领域列表，支持分页和条件过滤。
+     * </p>
      *
-     * @param queryItem
-     * @return
+     * @param queryItem 查询参数对象，包含分页索引、页大小、领域名称、类型等
+     * @return 包含领域列表的分页响应结果 {@link R}
      */
     @PostMapping(value = "/getGraph") // call db.labels
     public R<GraphPageRecord<KgDomain>> getGraph(@RequestBody GraphQuery queryItem) {
@@ -67,10 +78,13 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 搜索框查询相关节点和关系
+     * 查询图谱结果。
+     * <p>
+     * 根据搜索条件查询相关的节点和关系数据，用于前端图形化展示。
+     * </p>
      *
-     * @param query
-     * @return
+     * @param query 查询参数对象，包含领域、节点名称等
+     * @return 包含节点和关系数据的 Map 对象 {@link R}
      */
     @PostMapping(value = "/queryGraphResult")
     public R<HashMap<String, Object>> queryGraphResult(@RequestBody GraphQuery query) {
@@ -85,12 +99,14 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 根据自定义cypher查询结果
+     * 执行 Cypher 查询。
+     * <p>
+     * 接收前端传入的 Cypher 语句并在 Neo4j 中执行，返回查询结果。
+     * </p>
      *
-     * @param cypher
-     * @return
+     * @param cypher Cypher 查询语句
+     * @return 包含查询结果的 Map 对象 {@link R}
      */
-
     @RequestMapping(value = "/getCypherResult")
     public R<HashMap<String, Object>> getCypherResult(String cypher) {
         try {
@@ -103,13 +119,15 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 获取某个领域指定节点拥有的上下级的节点数
+     * 获取关联节点数量。
+     * <p>
+     * 获取某个领域下指定节点拥有的上下级节点总数。
+     * </p>
      *
-     * @param domain
-     * @param nodeId
-     * @return
+     * @param domain 领域名称
+     * @param nodeId 节点 ID
+     * @return 关联节点数量 {@link R}
      */
-
     @RequestMapping(value = "/getRelationNodeCount")
     public R<Long> getRelationNodeCount(String domain, long nodeId) {
         try {
@@ -126,13 +144,15 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 创建领域标签
+     * 创建领域。
+     * <p>
+     * 创建一个新的知识图谱领域（Label），并初始化相关数据。
+     * </p>
      *
-     * @param domain
-     * @param type
-     * @return
+     * @param domain 领域名称（用户输入）
+     * @param type   领域类型
+     * @return 新创建的领域 ID {@link R}
      */
-
     @RequestMapping(value = "/createDomain")
     public R<Integer> createDomain(String domain, Integer type) {
         try {
@@ -155,13 +175,15 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 获取当前节点的下级节点
+     * 获取更多关联节点。
+     * <p>
+     * 分页或加载更多当前节点的下级关联节点。
+     * </p>
      *
-     * @param domain
-     * @param nodeId
-     * @return
+     * @param domain 领域名称
+     * @param nodeId 节点 ID
+     * @return 包含节点和关系的图谱数据 {@link R}
      */
-
     @RequestMapping(value = "/getMoreRelationNode")
     public R<HashMap<String, Object>> getMoreRelationNode(String domain, String nodeId) {
         try {
@@ -179,12 +201,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 更新节点名称
+     * 更新节点名称。
      *
-     * @param request
-     * @return
+     * @param request 包含领域、节点ID和新名称的请求对象
+     * @return 更新后的节点数据 {@link R}
      */
-
     @RequestMapping(value = "/updateNodeName")
     public R<HashMap<String, Object>> updateNodeName(@RequestBody KgNodeItem request) {
         HashMap<String, Object> graphNodeList = new HashMap<String, Object>();
@@ -203,12 +224,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 更新节点坐标
+     * 更新节点坐标。
      *
-     * @param request
-     * @return
+     * @param request 包含节点坐标信息的提交对象
+     * @return 响应结果 {@link R}
      */
-
     @RequestMapping(value = "/updateCoordinateOfNode")
     public R<String> updateCoordinateOfNode(@RequestBody NodeCoordinateSubmitItem request) {
         try {
@@ -223,12 +243,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 创建节点
+     * 创建节点。
      *
-     * @param entity
-     * @return
+     * @param entity 节点对象，包含领域、标签、属性等信息
+     * @return 创建成功的节点数据 {@link R}
      */
-
     @RequestMapping(value = "/createNode")
     public R<HashMap<String, Object>> createNode(@RequestBody NodeItem entity) {
         HashMap<String, Object> graphNode = new HashMap<String, Object>();
@@ -246,12 +265,14 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 批量创建节点
+     * 批量创建节点。
+     * <p>
+     * 批量创建与源节点有指定关系的目标节点。
+     * </p>
      *
-     * @param request
-     * @return
+     * @param request 批量创建请求对象
+     * @return 创建结果 {@link R}
      */
-
     @RequestMapping(value = "/batchCreateNode")
     public R<HashMap<String, Object>> batchCreateNode(@RequestBody BatchCreateNodeItem request) {
 
@@ -268,12 +289,14 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 批量创建子节点
+     * 批量创建子节点。
+     * <p>
+     * 为指定节点批量创建下级节点。
+     * </p>
      *
-     * @param request
-     * @return
+     * @param request 批量创建请求对象
+     * @return 创建结果 {@link R}
      */
-
     @RequestMapping(value = "/batchCreateChildNode")
     public R<HashMap<String, Object>> batchCreateChildNode(@RequestBody BatchCreateNodeItem request) {
 
@@ -290,12 +313,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 批量创建同级节点
+     * 批量创建同级节点。
      *
-     * @param request
-     * @return
+     * @param request 批量创建请求对象
+     * @return 创建成功的节点列表 {@link R}
      */
-
     @RequestMapping(value = "/batchCreateSameNode")
     public R<List<HashMap<String, Object>>> batchCreateSameNode(@RequestBody BatchCreateNodeItem request) {
         List<HashMap<String, Object>> rss = new ArrayList<HashMap<String, Object>>();
@@ -309,12 +331,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 创建连线
+     * 创建连线。
      *
-     * @param request
-     * @return
+     * @param request 创建连线请求对象，包含源节点ID、目标节点ID、关系名称等
+     * @return 创建成功的连线信息 {@link R}
      */
-
     @RequestMapping(value = "/createLink")
     public R<HashMap<String, Object>> createLink(@RequestBody CreateLinkItem request) {
         try {
@@ -327,14 +348,13 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 更新连线信息
+     * 更新连线信息。
      *
-     * @param domain
-     * @param shipId
-     * @param shipName
-     * @return
+     * @param domain   领域名称
+     * @param shipId   连线（关系）ID
+     * @param shipName 新的连线名称
+     * @return 更新后的连线信息 {@link R}
      */
-
     @RequestMapping(value = "/updateLink")
     public R<HashMap<String, Object>> updateLink(String domain, long shipId, String shipName) {
         try {
@@ -348,13 +368,15 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 删除节点
+     * 删除节点。
+     * <p>
+     * 删除指定节点及其相关关系。
+     * </p>
      *
-     * @param domain
-     * @param nodeId
-     * @return
+     * @param domain 领域名称
+     * @param nodeId 节点 ID
+     * @return 删除操作结果 {@link R}
      */
-
     @RequestMapping(value = "/deleteNode")
     public R<List<HashMap<String, Object>>> deleteNode(String domain, long nodeId) {
         try {
@@ -367,13 +389,15 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 删除领域标签
+     * 删除领域。
+     * <p>
+     * 删除整个领域及其所有数据（慎用）。
+     * </p>
      *
-     * @param domainId
-     * @param domain
-     * @return
+     * @param domainId 领域 ID
+     * @param domain   领域名称
+     * @return 响应结果 {@link R}
      */
-
     @RequestMapping(value = "/deleteDomain")
     public R<List<HashMap<String, Object>>> deleteDomain(Integer domainId, String domain) {
         try {
@@ -387,13 +411,12 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 删除连线
+     * 删除连线。
      *
-     * @param domain
-     * @param shipId
-     * @return
+     * @param domain 领域名称
+     * @param shipId 连线 ID
+     * @return 响应结果 {@link R}
      */
-
     @RequestMapping(value = "/deleteLink")
     public R<HashMap<String, Object>> deleteLink(String domain, long shipId) {
         try {
@@ -408,13 +431,13 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 导入图谱
+     * 导入图谱数据
+     * 支持三元组导入和分类导入
      *
-     * @param file
-     * @param request
-     * @return
+     * @param file    上传的Excel文件 (.xls 或 .xlsx)
+     * @param request HttpServletRequest对象，包含domain(领域名称)和type(导入类型)参数
+     * @return R<String> 操作结果
      */
-
     @RequestMapping(value = "/importGraph")
     public R<String> importGraph(@RequestParam(value = "file", required = true)
                                  @Validated @NotNull(message = "请上传有效的excel的文件") @Pattern(regexp = "^(?:\\w+\\.xlsx|\\w+\\.xls)$",
@@ -449,12 +472,12 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 导出图谱
+     * 导出图谱数据
+     * 将图谱数据导出为CSV格式
      *
-     * @param request
-     * @return
+     * @param request HttpServletRequest对象，包含domain(领域名称)参数
+     * @return Map<String, Object> 包含导出结果和下载链接
      */
-
     @RequestMapping(value = "/exportGraph")
     public Map<String, Object> exportGraph(HttpServletRequest request) {
         Map<String, Object> res = new HashMap<>();
@@ -498,13 +521,12 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 获取节点图片
+     * 获取节点关联的图片列表
      *
-     * @param domainId
-     * @param nodeId
-     * @return
+     * @param domainId 领域ID
+     * @param nodeId   节点ID
+     * @return R<List<KgNodeDetailFile>> 图片列表
      */
-
     @RequestMapping(value = "/getNodeImage")
     public R<List<KgNodeDetailFile>> getNodeImageList(int domainId, int nodeId) {
         try {
@@ -517,13 +539,12 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 获取节点描述信息
+     * 获取节点详细内容
      *
-     * @param domainId
-     * @param nodeId
-     * @return
+     * @param domainId 领域ID
+     * @param nodeId   节点ID
+     * @return R<KgNodeDetail> 节点详情对象
      */
-
     @RequestMapping(value = "/getNodeContent")
     public R<KgNodeDetail> getNodeContent(int domainId, int nodeId) {
         try {
@@ -540,13 +561,12 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 获取节点详情
+     * 获取节点综合详情（包含内容和图片）
      *
-     * @param domainId
-     * @param nodeId
-     * @return
+     * @param domainId 领域ID
+     * @param nodeId   节点ID
+     * @return R<Map<String, Object>> 包含content和imageList的Map
      */
-
     @RequestMapping(value = "/getNodeDetail")
     public R<Map<String, Object>> getNodeDetail(int domainId, int nodeId) {
         try {
@@ -569,12 +589,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 内容反馈
+     * 提交用户反馈
      *
-     * @param submitItem
-     * @return
+     * @param submitItem 反馈信息实体
+     * @return R<Map<String, Object>> 操作结果
      */
-
     @RequestMapping(value = "/feedBack")
     public R<Map<String, Object>> feedBack(KgFeedBack submitItem) {
         try {
@@ -587,12 +606,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 保存节点图片
+     * 保存或更新节点图片
      *
-     * @param params
-     * @return
+     * @param params 包含domainId, nodeId, imagePath的Map
+     * @return R<String> 操作结果
      */
-
     @RequestMapping(value = "/saveNodeImage")
     public R<String> saveNodeImage(@RequestBody Map<String, Object> params) {
         try {
@@ -632,12 +650,11 @@ public class KGBuilderController extends BaseController {
     }
 
     /**
-     * 保存节点正文
+     * 保存或更新节点正文内容
      *
-     * @param params
-     * @return
+     * @param params 包含domainId, nodeId, content的Map
+     * @return R<String> 操作结果
      */
-
     @RequestMapping(value = "/saveNodeContent")
     public R<String> saveNodeContent(@RequestBody Map<String, Object> params) {
         try {

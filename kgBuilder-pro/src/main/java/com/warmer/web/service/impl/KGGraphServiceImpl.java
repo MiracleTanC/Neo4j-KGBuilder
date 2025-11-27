@@ -50,83 +50,200 @@ public class KGGraphServiceImpl implements KGGraphService {
     public GraphPageRecord<HashMap<String, Object>> getPageDomain(GraphQuery queryItem) {
         return kgRepository.getPageDomain(queryItem);
     }
+
+    /**
+     * 删除图谱领域
+     *
+     * @param domain 领域名称
+     */
     @Override
     public void deleteKGDomain(String domain) {
         kgRepository.deleteKgDomain(domain);
     }
 
+    /**
+     * 查询图谱结果
+     *
+     * @param query 查询条件对象
+     * @return HashMap<String, Object> 图谱节点和关系数据
+     */
     @Override
     public HashMap<String, Object> queryGraphResult(GraphQuery query) {
         return kgRepository.queryGraphResult(query);
     }
 
+    /**
+     * 分页获取领域下的节点
+     *
+     * @param domain    领域名称
+     * @param pageIndex 当前页码
+     * @param pageSize  每页数量
+     * @return HashMap<String, Object> 节点列表数据
+     */
     @Override
     public HashMap<String, Object> getdomainnodes(String domain, Integer pageIndex, Integer pageSize) {
         return kgRepository.getDomainNodes(domain, pageIndex, pageSize);
     }
 
+    /**
+     * 获取指定节点的关联节点数量
+     *
+     * @param domain 领域名称
+     * @param nodeId 节点ID
+     * @return long 关联节点总数
+     */
     @Override
     public long getRelationNodeCount(String domain, long nodeId) {
         return kgRepository.getRelationNodeCount(domain, nodeId);
     }
 
+    /**
+     * 创建新的领域
+     *
+     * @param domain 领域名称
+     */
     @Override
     public void createDomain(String domain) {
         kgRepository.createDomain(domain);
     }
 
+    /**
+     * 快速创建领域（带默认节点）
+     *
+     * @param domain   领域名称
+     * @param nodeName 默认节点名称
+     */
     @Override
     public void quickCreateDomain(String domain, String nodeName) {
         kgRepository.quickCreateDomain(domain,nodeName);
     }
 
+    /**
+     * 获取更多关联节点（展开节点）
+     *
+     * @param domain 领域名称
+     * @param nodeId 节点ID
+     * @return HashMap<String, Object> 更多关联节点和关系
+     */
     @Override
     public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
         return kgRepository.getMoreRelationNode(domain, nodeId);
     }
 
+    /**
+     * 更新节点名称
+     *
+     * @param domain   领域名称
+     * @param nodeId   节点ID
+     * @param nodeName 新节点名称
+     * @return HashMap<String, Object> 更新结果
+     */
     @Override
     public HashMap<String, Object> updateNodeName(String domain, String nodeId, String nodeName) {
         return kgRepository.updateNodeName(domain, nodeId, nodeName);
     }
 
+    /**
+     * 创建单个节点
+     *
+     * @param domain 领域名称
+     * @param entity 节点对象
+     * @return HashMap<String, Object> 创建的节点信息
+     */
     @Override
     public HashMap<String, Object> createNode(String domain, NodeItem entity) {
         return kgRepository.createNode(domain, entity);
     }
 
+    /**
+     * 批量创建节点（通过源节点和关系）
+     *
+     * @param domain      领域名称
+     * @param sourceName  源节点名称
+     * @param relation    关系名称
+     * @param targetNames 目标节点名称数组
+     * @return HashMap<String, Object> 创建结果
+     */
     @Override
     public HashMap<String, Object> batchCreateNode(String domain, String sourceName, String relation,
                                                    String[] targetNames) {
         return kgRepository.batchCreateNode(domain, sourceName, relation, targetNames);
     }
 
+    /**
+     * 批量创建子节点
+     *
+     * @param domain      领域名称
+     * @param sourceId    源节点ID
+     * @param entityType  实体类型
+     * @param targetNames 目标节点名称数组
+     * @param relation    关系名称
+     * @return HashMap<String, Object> 创建结果
+     */
     @Override
     public HashMap<String, Object> batchCreateChildNode(String domain, String sourceId, Integer entityType,
                                                         String[] targetNames, String relation) {
         return kgRepository.batchCreateChildNode(domain, sourceId, entityType, targetNames, relation);
     }
 
+    /**
+     * 批量创建同类节点
+     *
+     * @param domain      领域名称
+     * @param entityType  实体类型
+     * @param sourceNames 节点名称数组
+     * @return List<HashMap<String, Object>> 创建的节点列表
+     */
     @Override
     public List<HashMap<String, Object>> batchCreateSameNode(String domain, Integer entityType, String[] sourceNames) {
         return kgRepository.batchCreateSameNode(domain, entityType, sourceNames);
     }
 
+    /**
+     * 创建关系（连线）
+     *
+     * @param domain   领域名称
+     * @param sourceId 源节点ID
+     * @param targetId 目标节点ID
+     * @param ship     关系名称
+     * @return HashMap<String, Object> 创建的关系信息
+     */
     @Override
     public HashMap<String, Object> createLink(String domain, long sourceId, long targetId, String ship) {
         return kgRepository.createLink(domain, sourceId, targetId, ship);
     }
 
+    /**
+     * 更新关系（连线）名称
+     *
+     * @param domain   领域名称
+     * @param shipId   关系ID
+     * @param shipName 新关系名称
+     * @return HashMap<String, Object> 更新后的关系信息
+     */
     @Override
     public HashMap<String, Object> updateLink(String domain, long shipId, String shipName) {
         return kgRepository.updateLink(domain, shipId, shipName);
     }
 
+    /**
+     * 删除节点（级联删除关系）
+     *
+     * @param domain 领域名称
+     * @param nodeId 节点ID
+     * @return List<HashMap<String, Object>> 删除结果
+     */
     @Override
     public List<HashMap<String, Object>> deleteNode(String domain, long nodeId) {
         return kgRepository.deleteNode(domain, nodeId);
     }
 
+    /**
+     * 删除关系
+     *
+     * @param domain 领域名称
+     * @param shipId 关系ID
+     */
     @Override
     public void deleteLink(String domain, long shipId) {
         kgRepository.deleteLink(domain, shipId);
