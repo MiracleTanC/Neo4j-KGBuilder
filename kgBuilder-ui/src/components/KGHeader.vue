@@ -31,6 +31,12 @@
 
 <script>
 export default {
+  /**
+   * 顶部导航组件
+   *
+   * - 展示站点导航与二级子菜单
+   * - 通过 hover 切换子菜单显示
+   */
   props: {
     data: Object
   },
@@ -79,6 +85,10 @@ export default {
   mounted() {},
   components: {},
   methods: {
+    /**
+     * 鼠标移入，激活当前导航
+     * @param {Object} nav 导航项
+     */
     selectStyle(nav) {
       var _this = this;
       this.$nextTick(function() {
@@ -88,15 +98,29 @@ export default {
         nav.active = true;
       });
     },
+    /**
+     * 鼠标移出，取消当前导航激活
+     * @param {Object} nav 导航项
+     */
     outStyle(nav) {
       nav.active = false;
     },
+    /**
+     * 切换图标显示
+     */
     changeIcon() {
       this.isOpen = !this.isOpen;
     },
+    /**
+     * 切换搜索框激活状态
+     */
     searchActive() {
       this.search_active = !this.search_active;
     },
+    /**
+     * 点击导航切换激活状态
+     * @param {Object} nav 导航项
+     */
     clickNav(nav) {
       nav.active = !nav.active;
     }

@@ -2,6 +2,13 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 
+/**
+ * 应用路由
+ *
+ * - 默认跳转到知识图谱构建页面（v1）
+ * - 包含图谱、ER、数据源、图标等页面路由
+ */
+
 Vue.use(VueRouter);
 
 const routes = [

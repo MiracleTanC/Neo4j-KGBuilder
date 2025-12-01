@@ -102,9 +102,8 @@
         <node-menu @addNode="addNode" ref="nodeMenu"></node-menu>
       </div>
       <div id="efContainer" ref="efContainer" class="container" v-flowDrag>
-        <template v-for="node in data.nodeList">
+        <template v-for="node in data.nodeList" :key="node.nodeKey">
           <flow-node
-            :key="node.nodeKey"
             :id="node.nodeKey"
             :node="node"
             :activeElement="activeElement"
@@ -158,6 +157,12 @@ import FlowNodeForm from "@/views/erbuilder/components/node_form";
 import { kgBuilderApi } from "@/api";
 export default {
   name: "er",
+  /**
+   * ER 构建页
+   *
+   * - 左侧节点库、右侧画布与表单联动
+   * - 基于 `jsPlumb` 的节点/连线编辑、保存与执行生成图谱
+   */
   data() {
     return {
       // jsPlumb 实例
@@ -258,15 +263,25 @@ export default {
     this.jsPlumb = jsPlumb.getInstance();
   },
   methods: {
+    /**
+     * 显示领域输入框
+     */
     showAddDomain() {
       this.inputVisible = true;
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
+    /**
+     * 删除 ER 领域
+     * @param {number} domainId 领域ID
+     */
     deleteEr(domainId) {
       this.$message.success("计划中");
     },
+    /**
+     * 初始化领域列表
+     */
     initDomain() {
       let data = JSON.stringify(this.domainQuery);
       kgBuilderApi.getDomains(data).then(response => {
@@ -275,6 +290,9 @@ export default {
         }
       });
     },
+    /**
+     * 创建新领域
+     */
     createDomain() {
       let inputValue = this.inputValue;
       if (inputValue) {
@@ -293,6 +311,9 @@ export default {
       this.inputVisible = false;
       this.inputValue = "";
     },
+    /**
+     * 保存 ER 数据
+     */
     saveERdata() {
       let data = JSON.stringify(this.data);
       kgBuilderApi.saveData(data).then(response => {
@@ -305,6 +326,9 @@ export default {
         }
       });
     },
+    /**
+     * 执行 ER 生成图谱
+     */
      executeERdata() {
       kgBuilderApi.execute(this.data.domainId).then(response => {
         if (response.code == 200) {
@@ -317,6 +341,10 @@ export default {
       });
     },
     // 初始化数据
+    /**
+     * 加载领域的 ER 数据
+     * @param {number} domainId 领域ID
+     */
     initERData(domainId) {
       kgBuilderApi.getDomainNode(domainId).then(response => {
         if (response.code == 200) {
@@ -331,10 +359,17 @@ export default {
         }
       });
     },
+    /**
+     * 隐藏连线菜单
+     * @param {MouseEvent} e 事件
+     */
     hiddenLinkMenu(e) {
       //e.preventDefault();
       this.showLineMenu = false;
     },
+    /**
+     * 初始化 jsPlumb 并绑定事件
+     */
     jsPlumbInit() {
       this.jsPlumb.ready(() => {
         // 导入默认配置
@@ -426,6 +461,10 @@ export default {
       });
     },
     // 加载流程图
+    /**
+     * 加载流程图到画布
+     * 初始化节点拖拽与端点配置，绘制已存在的连线，并标记加载完成
+     */
     loadEasyFlow() {
       // 初始化节点
       for (var i = 0; i < this.data.nodeList.length; i++) {
@@ -470,7 +509,12 @@ export default {
         this.loadEasyFlowFinish = true;
       });
     },
-    // 设置连线条件
+    /**
+     * 设置连线标签
+     * @param {string} from 源端点ID
+     * @param {string} to 目标端点ID
+     * @param {string} label 标签文本
+     */
     setLineLabel(from, to, label) {
       var conn = this.jsPlumb.getConnections({
         source: from,
@@ -491,7 +535,9 @@ export default {
         }
       });
     },
-    //编辑激活的连线
+    /**
+     * 编辑当前激活的连线
+     */
     editActiveElement() {
       this.activeElement.type = "line";
       let sourceId = this.activeElement.sourceId;
@@ -503,7 +549,9 @@ export default {
         label: label
       });
     },
-    // 删除激活的元素
+    /**
+     * 删除当前激活的元素（节点或连线）
+     */
     deleteElement() {
       if (this.activeElement.type === "node") {
         this.deleteNode(this.activeElement.nodeId);
@@ -523,7 +571,11 @@ export default {
           .catch(() => {});
       }
     },
-    // 删除线
+    /**
+     * 删除连线
+     * @param {string} from 源端点ID
+     * @param {string} to 目标端点ID
+     */
     deleteLine(from, to) {
       this.data.lineList = this.data.lineList.filter(function(line) {
         if (line.from === from && line.to === to) {
@@ -532,15 +584,19 @@ export default {
         return true;
       });
     },
-    // 改变连线
+    /**
+     * 改变连线（删除旧连线，等待新连线创建）
+     * @param {string} oldFrom 旧源端点ID
+     * @param {string} oldTo 旧目标端点ID
+     */
     changeLine(oldFrom, oldTo) {
       this.deleteLine(oldFrom, oldTo);
     },
     /**
      * 拖拽结束后添加新的节点
-     * @param evt
-     * @param nodeMenu 被添加的节点对象
-     * @param mousePosition 鼠标拖拽结束的坐标
+     * @param {Object} evt 事件对象
+     * @param {Object} nodeMenu 被添加的节点对象
+     * @param {{x:number,y:number}} mousePosition 鼠标拖拽结束的坐标
      */
     addNode(evt, nodeMenu, mousePosition) {
       if (!this.data.domainId) {
@@ -676,13 +732,22 @@ export default {
         .catch(() => {});
       return true;
     },
+    /**
+     * 点击节点，激活并打开右侧表单
+     * @param {Object} node 节点对象
+     */
     clickNode(node) {
       let nodeId = node.nodeKey;
       this.activeElement.type = "node";
       this.activeElement.nodeId = nodeId;
       this.$refs.nodeForm.nodeInit(this.data, node);
     },
-    // 是否具有该线
+    /**
+     * 是否存在该连线
+     * @param {string} from 源端点ID
+     * @param {string} to 目标端点ID
+     * @returns {boolean}
+     */
     hasLine(from, to) {
       for (var i = 0; i < this.data.lineList.length; i++) {
         var line = this.data.lineList[i];
@@ -692,11 +757,21 @@ export default {
       }
       return false;
     },
-    // 是否含有相反的线
+    /**
+     * 是否存在相反方向的连线
+     * @param {string} from 源端点ID
+     * @param {string} to 目标端点ID
+     * @returns {boolean}
+     */
     hashOppositeLine(from, to) {
       return this.hasLine(to, from);
     },
-    // 是否是同表之间列连线
+    /**
+     * 是否同表之间列连线
+     * @param {string} from 源端点ID
+     * @param {string} to 目标端点ID
+     * @returns {boolean}
+     */
     isSameTableLine(from, to) {
       let fromArr = from.split("-");
       let fromTablePrex = fromArr[0] + "-" + fromArr[1];
@@ -707,7 +782,12 @@ export default {
       }
       return false;
     },
-    // 两个表间只能连一根线
+    /**
+     * 两个表间是否已存在连线（只允许一根）
+     * @param {string} from 源端点ID
+     * @param {string} to 目标端点ID
+     * @returns {boolean}
+     */
     isMutilLine(from, to) {
       let fromArr = from.split("-");
       let fromTablePrex = fromArr[0] + "-" + fromArr[1];
@@ -734,23 +814,36 @@ export default {
       }
       return false;
     },
+    /**
+     * 节点右键菜单
+     * @param {string} nodeId 节点ID
+     * @param {MouseEvent} evt 事件
+     */
     nodeRightMenu(nodeId, evt) {
       this.menu.show = true;
       this.menu.curNodeId = nodeId;
       this.menu.left = evt.x + "px";
       this.menu.top = evt.y + "px";
     },
+    /**
+     * 触发重绘
+     */
     repaintEverything() {
       this.jsPlumb.repaint();
     },
-    // 流程数据信息
+    /**
+     * 显示流程数据详情
+     */
     dataInfo() {
       this.flowInfoVisible = true;
       this.$nextTick(function() {
         this.$refs.flowInfo.init();
       });
     },
-    // 加载流程图
+    /**
+     * 重载流程数据并重新初始化绘制
+     * @param {Object} data 流程数据
+     */
     dataReload(data) {
       this.easyFlowVisible = false;
       this.data.nodeList = [];
@@ -767,10 +860,15 @@ export default {
         });
       });
     },
-    // 刷新数据
+    /**
+     * 刷新流程数据
+     */
     refreshData() {
       //this.dataReload(getDataB());
     },
+    /**
+     * 画布放大
+     */
     zoomAdd() {
       if (this.zoom >= 1) {
         return;
@@ -779,6 +877,9 @@ export default {
       this.$refs.efContainer.style.transform = `scale(${this.zoom})`;
       this.jsPlumb.setZoom(this.zoom);
     },
+    /**
+     * 画布缩小
+     */
     zoomSub() {
       if (this.zoom <= 0) {
         return;
@@ -787,7 +888,9 @@ export default {
       this.$refs.efContainer.style.transform = `scale(${this.zoom})`;
       this.jsPlumb.setZoom(this.zoom);
     },
-    // 下载数据
+    /**
+     * 下载流程数据为 JSON 文件
+     */
     downloadData() {
       this.$confirm("确定要下载该流程数据吗？", "提示", {
         confirmButtonText: "确定",
@@ -808,6 +911,9 @@ export default {
         })
         .catch(() => {});
     },
+    /**
+     * 打开帮助弹窗
+     */
     openHelp() {
       this.flowHelpVisible = true;
       this.$nextTick(function() {

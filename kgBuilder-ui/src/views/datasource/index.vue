@@ -209,6 +209,12 @@
 import { datasourceApi } from "@/api";
 export default {
   name: "ds",
+  /**
+   * 数据源管理页
+   *
+   * - 管理数据库连接、选择数据表、查看字段与预览数据
+   * - 保存数据源及所选数据表配置，支持分页查看表记录
+   */
   components: {},
   data() {
     return {
@@ -265,19 +271,35 @@ export default {
     this.initDataSource();
   },
   methods: {
+    /**
+     * 多选状态变更
+     * @param {Array} value 选中的表集合
+     */
     handleCheckedChange(value) {
       let checkedCount = value.length;
       this.checkAll = checkedCount === this.dataTableList.length;
       this.isIndeterminate =
         checkedCount > 0 && checkedCount < this.tableForm.dataTables.length;
     },
+    /**
+     * 全选或取消全选
+     * @param {boolean} val 是否全选
+     */
     handleCheckAllChange(val) {
       this.tableForm.dataTables = val ? this.dataTableList : [];
       this.isIndeterminate = false;
     },
+    /**
+     * 点击数据源项
+     * @param {Object} item 数据源项
+     * @param {number} index 索引
+     */
     clickDataSource(item, index) {
       this.getTableList(item.datasourceId, index);
     },
+    /**
+     * 初始化数据源列表
+     */
     initDataSource() {
       let _this = this;
       datasourceApi.getDatasource().then(result => {
@@ -296,6 +318,9 @@ export default {
       });
     },
     testDataSource() {},
+    /**
+     * 保存所选数据表配置
+     */
     saveDataTable() {
       let data = this.tableForm;
       let _this = this;
@@ -307,6 +332,11 @@ export default {
         }
       });
     },
+    /**
+     * 查询数据源下的表列表
+     * @param {number} datasourceId 数据源ID
+     * @param {number} index 数据源索引
+     */
     getTableList(datasourceId, index) {
       let _this = this;
       _this.pageRecord.beanList = [];
@@ -329,6 +359,10 @@ export default {
         }
       });
     },
+    /**
+     * 查询数据表字段
+     * @param {number} dataTableId 数据表ID
+     */
     getFields(dataTableId) {
       let _this = this;
       _this.pageRecord.beanList = [];
@@ -338,10 +372,17 @@ export default {
         }
       });
     },
+    /**
+     * 数据库类型切换
+     * @param {Object} value 选择项
+     */
     dbTypeChange(value) {
       this.form.driverName = value.driver;
       this.form.dbType = value.type;
     },
+    /**
+     * 新增数据源并选择数据表
+     */
     addDataSource() {
       let data = this.form;
       let _this = this;
@@ -357,6 +398,9 @@ export default {
       });
     },
     deleteTable() {},
+    /**
+     * 分页查询数据表记录
+     */
     getTableRecord() {
       let _this = this;
       let query = JSON.stringify(_this.tableQueryForm);
@@ -375,6 +419,10 @@ export default {
         }
       });
     },
+    /**
+     * 表项操作（预览/重命名/删除）
+     * @param {Object} command 操作指令
+     */
     getTableOperate(command) {
       var _this = this;
       _this.dataFieldList = [];
@@ -390,10 +438,18 @@ export default {
         _this.$message.error("暂不支持");
       }
     },
+    /**
+     * 分页当前页变化
+     * @param {number} val 页码
+     */
     handleCurrentChange(val) {
       this.pageRecord.currentPage = val;
       this.getTableRecord();
     },
+    /**
+     * 分页每页数量变化
+     * @param {number} val 每页条数
+     */
     handleSizeChange(val) {
       this.pageRecord.currentPage = 1;
       this.pageRecord.pageSize = val;

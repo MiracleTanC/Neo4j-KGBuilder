@@ -117,6 +117,14 @@ import * as d3 from "d3";
 import $ from "jquery";
 
 export default {
+  /**
+   * KGBuilderSimple 图谱演示组件
+   *
+   * - 渲染静态数据 `public/static/kgData.json`
+   * - 支持节点拖拽、缩放、全屏显示
+   *
+   * @prop {string} pid 容器元素 ID，用于计算画布尺寸
+   */
   props: ["pid"],
   data() {
     return {
@@ -164,6 +172,11 @@ export default {
   created() {},
   watch: {},
   methods: {
+    /**
+     * 初始化图谱容器
+     * 设置 SVG 画布大小与力导向图模拟器
+     * @returns {void}
+     */
     initGraphContainer() {
       this.gcontainer = d3.select("#gid");
       if (this.isFullscreen) {
@@ -200,6 +213,11 @@ export default {
       this.qaGraphNode = this.svg.append("g").attr("class", "node");
       this.qaGraphNodeText = this.svg.append("g").attr("class", "nodeText");
     },
+    /**
+     * 初始化图谱数据
+     * 加载静态数据并渲染图谱
+     * @returns {void}
+     */
     initGraph() {
       var _this = this;
       axios.get("/static/kgData.json", {}).then(function(response) {
@@ -209,6 +227,11 @@ export default {
         _this.updateGraph();
       });
     },
+    /**
+     * 添加箭头标记
+     * 定义连线末端的箭头样式
+     * @returns {void}
+     */
     addMaker() {
       var arrowMarker = this.svg
         .append("marker")
@@ -226,17 +249,16 @@ export default {
         .attr("d", arrowPath)
         .attr("fill", "#ccc");
     },
+    /**
+     * 绘制节点
+     * @param {Object} node D3 数据选择集
+     * @returns {Object} D3 选择集
+     */
     drawnode(node) {
       var _this = this;
       var nodeEnter = node.enter().append("circle");
       nodeEnter.on("click", function(d) {
-        console.log("触发单击:" + d);
-
-        // eslint-disable-next-line no-debugger
-        debugger;
         _this.opennode();
-        console.log("ddd");
-        //
       });
       nodeEnter.on("dblclick", function(d) {
         event.preventDefault();
@@ -251,6 +273,11 @@ export default {
       );
       return nodeEnter;
     },
+    /**
+     * 展开节点（模拟）
+     * 模拟加载子节点数据并更新图谱
+     * @returns {void}
+     */
     opennode() {
       var _this = this;
       var noddd = [
@@ -293,6 +320,11 @@ export default {
       _this.graph.links = _this.graph.links.concat(newships);
       _this.updateGraph();
     },
+    /**
+     * 绘制节点文字
+     * @param {Object} nodeText D3 数据选择集
+     * @returns {Object} D3 选择集
+     */
     drawNodeText(nodeText) {
       var _this = this;
       var nodeTextEnter = nodeText.enter().append("text");
@@ -305,6 +337,11 @@ export default {
       );
       return nodeTextEnter;
     },
+    /**
+     * 绘制连线
+     * @param {Object} link D3 数据选择集
+     * @returns {Object} D3 选择集
+     */
     drawLink(link) {
       var _this = this;
       var linkEnter = link
@@ -317,6 +354,11 @@ export default {
         .attr("marker-end", "url(#arrow)"); // 箭头
       return linkEnter;
     },
+    /**
+     * 绘制连线文字
+     * @param {Object} linktext D3 数据选择集
+     * @returns {Object} D3 选择集
+     */
     drawLinkText(linktext) {
       var linkTextEnter = linktext
         .enter()
@@ -329,6 +371,11 @@ export default {
         });
       return linkTextEnter;
     },
+    /**
+     * 更新图谱
+     * 根据最新的节点与连线数据重绘图谱
+     * @returns {void}
+     */
     updateGraph() {
       var _this = this;
       var lks = _this.graph.links;
@@ -346,8 +393,6 @@ export default {
         }
       });
       var links = [];
-      // eslint-disable-next-line no-debugger
-      debugger;
       lks.forEach(function(m) {
         var sourceNode = nodes.filter(function(n) {
           return n.uuid === m.sourceid;
@@ -504,11 +549,21 @@ export default {
       _this.svg.call(_this.zoom);
       _this.svg.on("dblclick.zoom", null); // 静止双击缩放
     },
+    /**
+     * 拖拽开始事件
+     * @param {Object} d 被拖拽的节点数据
+     * @returns {void}
+     */
     dragstarted(d) {
       if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
     },
+    /**
+     * 拖拽进行中事件，更新节点坐标
+     * @param {Object} d 被拖拽的节点数据
+     * @returns {void}
+     */
     dragged(d) {
       d.fx = d3.event.x;
       d.fy = d3.event.y;
@@ -546,6 +601,11 @@ export default {
       var full = document.getElementById("kg_container");
       this.fullscreen(full);
     },
+    /**
+     * 进入全屏
+     * @param {HTMLElement} element 全屏容器元素
+     * @returns {void}
+     */
     fullscreen(element) {
       if (element.requestFullscreen) {
         element.requestFullscreen();

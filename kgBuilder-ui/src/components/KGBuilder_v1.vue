@@ -24,6 +24,13 @@ import menuBlank from "@/components/KGBuilderMenuBlank";
 
 export default {
   name: "KGBuilder2",
+  /**
+   * 主图谱构建组件（v1）
+   *
+   * - 注入外部方法（创建节点、更新坐标、显示节点详情）
+   * - 负责初始化 D3 画布、渲染节点/连线/文字/符号及按钮组
+   * - 支持多重关系弯曲渲染与交互菜单
+   */
   inject: [
     "_thisKey",
     "Dset",
@@ -143,7 +150,7 @@ export default {
     });
   },
   methods: {
-    //画布右击
+    // 画布右击：显示空白菜单
     initContainerRightClick(event) {
       let _this = this;
       _this.svg.on("mousemove", null);
@@ -156,7 +163,7 @@ export default {
       _this.$refs.menu_blank.init(menuBar);
       event.preventDefault();
     },
-    //画布点击
+    // 画布点击：关闭菜单/富文本，创建单点
     initContainerLeftClick(event) {
       let _this = this;
       _this.$refs.menu_blank.init({ show: false });
@@ -175,7 +182,7 @@ export default {
       }
       event.preventDefault();
     },
-    // 初始化画布配置
+    // 初始化画布配置：构建 SVG 与 Simulation
     initGraph() {
       const graphContainer = d3.select(".SVG");
       this.svg = graphContainer.append("svg");
@@ -217,7 +224,7 @@ export default {
       );
       this.simulation.alphaTarget(0.1).restart();
     },
-    // 更新画布数据
+    // 更新画布数据：计算并渲染图谱元素
     updateGraph() {
       const _this = this;
       const lks = this.graph.links;
