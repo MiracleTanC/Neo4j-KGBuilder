@@ -211,15 +211,16 @@ export default {
   },
   provide() {
     return {
-      _thisKey: this._thisKey,
-      Dset: this.Dset,
-      updateLinkName: this.updateLinkName,
-      editLinkName: this.editLinkName,
-      deleteLinkName: this.deleteLinkName,
-      quickAddNodes: this.btnQuickAddNode,
-      createSingleNode: this.createSingleNode,
-      updateCoordinateOfNode: this.updateCoordinateOfNode,
-      getNodeDetail: this.getNodeDetail
+      _thisKey: this._thisKey.bind(this),
+      Dset: this.Dset.bind(this),
+      // provide 只捕获函数引用，注入方以其自身实例为接收者调用；
+      // 若不绑定页面实例，方法内的 this.domain/this.graphData/this.$refs 全部落空
+      updateLinkName: this.updateLinkName.bind(this),
+      deleteLinkName: this.deleteLinkName.bind(this),
+      quickAddNodes: this.btnQuickAddNode.bind(this),
+      createSingleNode: this.createSingleNode.bind(this),
+      updateCoordinateOfNode: this.updateCoordinateOfNode.bind(this),
+      getNodeDetail: this.getNodeDetail.bind(this)
     };
   },
   data() {
@@ -308,18 +309,19 @@ export default {
             content: "#icon-salescenter-fill"
           },
           defaultEvent: (d, _this, d3) => {
-            let data = { domain: _this.domain, nodeId: d.uuid };
+            // 箭头函数的 this 指向页面实例；此处第二参数 _this 是画布组件(KGBuilder2)，
+            // mergeNodeAndLink 只定义在页面上，必须用 this 调用
+            let data = { domain: this.domain, nodeId: d.uuid };
             kgBuilderApi.getMoreRelationNode(data).then(result => {
               if (result.code == 200) {
                 //把不存在于画布的节点添加到画布
-                _this.mergeNodeAndLink(
+                this.mergeNodeAndLink(
                   result.data.node,
                   result.data.relationship
                 );
-                //重新绘制
-                //_this.updateGraph();
+                //重新绘制由 graphData 深度 watch 联动触发
               } else {
-                _this.$message.error("展开失败 :" + item.executionTime);
+                this.$message.error("展开失败");
               }
             });
           },
@@ -332,29 +334,36 @@ export default {
             content: "#icon-ashbin-fill"
           },
           defaultEvent: (d, _this, d3) => {
-            let data = { domain: _this.domain, nodeId: d.uuid };
+            // 同"展开"：这里必须用页面实例 this；组件内部 graph 只是 initData 的克隆副本，
+            // 改它既不触发重绘也会被下一次 watch 覆盖，删除状态要落在页面级 graphData 上
+            let data = { domain: this.domain, nodeId: d.uuid };
             kgBuilderApi.deleteNode(data).then(result => {
               if (result.code == 200) {
-                //let rShips = result.data;
-                // 删除节点对应的关系
-                for (let i = 0; i < _this.graph.links.length; i++) {
-                  if (_this.graph.links[i].uuid == d.uuid) {
-                    _this.graph.links.splice(i, 1);
+                // 删除与该节点相连的所有关系（按端点匹配，关系 uuid 与节点 uuid 不同）
+                for (
+                  let i = 0;
+                  i < this.graphData.links.length;
+                  i++
+                ) {
+                  if (
+                    this.graphData.links[i].sourceId == d.uuid ||
+                    this.graphData.links[i].targetId == d.uuid
+                  ) {
+                    this.graphData.links.splice(i, 1);
                     i = i - 1;
                   }
                 }
                 // 找到对应的节点索引
                 let j = -1;
-                for (let i = 0; i < _this.graph.nodes.length; i++) {
-                  if (_this.graph.nodes[i].uuid == d.uuid) {
+                for (let i = 0; i < this.graphData.nodes.length; i++) {
+                  if (this.graphData.nodes[i].uuid == d.uuid) {
                     j = i;
                     break;
                   }
                 }
                 if (j >= 0) {
-                  _this.graph.nodes.splice(j, 1); // 根据索引删除该节点
-                  //_this.updateGraph();
-                  _this.$message.success("操作成功!");
+                  this.graphData.nodes.splice(j, 1); // 根据索引删除该节点
+                  this.$message.success("操作成功!");
                 }
               }
             });

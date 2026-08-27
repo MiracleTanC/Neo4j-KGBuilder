@@ -102,9 +102,10 @@
         <node-menu @addNode="addNode" ref="nodeMenu"></node-menu>
       </div>
       <div id="efContainer" ref="efContainer" class="container" v-flowDrag>
-        <template v-for="node in data.nodeList" :key="node.nodeKey">
+        <template v-for="node in data.nodeList">
           <flow-node
             :id="node.nodeKey"
+            :key="node.nodeKey"
             :node="node"
             :activeElement="activeElement"
             @clickNode="clickNode"

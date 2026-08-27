@@ -93,7 +93,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @return long 关联节点总数
      */
     @Override
-    public long getRelationNodeCount(String domain, long nodeId) {
+    public long getRelationNodeCount(String domain, String nodeId) {
         return kgRepository.getRelationNodeCount(domain, nodeId);
     }
 
@@ -209,7 +209,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @return HashMap<String, Object> 创建的关系信息
      */
     @Override
-    public HashMap<String, Object> createLink(String domain, long sourceId, long targetId, String ship) {
+    public HashMap<String, Object> createLink(String domain, String sourceId, String targetId, String ship) {
         return kgRepository.createLink(domain, sourceId, targetId, ship);
     }
 
@@ -222,7 +222,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @return HashMap<String, Object> 更新后的关系信息
      */
     @Override
-    public HashMap<String, Object> updateLink(String domain, long shipId, String shipName) {
+    public HashMap<String, Object> updateLink(String domain, String shipId, String shipName) {
         return kgRepository.updateLink(domain, shipId, shipName);
     }
 
@@ -234,7 +234,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @return List<HashMap<String, Object>> 删除结果
      */
     @Override
-    public List<HashMap<String, Object>> deleteNode(String domain, long nodeId) {
+    public List<HashMap<String, Object>> deleteNode(String domain, String nodeId) {
         return kgRepository.deleteNode(domain, nodeId);
     }
 
@@ -245,7 +245,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @param shipId 关系ID
      */
     @Override
-    public void deleteLink(String domain, long shipId) {
+    public void deleteLink(String domain, String shipId) {
         kgRepository.deleteLink(domain, shipId);
     }
 
@@ -284,7 +284,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @param status 状态值
      */
     @Override
-    public void updateNodeFileStatus(String domain, long nodeId, int status) {
+    public void updateNodeFileStatus(String domain, String nodeId, int status) {
         kgRepository.updateNodeFileStatus(domain,nodeId,status);
     }
 
@@ -296,7 +296,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @param img    图片路径或URL
      */
     @Override
-    public void updateNodeImg(String domain, long nodeId, String img) {
+    public void updateNodeImg(String domain, String nodeId, String img) {
         kgRepository.updateNodeImg(domain,nodeId,img);
     }
 
@@ -307,7 +307,7 @@ public class KGGraphServiceImpl implements KGGraphService {
      * @param nodeId 节点ID
      */
     @Override
-    public void removeNodeImg(String domain, long nodeId) {
+    public void removeNodeImg(String domain, String nodeId) {
 
     }
 
@@ -519,11 +519,11 @@ public class KGGraphServiceImpl implements KGGraphService {
                     categoryNodeService.updateLeafStatusByPrimaryKey(parentId, 0);
                 }
                 //创建节点
-                NodeItem nodeItem=new NodeItem(id,nodeName,cellColor);
+                NodeItem nodeItem=new NodeItem(String.valueOf(id),nodeName,cellColor);
                 kgRepository.createNodeWithUUid(label,nodeItem);
                 //创建关系
                 if(parentId>0){
-                    kgRepository.createLinkByUuid(label,parentId,id,relationName);
+                    kgRepository.createLinkByUuid(label,String.valueOf(parentId),String.valueOf(id),relationName);
                 }
                 TreeExcelRecordData data = new TreeExcelRecordData();
                 data.setRecordId(String.valueOf(id));

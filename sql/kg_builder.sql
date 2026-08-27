@@ -140,7 +140,7 @@ DROP TABLE IF EXISTS `kg_nodedetail`;
 CREATE TABLE `kg_nodedetail`  (
   `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT '领域关系主键',
   `DomainId` int(11) NULL DEFAULT NULL COMMENT '知识图谱领域主键',
-  `NodeId` int(11) NULL DEFAULT NULL COMMENT '关系定义主键',
+  `NodeId` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Neo4j 节点 elementId（形如 4:uuid:0）',
   `Status` int(11) NULL DEFAULT 1,
   `Content` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
   `CreateUser` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
@@ -159,7 +159,7 @@ DROP TABLE IF EXISTS `kg_nodedetail_file`;
 CREATE TABLE `kg_nodedetail_file`  (
   `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT '领域关系主键',
   `DomainId` int(11) NULL DEFAULT NULL COMMENT '知识图谱领域主键',
-  `NodeId` int(11) NULL DEFAULT NULL COMMENT '关系定义主键',
+  `NodeId` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Neo4j 节点 elementId（形如 4:uuid:0）',
   `FileName` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '若是本地上传则为文件名称，若是网络链接则保存为链接',
   `ImageType` int(11) NULL DEFAULT 0 COMMENT '0=本地上传,1=网络链接',
   `Status` int(11) NULL DEFAULT 1,

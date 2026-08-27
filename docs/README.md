@@ -11,6 +11,7 @@
 
 - 项目介绍与整体结构：参见根目录 `README.md`
 - 前端开发指南：`kgBuilder-ui/README.md`
+- Neo4j 部署与启动：`docs/neo4j-startup-guide.md`
 - 运行与调试：根目录与前端 README 的“快速开始”章节
 
 ## 注释与文档规范

@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS kg_feedback;
 CREATE TABLE kg_feedback (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255),
-  `desc` CLOB,
+  `desc` TEXT,
   type INT,
   email VARCHAR(255),
   createTime TIMESTAMP
@@ -90,9 +90,9 @@ DROP TABLE IF EXISTS kg_nodedetail;
 CREATE TABLE kg_nodedetail (
   ID INT AUTO_INCREMENT PRIMARY KEY,
   DomainId INT,
-  NodeId INT,
+  NodeId VARCHAR(64),
   Status INT DEFAULT 1,
-  Content CLOB,
+  Content TEXT,
   CreateUser VARCHAR(255),
   CreateTime TIMESTAMP,
   ModifyUser VARCHAR(255),
@@ -103,7 +103,7 @@ DROP TABLE IF EXISTS kg_nodedetail_file;
 CREATE TABLE kg_nodedetail_file (
   ID INT AUTO_INCREMENT PRIMARY KEY,
   DomainId INT,
-  NodeId INT,
+  NodeId VARCHAR(64),
   FileName VARCHAR(255),
   ImageType INT DEFAULT 0,
   Status INT DEFAULT 1,

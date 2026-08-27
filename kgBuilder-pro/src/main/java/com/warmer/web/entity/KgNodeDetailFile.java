@@ -6,7 +6,10 @@ import lombok.Data;
 public class KgNodeDetailFile {
     private Integer id;
     private Integer domainId;
-    private Integer nodeId;
+    /**
+     * 节点标识，Neo4j 5 起 elementId 形如 "4:uuid:0"，故用字符串存储
+     */
+    private String nodeId;
     private String fileName;
     private Integer imageType;
     private Integer status;

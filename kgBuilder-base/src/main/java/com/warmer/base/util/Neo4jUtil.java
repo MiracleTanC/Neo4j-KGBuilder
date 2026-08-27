@@ -73,7 +73,7 @@ public class Neo4jUtil implements AutoCloseable {
         try (Session session = neo4jDriver.session()) {
             log.debug(cypherSql);
             Result result = session.run(cypherSql);
-            if (result.hasNext()) {
+             if (result.hasNext()) {
                 List<Record> records = result.list();
                 for (Record recordItem : records) {
                     List<Pair<String, Value>> f = recordItem.fields();
@@ -161,16 +161,20 @@ public class Neo4jUtil implements AutoCloseable {
         }
         return ents;
     }
-    @SuppressWarnings("unchecked")
+    /**
+     * 获取所有标签及节点数量
+     * 使用纯 Cypher 实现，不依赖 APOC 插件，兼容 Neo4j 社区版默认安装
+     */
     public static  Map<String,Object> getLabelsInfo() {
         Map<String,Object> ent = new HashMap<>();
         try (Session session = neo4jDriver.session()) {
-            String cypherSql="CALL apoc.meta.stats() YIELD labels RETURN labels";
+            // 对每个节点按标签展开后计数，得到 标签->节点数 映射
+            String cypherSql="MATCH (n) UNWIND labels(n) AS label RETURN label, count(*) AS count";
+            log.debug(cypherSql);
             Result result = session.run(cypherSql);
-            if (result.hasNext()) {
-                Record record = result.single();
-                Map<String, Object> mp = record.asMap();
-                ent = (Map<String, Object>) mp.get("labels");
+            while (result.hasNext()) {
+                Record record = result.next();
+                ent.put(record.get("label").asString(), record.get("count").asLong());
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -178,13 +182,25 @@ public class Neo4jUtil implements AutoCloseable {
         return ent;
     }
     /**
-     * 删除索引
-     * @param label
+     * 删除指定标签上 name 属性的索引
+     * Neo4j 5 已移除 DROP INDEX ON 语法，需先通过 db.indexes 查出索引名再删除
+     * @param label 标签名称
      */
     public static void deleteIndex(String label) {
         try (Session session = neo4jDriver.session()) {
-            String cypherSql=String.format("DROP INDEX ON :`%s`(name)",label);
-            session.run(cypherSql);
+            String findIndexSql="CALL db.indexes YIELD name, labelsOrTypes, properties";
+            log.debug(findIndexSql);
+            Result result = session.run(findIndexSql);
+            for (Record record : result.list()) {
+                List<Object> labelsOrTypes = record.get("labelsOrTypes").asList();
+                List<Object> properties = record.get("properties").asList();
+                if (labelsOrTypes.contains(label) && properties.contains("name")) {
+                    String indexName = record.get("name").asString();
+                    String dropSql = String.format("DROP INDEX `%s` IF EXISTS", indexName);
+                    log.debug(dropSql);
+                    session.run(dropSql);
+                }
+            }
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -192,12 +208,13 @@ public class Neo4jUtil implements AutoCloseable {
 
     /**
      * 创建索引
+     * Neo4j 5 已移除 CREATE INDEX ON 语法，改用 CREATE INDEX FOR 写法
      * @param label
      * @param prop
      */
     public static void createIndex(String label,String prop) {
         try (Session session = neo4jDriver.session()) {
-            String cypherSql=String.format("CREATE INDEX ON :`%s`(%s)",label,prop);
+            String cypherSql=String.format("CREATE INDEX FOR (n:`%s`) ON (n.%s)",label,prop);
             session.run(cypherSql);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -247,6 +264,19 @@ public class Neo4jUtil implements AutoCloseable {
      * @param cypherSql
      * @return
      */
+    /**
+     * 兜底补齐关系的 name 属性。
+     * <p>
+     * 部分导入链路创建的关系不带 name 属性，摊平属性表后响应会缺失该键，
+     * 前端 d.lk.name 取到 undefined 导致连线文字无法渲染，此处统一补空串。
+     * </p>
+     */
+    private static void ensureShipName(Map<String, Object> ship) {
+        if (!ship.containsKey("name")) {
+            ship.put("name", "");
+        }
+    }
+
     public static List<HashMap<String, Object>> getGraphRelationShip(String cypherSql) {
         List<HashMap<String, Object>> ents = new ArrayList<HashMap<String, Object>>();
         try (Session session = neo4jDriver.session()) {
@@ -272,6 +302,7 @@ public class Neo4jUtil implements AutoCloseable {
                             rss.put("uuid", uuid);
                             rss.put("sourceId", sourceId);
                             rss.put("targetId", targetId);
+                            ensureShipName(rss);
                             ents.add(rss);
                         }
                     }
@@ -359,6 +390,7 @@ public class Neo4jUtil implements AutoCloseable {
                             rShips.put("uuid", uuid);
                             rShips.put("sourceId", sourceId);
                             rShips.put("targetId", targetId);
+                            ensureShipName(rShips);
                             ships.add(rShips);
                         } else if ("PATH".equals(typeName)) {
                             Path path = pair.value().asPath();

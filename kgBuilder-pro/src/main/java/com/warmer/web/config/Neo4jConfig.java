@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "custom.neo4j") //指明配置节点
+@ConfigurationProperties(prefix = "neo4j") //指明配置节点
 @Data
 public class Neo4jConfig {
 	private String url;

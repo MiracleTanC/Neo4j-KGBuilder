@@ -101,7 +101,7 @@ public interface KnowledgeGraphDao {
      * @param nodeId 节点ID
      * @return 图片列表
      */
-    List<KgNodeDetailFile> getNodeImageList(@Param("domainId") Integer domainId, @Param("nodeId") Integer nodeId);
+    List<KgNodeDetailFile> getNodeImageList(@Param("domainId") Integer domainId, @Param("nodeId") String nodeId);
 
     /**
      * 查询节点富文本内容
@@ -109,12 +109,12 @@ public interface KnowledgeGraphDao {
      * @param nodeId 节点ID
      * @return 内容列表
      */
-    List<KgNodeDetail> getNodeContent(@Param("domainId") Integer domainId, @Param("nodeId") Integer nodeId);
+    List<KgNodeDetail> getNodeContent(@Param("domainId") Integer domainId, @Param("nodeId") String nodeId);
 
     /**
      * 删除节点图片
      * @param domainId 领域ID
      * @param nodeId 节点ID
      */
-    void deleteNodeImage(@Param("domainId") Integer domainId,@Param("nodeId") Integer nodeId);
+    void deleteNodeImage(@Param("domainId") Integer domainId,@Param("nodeId") String nodeId);
 }

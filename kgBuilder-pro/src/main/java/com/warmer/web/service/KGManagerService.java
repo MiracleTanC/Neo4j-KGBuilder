@@ -109,7 +109,7 @@ public interface KGManagerService {
 	 * @param nodeId 节点ID
 	 * @return 图片列表
 	 */
-	List<KgNodeDetailFile> getNodeImageList(Integer domainId, Integer nodeId);
+	List<KgNodeDetailFile> getNodeImageList(Integer domainId, String nodeId);
 
 	/**
 	 * 获取节点内容详情
@@ -117,12 +117,12 @@ public interface KGManagerService {
 	 * @param nodeId 节点ID
 	 * @return 内容列表
 	 */
-	List<KgNodeDetail> getNodeContent(Integer domainId, Integer nodeId);
+	List<KgNodeDetail> getNodeContent(Integer domainId, String nodeId);
 
 	/**
 	 * 删除节点图片
 	 * @param domainId 领域ID
 	 * @param nodeId 节点ID
 	 */
-	void deleteNodeImage(Integer domainId,Integer nodeId);
+	void deleteNodeImage(Integer domainId,String nodeId);
 }

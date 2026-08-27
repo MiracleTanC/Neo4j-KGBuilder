@@ -185,7 +185,7 @@ public class KGManagerServiceImpl implements KGManagerService {
      * @return List<KgNodeDetailFile> 图片列表
      */
     @Override
-    public List<KgNodeDetailFile> getNodeImageList(Integer domainId, Integer nodeId) {
+    public List<KgNodeDetailFile> getNodeImageList(Integer domainId, String nodeId) {
         return knowledgeGraphDao.getNodeImageList(domainId,nodeId);
     }
 
@@ -197,7 +197,7 @@ public class KGManagerServiceImpl implements KGManagerService {
      * @return List<KgNodeDetail> 内容列表
      */
     @Override
-    public List<KgNodeDetail> getNodeContent(Integer domainId, Integer nodeId) {
+    public List<KgNodeDetail> getNodeContent(Integer domainId, String nodeId) {
         return knowledgeGraphDao.getNodeContent(domainId,nodeId);
     }
 
@@ -208,7 +208,7 @@ public class KGManagerServiceImpl implements KGManagerService {
      * @param nodeId   节点ID
      */
     @Override
-    public void deleteNodeImage(Integer domainId, Integer nodeId) {
+    public void deleteNodeImage(Integer domainId, String nodeId) {
         knowledgeGraphDao.deleteNodeImage(domainId,nodeId);
     }
 }

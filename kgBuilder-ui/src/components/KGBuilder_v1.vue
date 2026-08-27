@@ -543,14 +543,18 @@ export default {
       }
 
       //先检查元素是否存在，避免重复画
-      let out_circle = d3.select("#out_circle" + m.uuid);
+      //注意：uuid 为 Neo4j elementId（形如 4:xxx:0），含冒号不能直接拼入 CSS 选择器，
+      //统一使用 [id="..."] 属性选择器替代 #id 形式
+      let out_circle = d3.select('[id="out_circle' + m.uuid + '"]');
       if (out_circle._groups[0][0] == null) {
         nodeButton.append("g").attr("id", "out_circle" + m.uuid);
       }
-      let circle_menu = d3.select("#circle_menu_" + m.uuid + "_level_" + level);
+      let circle_menu = d3.select(
+        '[id="circle_menu_' + m.uuid + '_level_' + level + '"]'
+      );
       if (circle_menu._groups[0][0] == null) {
         circle_menu = d3
-          .selectAll("#out_circle" + m.uuid)
+          .selectAll('[id="out_circle' + m.uuid + '"]')
           .append("g")
           .attr("id", "circle_menu_" + m.uuid + "_level_" + level);
       }
@@ -558,7 +562,9 @@ export default {
       const pise = d3.pie().sort(null);
       const pisedata = pise(menuGroup);
       const buttonEnter = circle_menu
-        .selectAll("#circle_menu_" + m.uuid + "_level_" + level)
+        .selectAll(
+          '[id="circle_menu_' + m.uuid + '_level_' + level + '"]'
+        )
         .data(pisedata)
         .enter()
         .append("g")
@@ -593,7 +599,7 @@ export default {
       menuItems.forEach((item, index) => {
         const defs = d3
           .selectAll("svg >defs")
-          .selectAll("#circle_menu_" + m.uuid + "_level_" + level);
+          .selectAll('[id="circle_menu_' + m.uuid + '_level_' + level + '"]');
         if (item.icon.type == "url") {
           const catpattern = defs
             .append("pattern")
@@ -654,7 +660,8 @@ export default {
           //console.log(d)
           let currentItem = menuItems[i - actionIndex];
           if (currentItem.childrens && currentItem.childrens.length > 0) {
-            let levelGroup = "#circle_menu_" + m.uuid + "_level_" + (level + 1);
+            let levelGroup =
+              '[id="circle_menu_' + m.uuid + '_level_' + (level + 1) + '"]';
             d3.selectAll(levelGroup).style("display", "block");
             let btn =
               "g[class^='menu_" + m.uuid + "_level_" + (level + 1) + "']";
@@ -712,50 +719,54 @@ export default {
         }
       });
 
-      //按钮显示处理
+      //按钮显示处理（uuid 含冒号不能拼进类选择器，统一改用精确匹配的属性选择器）
       for (let i = 0; i < actionIndex; i++) {
         for (let j = 0; j < actionIndex; j++) {
           //menu_1_level_1_pAction_0_action_0
           let menuBtnClass =
-            ".menu_" +
+            '[class="menu_' +
             m.uuid +
             "_level_" +
             level +
             "_pAction_" +
             actionIndex +
             "_action_" +
-            j;
+            j +
+            '"]';
           //移除多余的按钮组
           d3.selectAll(menuBtnClass).remove();
         }
         let menuBtnClass2 =
-          ".menu_" +
+          '[class="menu_' +
           m.uuid +
           "_level_" +
           level +
           "_pAction_" +
           actionIndex +
           "_action_" +
-          (menuGroup.length - 1);
+          (menuGroup.length - 1) +
+          '"]';
         //移除多余的按钮组
         d3.selectAll(menuBtnClass2).remove();
       }
       if (level > 0 && actionIndex == 0) {
         let menuBtnClass0 =
-          ".menu_" +
+          '[class="menu_' +
           m.uuid +
           "_level_" +
           level +
           "_pAction_" +
           actionIndex +
           "_action_" +
-          (menuGroup.length - 1);
+          (menuGroup.length - 1) +
+          '"]';
         //移除多余的按钮组
         d3.selectAll(menuBtnClass0).remove();
       }
 
       if (level > 0) {
-        let levelGroup = "#circle_menu_" + m.uuid + "_level_" + level;
+        let levelGroup =
+          '[id="circle_menu_' + m.uuid + '_level_' + level + '"]';
         d3.selectAll(levelGroup).style("display", "none");
       }
     },
@@ -1031,10 +1042,10 @@ export default {
         .attr("font-family", "微软雅黑")
         .attr("text-anchor", "middle"); //设置文字居中
       nodeTextEnter.text(function(d) {
-        let text = d.name;
+        let text = d.name || ""; // 数据里可能存在无 name 属性的节点，兜底避免读 length 报错
         const len = text.length;
         if (d.image) {
-          return d.name;
+          return text;
         } else {
           //取圆的半径r，两边各空出5px,然后求出文字能放的最大长度(parseInt(d.r)-5)*2,一个文字占16px(系统默认font-size=16px),
           //相除得到最多能放多少汉字，font-size换算比有待考证，文字两边和圆边框的间距忽大忽小，有缘者来优化
@@ -1042,14 +1053,15 @@ export default {
           if (dr < len) {
             return text.substring(0, dr) + "...";
           } else {
-            return d.name;
+            return text;
           }
         }
       });
       nodeTextEnter.on("click", function(d, i) {
         _this.selectNode.uuid = d.uuid;
         _this.selectNode.cname = d.name;
-        const out_buttongroup_id = ".out_buttongroup_" + d.uuid;
+        const out_buttongroup_id =
+          '[class~="out_buttongroup_' + d.uuid + '"]';
         _this.svg.selectAll(".buttongroup").style("display", "none");
         //_this.svg.selectAll(".buttongroup").classed("circle_none", true);
         _this.svg.selectAll(out_buttongroup_id).style("display", "block");
@@ -1140,9 +1152,9 @@ export default {
           let marker = "url(#arrow)";
           return marker;
         });
-      // 连线鼠标滑入
+      // 连线鼠标滑入（直接选触发元素本身；连线 uuid 含冒号不能拼进 ".类名" 选择器）
       linkEnter.on("mouseenter", function(d) {
-        d3.select(".Links_" + d.lk.uuid)
+        d3.select(this)
           .style("stroke-width", "10")
           .attr("stroke", "#e4e2e2")
           .attr("marker-end", "");
@@ -1160,7 +1172,8 @@ export default {
       // 连线鼠标离开
       linkEnter.on("mouseleave", function(d) {
         _this.editLinkState = false;
-        d3.select(".Links_" + d.lk.uuid)
+        // 同上：避免 uuid 冒号进入 CSS 类选择器，直接选触发元素
+        d3.select(this)
           .style("stroke-width", 1.5)
           .attr("stroke", d => {
             if (d.color) {

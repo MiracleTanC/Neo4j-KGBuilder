@@ -1,3 +1,6 @@
+# ========== 发布配置（遗留保留） ==========
+# 说明：日常开发用 dev（内置 H2），生产持久化推荐 mysql；
+# 本文件为历史遗留的发布档位，已将 Neo4j 前缀从 custom.neo4j.* 对齐为 neo4j.*
 server:
   port: 8080
 spring:
@@ -14,11 +17,11 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
     type: com.zaxxer.hikari.HikariDataSource
-custom:
-  neo4j:
-    url: ${NEO4J_URL:bolt://localhost:7687}
-    username: ${NEO4J_USERNAME:neo4j}
-    password: ${NEO4J_PASSWORD:123456}
+neo4j:
+  url: ${NEO4J_URL:bolt://localhost:7687}
+  username: ${NEO4J_USERNAME:neo4j}
+  # 密码请通过环境变量 NEO4J_PASSWORD 注入，切勿提交真实密码
+  password: ${NEO4J_PASSWORD:123456}
   file:
     serverurl:  http://localhost:8089
     location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linux 格式"/home/kgmanager/csv/";
@@ -31,4 +34,3 @@ pagehelper:
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
-

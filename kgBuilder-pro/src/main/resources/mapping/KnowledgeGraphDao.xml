@@ -19,7 +19,8 @@
 	<resultMap id="BaseFileResultMap" type="com.warmer.web.entity.KgNodeDetailFile">
 		<id column="id" jdbcType="INTEGER" property="id" />
 		<result column="domainId" jdbcType="VARCHAR" property="domainId" />
-		<result column="nodeId" jdbcType="INTEGER" property="nodeId" />
+		<!-- NodeId 存 Neo4j elementId（含冒号的字符串），不能用 INTEGER -->
+		<result column="nodeId" jdbcType="VARCHAR" property="nodeId" />
 		<result column="fileName" jdbcType="VARCHAR" property="fileName" />
 		<result column="imageType" jdbcType="INTEGER" property="imageType" />
 		<result column="status" jdbcType="INTEGER" property="status" />
@@ -31,7 +32,8 @@
 	<resultMap id="BaseDetailResultMap" type="com.warmer.web.entity.KgNodeDetail">
 		<id column="id" jdbcType="INTEGER" property="id" />
 		<result column="domainId" jdbcType="VARCHAR" property="domainId" />
-		<result column="nodeId" jdbcType="INTEGER" property="nodeId" />
+		<!-- NodeId 存 Neo4j elementId（含冒号的字符串），不能用 INTEGER -->
+		<result column="nodeId" jdbcType="VARCHAR" property="nodeId" />
 		<result column="content" jdbcType="VARCHAR" property="content" />
 		<result column="status" jdbcType="INTEGER" property="status" />
 		<result column="createUser" jdbcType="VARCHAR" property="createUser" />

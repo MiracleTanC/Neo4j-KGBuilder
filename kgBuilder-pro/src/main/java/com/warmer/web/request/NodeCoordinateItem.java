@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class NodeCoordinateItem {
-    private Integer uuid;
+    private String uuid;
     private Double fx;
     private Double fy;
 }

@@ -129,7 +129,7 @@ public class KGBuilderController extends BaseController {
      * @return 关联节点数量 {@link R}
      */
     @RequestMapping(value = "/getRelationNodeCount")
-    public R<Long> getRelationNodeCount(String domain, long nodeId) {
+    public R<Long> getRelationNodeCount(String domain, String nodeId) {
         try {
             long totalCount = 0;
             if (!StringUtil.isBlank(domain)) {
@@ -356,7 +356,7 @@ public class KGBuilderController extends BaseController {
      * @return 更新后的连线信息 {@link R}
      */
     @RequestMapping(value = "/updateLink")
-    public R<HashMap<String, Object>> updateLink(String domain, long shipId, String shipName) {
+    public R<HashMap<String, Object>> updateLink(String domain, String shipId, String shipName) {
         try {
             HashMap<String, Object> cypherResult = kgGraphService.updateLink(domain, shipId, shipName);
             return R.success(cypherResult);
@@ -378,7 +378,7 @@ public class KGBuilderController extends BaseController {
      * @return 删除操作结果 {@link R}
      */
     @RequestMapping(value = "/deleteNode")
-    public R<List<HashMap<String, Object>>> deleteNode(String domain, long nodeId) {
+    public R<List<HashMap<String, Object>>> deleteNode(String domain, String nodeId) {
         try {
             List<HashMap<String, Object>> rList = kgGraphService.deleteNode(domain, nodeId);
             return R.success(rList);
@@ -418,7 +418,7 @@ public class KGBuilderController extends BaseController {
      * @return 响应结果 {@link R}
      */
     @RequestMapping(value = "/deleteLink")
-    public R<HashMap<String, Object>> deleteLink(String domain, long shipId) {
+    public R<HashMap<String, Object>> deleteLink(String domain, String shipId) {
         try {
             kgGraphService.deleteLink(domain, shipId);
             return R.success();
@@ -528,7 +528,7 @@ public class KGBuilderController extends BaseController {
      * @return R<List<KgNodeDetailFile>> 图片列表
      */
     @RequestMapping(value = "/getNodeImage")
-    public R<List<KgNodeDetailFile>> getNodeImageList(int domainId, int nodeId) {
+    public R<List<KgNodeDetailFile>> getNodeImageList(int domainId, String nodeId) {
         try {
             List<KgNodeDetailFile> images = kgManagerService.getNodeImageList(domainId, nodeId);
             return R.success(images);
@@ -546,7 +546,7 @@ public class KGBuilderController extends BaseController {
      * @return R<KgNodeDetail> 节点详情对象
      */
     @RequestMapping(value = "/getNodeContent")
-    public R<KgNodeDetail> getNodeContent(int domainId, int nodeId) {
+    public R<KgNodeDetail> getNodeContent(int domainId, String nodeId) {
         try {
             List<KgNodeDetail> contents = kgManagerService.getNodeContent(domainId, nodeId);
             if (contents != null && contents.size() > 0) {
@@ -568,7 +568,7 @@ public class KGBuilderController extends BaseController {
      * @return R<Map<String, Object>> 包含content和imageList的Map
      */
     @RequestMapping(value = "/getNodeDetail")
-    public R<Map<String, Object>> getNodeDetail(int domainId, int nodeId) {
+    public R<Map<String, Object>> getNodeDetail(int domainId, String nodeId) {
         try {
             Map<String, Object> res = new HashMap<String, Object>();
             res.put("content", "");
@@ -631,14 +631,14 @@ public class KGBuilderController extends BaseController {
                     sb.put("createUser", "tc");
                     sb.put("createTime", DateUtil.getDateNow());
                     submitItemList.add(sb);
-                    kgManagerService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
+                    kgManagerService.deleteNodeImage(domainId, nodeId);
                     kgManagerService.saveNodeImage(submitItemList);
                     // 更新到图数据库,表明该节点有附件,加个标识,0=没有,1=有
-                    kgGraphService.updateNodeImg(domainName, Long.parseLong(nodeId), imagePath);
+                    kgGraphService.updateNodeImg(domainName, nodeId, imagePath);
                     return R.success("操作成功");
                 } else {
-                    kgManagerService.deleteNodeImage(domainId, Integer.parseInt(nodeId));
-                    kgGraphService.removeNodeImg(domainName, Long.parseLong(nodeId));
+                    kgManagerService.deleteNodeImage(domainId, nodeId);
+                    kgGraphService.removeNodeImg(domainName, nodeId);
                     return R.success("操作成功");
                 }
             }
@@ -671,7 +671,7 @@ public class KGBuilderController extends BaseController {
             if (domainList != null && domainList.size() > 0) {
                 String domainName = domainList.get(0).getName();
                 // 检查是否存在
-                List<KgNodeDetail> items = kgManagerService.getNodeContent(domainId, Integer.parseInt(nodeId));
+                List<KgNodeDetail> items = kgManagerService.getNodeContent(domainId, nodeId);
                 if (items != null && items.size() > 0) {
                     KgNodeDetail oldItem = items.get(0);
                     Map<String, Object> item = new HashMap<String, Object>();
@@ -696,7 +696,7 @@ public class KGBuilderController extends BaseController {
                     }
                 }
                 // 更新到图数据库,表明该节点有附件,加个标识,0=没有,1=有
-                kgGraphService.updateNodeFileStatus(domainName, Long.parseLong(nodeId), 1);
+                kgGraphService.updateNodeFileStatus(domainName, nodeId, 1);
             }
 
         } catch (Exception e) {

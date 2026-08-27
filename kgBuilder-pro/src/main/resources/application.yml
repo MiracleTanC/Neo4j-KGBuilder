@@ -2,8 +2,33 @@ spring:
   application:
     name: kg-builder
   profiles:
-    active: dev
+    # 数据库模式切换：
+    #   dev   = 默认内置 H2 内存库，开箱即用、免装 MySQL（数据随重启清空）
+    #   mysql = 连接真实 MySQL 持久化（首次使用前先执行一次 sql/kg_builder.sql 建表）
+    # 切换方式（三选一）：修改下方 active 值；启动参数 --spring.profiles.active=mysql；
+    # 环境变量 SPRING_PROFILES_ACTIVE=mysql（优先级最高）
+    active: ${SPRING_PROFILES_ACTIVE:mysql}
 
+---
 
-
-
+# 公共配置（两种模式共享）：服务端口、Neo4j 连接、文件目录、MyBatis
+server:
+  port: 8081
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100000000
+      maxRequestSize: 200000000
+neo4j:
+  url: ${NEO4J_URL:bolt://localhost:7687}
+  username: ${NEO4J_USERNAME:neo4j}
+  # 密码请通过环境变量 NEO4J_PASSWORD 注入，切勿将真实密码提交到仓库
+  password: ${NEO4J_PASSWORD:123456}
+  file:
+    serverurl: http://localhost:8081
+    # 上传/导入文件的存放目录：Windows 形如 D:\\kgmanager\\csv\\ ；Linux 形如 /home/kgmanager/csv/
+    # 该目录必须能被 Neo4j 服务进程读取（本机部署一般没问题；Docker/远程部署需挂载目录）
+    location: D:\\kgmanager\\csv\\
+mybatis:
+  typeAliasesPackage: com.warmer.kgmaker.entity
+  mapperLocations: classpath*:/mapping/*.xml

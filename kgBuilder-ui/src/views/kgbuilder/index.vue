@@ -645,7 +645,8 @@ export default {
               break;
             case "DELETE":
               _this.selectNode.nodeId = d.uuid;
-              let out_buttongroup_id = ".out_buttongroup_" + d.uuid + "_" + i;
+              let out_buttongroup_id =
+                '[class~="out_buttongroup_' + d.uuid + '_' + i + '"]';
               _this.deleteNode(out_buttongroup_id);
               break;
           }
@@ -886,7 +887,8 @@ export default {
       });
       nodeEnter.on("click", function (d) {
         d3.select("#nodeDetail").style("display", "block");
-        let out_buttongroup_id = ".out_buttongroup_" + d.uuid ;
+        let out_buttongroup_id =
+          '[class~="out_buttongroup_' + d.uuid + '"]';
         _this.svg.selectAll(".buttongroup").classed("circle_none", true);
         _this.svg.selectAll(out_buttongroup_id).classed("circle_none", false);
         _this.selectNode.nodeId = d.uuid;
@@ -936,7 +938,7 @@ export default {
         .attr('font-family', '微软雅黑')
         .attr('text-anchor', 'middle')//设置文字居中
         nodeTextEnter.text(function (d) {
-            let text=d.name
+            let text=d.name || ''// 数据里可能存在无 name 属性的节点，兜底避免读 length 报错
             const len = text.length;
             if (d.image) {
                return ''

@@ -2,159 +2,244 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.8-green.svg)](https://spring.io/projects/spring-boot)
-[![Neo4j](https://img.shields.io/badge/Neo4j-5.13.0-blue.svg)](https://neo4j.com/)
+[![Neo4j](https://img.shields.io/badge/Neo4j-5.x-blue.svg)](https://neo4j.com/)
 [![Vue](https://img.shields.io/badge/Vue.js-2.x-green.svg)](https://vuejs.org/)
+[![JDK](https://img.shields.io/badge/JDK-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
 
-## 简介 (Introduction)
+## 简介
 
-**Neo4j-KGBuilder** 是一个基于 Neo4j 和 Spring Boot 的知识图谱构建与可视化工具。
+**Neo4j-KGBuilder** 是一个基于 Neo4j 图数据库与 Spring Boot 的知识图谱构建与可视化工具。
 
-最初是为了满足快速构建演示用知识图谱的需求而开发，逐渐演变为一个通用的轻量级工具。它支持节点和关系的增删改查、可视化展示、导入导出等功能，非常适合初学者学习知识图谱或用于小型项目的快速原型开发。
+从满足快速构建演示用知识图谱的需求出发，逐渐演变为一个通用的轻量级工具：图形化的节点/关系编辑、多种格式导入导出、外部数据源接入、ER 建模生成图谱、智能问答，开箱即用。适合初学者学习知识图谱，也可用于小型项目的快速原型开发。
 
-**GitHub**: [https://github.com/qingxuandaoming/](https://github.com/qingxuandaoming/)
+- **GitHub**: <https://github.com/MiracleTanC/Neo4j-KGBuilder>
 
-**演示地址**: [http://kg.miaoleyan.com](http://kg.miaoleyan.com)
+## 功能特性
 
-## 功能特性 (Features)
+- **可视化构建**: 画布直接新建节点（十字光标）、单击节点呼出环形菜单完成 编辑 / 展开 / 追加 / 连线 / 删除；双击修改节点名称。
+- **样式与布局**: 节点颜色、大小可自定义；拖拽布局自动持久化坐标，刷新不乱。
+- **批量操作**: 支持批量添加同级节点、批量创建下级节点及其关系。
+- **多重关系**: 同一对节点之间支持多条不同名称的关系并存。
+- **富文本附件**: 节点可关联图片与富文本描述，悬停展示详情。
+- **导入导出**:
+    - CSV 导入 / 导出（节点-节点-关系 三列格式）；
+    - Excel 三元组导入（`.xlsx` / `.xls` / `.csv`）；
+    - 图谱截图导出 PNG。
+- **外部数据源**: 注册外部 MySQL 等数据源，浏览表和字段，勾选列后通过流程编排将关系表数据抽取成图谱。
+- **ER 建模**: 内置 ER 图绘制工具，基于 ER 流程配置自动生成实体-关系图谱。
+- **智能问答**: 输入自然语言问题，系统分词后检索匹配图谱节点作答（演示级实现）。
+- **图谱检视**: 随时查看当前图谱的 JSON 数据结构。
 
-1. **可视化操作**: 支持通过图形界面新增节点、添加连线，快速构建图谱。
-1. **样式定制**: 节点的颜色、大小等样式可自定义修改。
-1. **图谱编辑**: 支持对节点和关系进行编辑、删除操作。
-1. **导入导出**:
+## 技术栈
 
-    * 支持导出图谱为图片。
-    * 支持 CSV 格式的数据导入。
-    * 支持导出为 CSV 文件。
-    * 支持三元组导入（.xlsx, .xls, .csv）。
+### 后端
 
-1. **富文本支持**: 节点可添加图片和富文本描述。
-1. **多重关系**: 支持节点之间存在多种关系。
-1. **后续规划**:
+| 组件 | 版本 / 说明 |
+| --- | --- |
+| Java | 17 |
+| Spring Boot | 3.5.8 |
+| Neo4j Driver | Neo4j **5.x**（已适配 elementId） |
+| ORM | MyBatis + PageHelper |
+| 工具库 | Lombok、Hutool、Apache POI、HanLP |
 
-    * 接入多种数据源。
-    * 构建 ER 图。
-    * 根据 ER 图自动生成图谱。
+### 前端
 
-## 技术栈 (Technology Stack)
+| 组件 | 版本 / 说明 |
+| --- | --- |
+| Vue.js | 2.7（Vue CLI 5） |
+| 可视化 | D3.js v5、AntV X6（ER）、JsPlumb |
+| UI 组件 | Element UI |
+| 状态/路由 | Vuex、Vue Router |
 
-### 后端 (Backend)
-
-* **Java**: 17
-* **Framework**: Spring Boot 3.5.8
-* **Database**: Neo4j 5.13.0
-* **ORM**: MyBatis 3.0.3, MyBatis-Plus (PageHelper)
-* **Tools**: Lombok, Hutool, Apache POI, HanLP
-
-### 前端 (Frontend)
-
-* **Framework**: Vue.js 2.x
-* **Visualization**: D3.js, G6
-* **UI Component**: Element UI
-
-## 项目结构 (Project Structure)
+## 项目结构
 
 ```text
 Neo4j-KGBuilder/
 ├── docs/               # 文档及图片资源
-│   └── images/         # 项目截图
-│   └── README.md       # 文档索引与规范
-├── kgBuilder-base/     # 基础模块（工具类、通用实体）
-├── kgBuilder-meta/     # 元数据管理模块
-├── kgBuilder-pro/      # 核心业务模块（API、服务实现）
+├── kgBuilder-base/     # 基础模块：Neo4jUtil、统一响应 R、分页等工具
+├── kgBuilder-meta/     # 元数据管理模块：外部数据源注册与表结构浏览
+├── kgBuilder-pro/      # 核心业务模块：图谱 API、导入流程、问答等
 ├── kgBuilder-ui/       # 前端 Vue 项目
-├── sql/                # SQL 脚本
-│   └── kg_builder.sql  # 初始化 SQL
+├── sql/                # SQL 初始化脚本
+│   └── kg_builder.sql
 ├── pom.xml             # Maven 父工程配置
-└── README.md           # 项目说明文档
+└── README.md
 ```
 
-## 快速开始 (Getting Started)
+架构说明：图数据全部存放在 Neo4j；SQL 库只保存记账信息（领域列表、分类树、节点详情/图片索引、反馈等）。所有图访问经 `kgBuilder-base` 的 `Neo4jUtil` 收口执行 Cypher 完成。
 
-### 前置要求 (Prerequisites)
+## 快速开始
 
-1. **JDK 17**: 确保已安装并配置好环境变量。
-1. **Neo4j 5.x**: 安装并启动 Neo4j 服务，确保开启外网访问（0.0.0.0）。
+### 环境要求
 
-    * 参考: [Neo4j 安装教程](https://www.cnblogs.com/ljhdo/p/5521577.html)
+| 依赖 | 要求 | 备注 |
+| --- | --- | --- |
+| JDK | 17+ | 后端编译运行 |
+| Maven | 3.6+ | 多模块构建 |
+| Node.js | 14+（含 npm） | 前端开发构建 |
+| Neo4j | **必须 5.x** | 本项目适配了 Neo4j 5 的 `elementId` 体系，不支持 3.x / 4.x |
+| MySQL | 可选 | 不装也能跑：默认使用内置 H2 内存库；需要数据持久化时再接真实 MySQL |
 
-1. **Node.js**: 用于运行前端项目。
+### 启动后端
 
-    * 参考: [Node.js 安装教程](https://blog.csdn.net/qq_46351233/article/details/120314928)
+1. 克隆代码：
 
-### 后端启动 (Backend Setup)
+   ```bash
+   git clone https://github.com/MiracleTanC/Neo4j-KGBuilder.git
+   cd Neo4j-KGBuilder
+   ```
 
-1. **导入项目**: 使用 IntelliJ IDEA 导入项目根目录。
-1. **Maven 构建**: 右键根目录 -> Maven -> Reload Project，等待依赖下载完成。
-1. **配置文件**:
+2. 构建：
 
-    * 找到 `kgBuilder-pro/src/main/resources/application.yml`。
-    * 修改 Neo4j 连接配置（url, username, password）。
-    * 修改 MySQL 连接配置（如果有用到 MySQL，导入 `sql/kg_builder.sql`）。
+   ```bash
+   mvn clean install -DskipTests
+   ```
 
-1. **启动服务**:
+3. 配置 Neo4j 连接。默认连接 `bolt://localhost:7687`，账号 `neo4j`。推荐用环境变量注入你的实际密码：
 
-    * 运行 `kgBuilder-pro/src/main/java/com/warmer/web/Application.java`。
+   ```bash
+   export NEO4J_URL=bolt://localhost:7687
+   export NEO4J_USERNAME=neo4j
+   export NEO4J_PASSWORD=你的密码
+   ```
 
-### 前端启动 (Frontend Setup)
+4. （可选）切换到真实 MySQL 持久化。项目内置两套数据源配置文件，切换只需激活 `mysql` profile：
 
-1. 进入前端目录:
+   ```sql
+   -- 第一步：在目标库执行一次建表脚本
+   source sql/kg_builder.sql;
+   ```
+
+   ```bash
+   # 第二步：以 mysql 配置启动
+   export SPRING_PROFILES_ACTIVE=mysql
+
+   # 第三步：注入数据库账号（默认占位为 root/你的密码，请务必覆盖）
+   export DB_USERNAME=root
+   export DB_PASSWORD=你的密码
+   # 连接串与驱动可按需覆盖：
+   # export DB_URL="jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+   # export DB_DRIVER=com.mysql.cj.jdbc.Driver
+   ```
+
+   > 注意：`mysql` 模式下 `SQL_INIT_MODE` 固定为 `never`（不重建表）；若误用 H2 默认模式的 `always` 启动策略连 MySQL，会导致每次启动清空重建全部数据。
+
+5. 启动主类 `kgBuilder-pro/src/main/java/com/warmer/Application.java`（IDEA 直接运行），或打包后运行 jar。后端监听 **8081** 端口。
+
+### 环境变量速查
+
+| 变量 | 作用 | 默认值 |
+| --- | --- | --- |
+| `SPRING_PROFILES_ACTIVE` | 数据源模式：`dev`=内置 H2 开箱即用；`mysql`=真实 MySQL 持久化 | `dev` |
+| `NEO4J_URL` | Neo4j Bolt 地址 | `bolt://localhost:7687` |
+| `NEO4J_USERNAME` | Neo4j 用户名 | `neo4j` |
+| `NEO4J_PASSWORD` | Neo4j 密码 | `123456`（务必覆盖为自己的） |
+| `DB_URL` | SQL 库 JDBC 连接串（仅 mysql 模式） | `jdbc:mysql://localhost:3306/kg…` |
+| `DB_DRIVER` | JDBC 驱动类（仅 mysql 模式） | `com.mysql.cj.jdbc.Driver` |
+| `DB_USERNAME` / `DB_PASSWORD` | SQL 库账号（mysql 模式必须覆盖） | 占位值 |
+| `SQL_INIT_MODE` | 表初始化策略：`always`=按 schema.sql 重建；`never`=跳过 | dev 为 `always`，mysql 为 `never` |
+| `VUE_APP_BACKEND` | 前端代理指向的后端地址 | `http://localhost:8081` |
+
+> 文件上传目录由配置项 `neo4j.file.location` 指定（Windows 形如 `D:\\kgmanager\\csv\\`，Linux 形如 `/home/kgmanager/csv/`），该目录需保证 Neo4j 服务进程可读；同机部署通常无需处理，Docker/远程部署请挂载目录。
+
+### 启动前端
 
 ```bash
 cd kgBuilder-ui
-```
-
-1. 安装依赖:
-
-```bash
 npm install
+npm run serve     # 开发模式，默认端口 80
+npm run build     # 生产构建，产物在 dist/
 ```
 
-1. 启动开发服务器:
+开发模式下请求 `/kg-api/*` 会自动代理到后端 `http://localhost:8081`（可通过环境变量 `VUE_APP_BACKEND` 修改），因此前后端需同时在线。
 
-```bash
-npm run serve
-```
+### 访问应用
 
-1. 构建发布:
+浏览器打开 <http://localhost:80> ，左侧选择或新建图谱即可开始。
 
-```bash
-npm run build
-```
+## 使用指南
 
-### 访问应用 (Access)
+### 图谱基本操作
 
-启动成功后，访问: [http://localhost](http://localhost) (默认端口根据前端配置)
+1. 左侧点击「新建图谱」输入名称创建领域；点击标签加载对应图谱。
+2. 画布空白处右键唤出菜单，可将鼠标切为十字光标后在画布上点选位置创建单点。
+3. 单击任意节点，会在其周围展开环形按钮组：
+    - **编辑**：修改节点名称、颜色、大小；
+    - **展开**：懒加载该节点的下级关联，逐步构建大图；
+    - **追加**：为该节点批量追加子节点（单点 / 块状批量）；
+    - **连线**：进入连线模式，再点选目标节点即建立关系（可自定义关系名）；
+    - **删除**：删除该节点及其相关关系。
+4. 双击节点可直接改名；拖拽节点的坐标变化会自动保存，刷新后保持布局。
 
-## 文档结构 (Documentation)
+### 数据导入
 
-* 顶层说明：当前文件 `README.md`
-* 文档索引与规范：`docs/README.md`
-* 前端指南与命令：`kgBuilder-ui/README.md`
+- 支持 `.xlsx` / `.xls` / `.csv` 三元组文件，列为 **节点-关系-节点** 顺序：
 
-## 代码注释规范 (Code Comments)
+  ```text
+  刘德华,出演,无间道
+  刘德华,演唱,忘情水
+  ```
 
-* JavaScript/Vue 使用 JSDoc（示例见 `kgBuilder-ui/src/api/modules/kgBuilderApi.js`）
-* Java 使用 Javadoc（示例见 `kgBuilder-pro/src/main/java/com/warmer/web/controller/KGBuilderController.java`）
+- 文件编码必须是 **UTF-8 无 BOM**，否则中文会乱码；
+- 上传目录需对 Neo4j 进程可见（见上文 `neo4j.file.location` 说明）；
+- 已提供图谱导出为 CSV 与画布截图功能。
 
-## 使用说明 (Usage)
+### 外部数据源生成图谱
 
-### 图谱三元组导入
+适用于把已有业务库（如 MySQL）的关系数据转成图谱：
 
-* 支持 `.xlsx`, `.xls`, `.csv` 格式。
-* 文件编码必须为 **UTF-8 无 BOM** 格式。
-* 数据格式: `节点-节点-关系`。
-* **注意**: 本地测试时，上传的文件路径需要确保 Neo4j 服务能够访问到（如果在同一台机器上通常没问题；如果是 Docker 部署或远程服务，需要挂载目录或使用对象存储如七牛云/HDFS）。
+1. 「数据源管理」中登记外部数据库连接信息；
+2. 浏览库中的表和字段，勾选参与建图的列并设置主键 / 主实体标识；
+3. 进入流程设计器连线各节点组件、标注关系类型后执行；
+4. 系统分页抽取源表数据，合并生成实体节点、属性节点与关系。
 
-## 交流与反馈 (Contact)
+### ER 图建模
+
+内置 ER 绘制工具（X6 + JsPlumb），可先定义实体与属性的结构视图，再基于 ER 流程配置一键生成对应的图谱结构。
+
+### 智能问答
+
+问答页面输入自然语言问题，系统使用 HanLP 分词后以关键词检索图谱节点返回命中结果（演示级实现，可作为接入 LLM 的前置示例扩展）。
+
+## 常见问题 (FAQ)
+
+- **为什么连不上 Neo4j / 提示认证失败？**
+    - 确认 Neo4j 服务已启动且监听 7687（Bolt）端口；
+    - Neo4j 5 默认要求首次登录修改密码，确认环境变量 `NEO4J_PASSWORD` 与实际一致；
+    - 连续输错密码会触发 `AuthenticationRateLimit` 限流，等待片刻或重启 Neo4j 再试。
+
+- **提示 Cypher 或 id 相关错误？**
+    - 请确认 Neo4j 版本为 5.x，本项目已全面适配 `elementId()`，不支持旧版本。
+
+- **导入的中文数据乱码？**
+    - 文件需为 UTF-8 无 BOM 编码（Windows 下注意另存为时的编码选项）。
+
+- **重启后之前建的图谱还在，但节点详情/图片丢了？**
+    - 内置 H2 是内存库，重启即清空记账数据。生产使用请按上文步骤接入真实 MySQL 并设 `SQL_INIT_MODE=never`。
+
+- **前端 80 端口被占用？**
+    - 修改 `kgBuilder-ui/vue.config.js` 中 devServer 的端口配置，或以管理员权限运行。
+
+## 文档索引
+
+- 顶层说明：当前文件 `README.md`
+- 文档索引与规范：`docs/README.md`
+- 本机 Neo4j 安装启动指南：`docs/neo4j-startup-guide.md`
+- 前端命令与说明：`kgBuilder-ui/README.md`
+
+## 参与贡献
+
+欢迎 Issue 和 PR！提交代码前请注意：
+
+- Java 注释使用中文 Javadoc，JS/Vue 注释使用中文 JSDoc；
+- 提交信息遵循 Conventional Commits，主题使用中文（如 `feat(问答系统): 新增智能问答功能模块`）；
+- Markdown 文档遵循 `docs/README.md` 中的排版规范。
+
+## 许可证
+
+[Apache License 2.0](LICENSE)
+
+## 交流反馈
 
 ![交流群1](docs/images/kgbuilder.jpg)
 ![交流群2](docs/images/kgbuilder2.jpg)
-
-## 推荐资源 (Recommended)
-
-* **前端组件**: [AntV G6](https://g6.antv.vision/zh/examples/gallery)
-* **图数据库**: [Nebula Graph](https://docs.nebula-graph.com.cn/2.5.1/)
-
-## 许可证 (License)
-
-Apache License 2.0

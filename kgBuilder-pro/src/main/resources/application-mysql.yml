@@ -1,0 +1,19 @@
+# ========== 真实 MySQL 持久化配置 ==========
+# 使用步骤：
+#   1. 先在目标库执行一次 sql/kg_builder.sql 完成建表；
+#   2. 以本 profile 启动：--spring.profiles.active=mysql（或环境变量 SPRING_PROFILES_ACTIVE=mysql）；
+#   3. 账号密码建议通过环境变量 DB_USERNAME / DB_PASSWORD 注入，不要提交真实密码到仓库。
+# 下方连接串可用环境变量 DB_URL 覆盖。
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/kg?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    driverClassName: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:你的密码}
+    type: com.zaxxer.hikari.HikariDataSource
+  sql:
+    init:
+      # 关键！MySQL 库已手动建表，必须设为 never：
+      # 若保持 always，每次启动都会按 schema.sql DROP 重建全部表、清空已有数据
+      mode: never
+      schema-locations: classpath:schema.sql

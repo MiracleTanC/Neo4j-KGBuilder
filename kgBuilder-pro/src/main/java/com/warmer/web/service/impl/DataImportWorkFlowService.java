@@ -127,8 +127,8 @@ public class DataImportWorkFlowService extends AbstractWorkFlowService {
                 if(items.isEmpty()) continue;
                 GraphNodeColumnItem item = items.get(0);
                 String alia= StringUtil.isNotEmpty(item.getItemName())?item.getItemName():item.getItemCode();
-                String linkCy=String.format("match(n:`%s`),(m:`%s`) where id(n)=%s and id(m)=%s " +
-                        "merge (n)-[r:`%s`]->(m)",domain,domain,mainNodeUuid,uuid,alia);
+                String linkCy=String.format("match(n:`%s`),(m:`%s`) where (elementId(n)='%s' or toString(id(n))='%s') and (elementId(m)='%s' or toString(id(m))='%s') " +
+                        "merge (n)-[r:`%s`]->(m)",domain,domain,mainNodeUuid,mainNodeUuid,uuid,uuid,alia);
                 Neo4jUtil.runCypherSql(linkCy);
             }
         }

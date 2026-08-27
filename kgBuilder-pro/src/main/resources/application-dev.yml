@@ -1,28 +1,14 @@
-server:
-  port: 8081
+# ========== 开发默认配置：内置 H2 内存库（MySQL 兼容模式），开箱即用 ==========
+# 数据保存在内存中，重启即清空；需要持久化请切换到 mysql profile（见 application-mysql.yml）
 spring:
-  servlet:
-    multipart:
-      max-file-size: 100000000
-      maxRequestSize: 200000000
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:kg;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
-    driverClassName: ${DB_DRIVER:org.h2.Driver}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:}
+    url: jdbc:h2:mem:kgbuilder;MODE=MySQL
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
     type: com.zaxxer.hikari.HikariDataSource
   sql:
     init:
+      # 启动时按 schema.sql 初始化表结构
       mode: always
       schema-locations: classpath:schema.sql
-custom:
-  neo4j:
-    url: ${NEO4J_URL:bolt://localhost:7687}
-    username: ${NEO4J_USERNAME:neo4j}
-    password: ${NEO4J_PASSWORD:123456}
-  file:
-    serverurl:  http://localhost:8081
-    location : D:\\kgmanager\\csv\\   #如果是Windows情况下，格式是 D:\\kgmanager\\csv\\   linux 格式"/home/kgmanager/csv/";
-mybatis:
-  typeAliasesPackage: com.warmer.kgmaker.entity
-  mapperLocations: classpath*:/mapping/*.xml

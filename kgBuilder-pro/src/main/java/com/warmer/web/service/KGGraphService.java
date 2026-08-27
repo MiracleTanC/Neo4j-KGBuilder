@@ -53,7 +53,7 @@ public interface KGGraphService {
 	 * @param nodeId 节点ID
 	 * @return 关联节点总数
 	 */
-	long getRelationNodeCount(String domain, long nodeId);
+	long getRelationNodeCount(String domain, String nodeId);
 
 	/**
 	 * 创建领域（仅创建标签索引）
@@ -132,7 +132,7 @@ public interface KGGraphService {
 	 * @param ship 关系名称
 	 * @return 创建的关系信息
 	 */
-	HashMap<String, Object> createLink(String domain, long sourceId, long targetId, String ship);
+	HashMap<String, Object> createLink(String domain, String sourceId, String targetId, String ship);
 
 	/**
 	 * 更新关系名称
@@ -141,7 +141,7 @@ public interface KGGraphService {
 	 * @param shipName 新关系名称
 	 * @return 更新后的关系信息
 	 */
-	HashMap<String, Object> updateLink(String domain, long shipId, String shipName);
+	HashMap<String, Object> updateLink(String domain, String shipId, String shipName);
 
 	/**
 	 * 删除节点（级联删除关系）
@@ -149,14 +149,14 @@ public interface KGGraphService {
 	 * @param nodeId 节点ID
 	 * @return 删除结果
 	 */
-	List<HashMap<String, Object>> deleteNode(String domain, long nodeId);
+	List<HashMap<String, Object>> deleteNode(String domain, String nodeId);
 
 	/**
 	 * 删除关系
 	 * @param domain 领域名称
 	 * @param shipId 关系ID
 	 */
-	void deleteLink(String domain, long shipId);
+	void deleteLink(String domain, String shipId);
 
 	/**
 	 * 根据文本三元组生成图谱
@@ -191,7 +191,7 @@ public interface KGGraphService {
 	 * @param nodeId 节点ID
 	 * @param status 状态（0:无, 1:有）
 	 */
-	void updateNodeFileStatus(String domain,long nodeId, int status);
+	void updateNodeFileStatus(String domain,String nodeId, int status);
 
 	/**
 	 * 更新节点图片路径
@@ -199,14 +199,14 @@ public interface KGGraphService {
 	 * @param nodeId 节点ID
 	 * @param img 图片路径
 	 */
-	void updateNodeImg(String domain, long nodeId, String img);
+	void updateNodeImg(String domain, String nodeId, String img);
 
 	/**
 	 * 移除节点图片
 	 * @param domain 领域名称
 	 * @param nodeId 节点ID
 	 */
-	void removeNodeImg(String domain, long nodeId);
+	void removeNodeImg(String domain, String nodeId);
 
 	/**
 	 * 更新单个节点坐标
