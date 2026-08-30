@@ -107,7 +107,7 @@
     </update>
 
 	<insert id="saveNodeImage" parameterType="java.util.List" >
-		insert kg_nodedetail_file
+		insert into kg_nodedetail_file
 		(Domainid,NodeId,FileName,ImageType,CreateUser,CreateTime,Status)
 		values
 		<foreach collection="maplist" item="item" separator=",">
@@ -115,7 +115,7 @@
 		</foreach>
 	</insert>
 	<insert id="saveNodeContent" parameterType="map" >
-		insert kg_nodedetail
+		insert into kg_nodedetail
 		(Domainid,NodeId,Content,CreateUser,CreateTime,Status)
 		values
 		(#{params.domainId},#{params.nodeId} ,#{params.content} ,#{params.createUser},#{params.createTime},#{params.status})
